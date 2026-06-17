@@ -84,6 +84,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-010: Improve Card Browser Filtering
 
+**Status:** Done.
+
 **Goal:** Make the card database usable for real deck construction.
 
 **Deliverables:**

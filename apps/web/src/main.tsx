@@ -4,9 +4,13 @@ import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV0Guide } from 
 import type { Card, Deck, DeckCardEntry, ValidationIssue } from "@gigsmith/data-contracts";
 import { exportDecklist, importDecklist } from "@gigsmith/deck-io";
 import { calculateRamLimits, validateDeck } from "@gigsmith/rules-core";
+import { filterCards, type CardColorFilter, type CardTypeFilter, type NumberFilter } from "./cardFilters";
 import "./styles.css";
 
 const storageKey = "gigsmith.deck.v1";
+const colorOptions: CardColorFilter[] = ["Any", "Red", "Yellow", "Green", "Blue"];
+const typeOptions: CardTypeFilter[] = ["Any", "Legend", "Unit", "Program", "Gear"];
+const numberOptions: NumberFilter[] = ["Any", "0", "1", "2", "3", "4", "5", "6", "7", "8"];
 
 function cardById(cardId: string): Card | undefined {
   return cyberpunkCardDb.cards.find((card) => card.id === cardId);
@@ -99,6 +103,10 @@ function IssueList({ title, issues }: { title: string; issues: ValidationIssue[]
 function App() {
   const [deck, setDeck] = useState(loadInitialDeck);
   const [query, setQuery] = useState("");
+  const [colorFilter, setColorFilter] = useState<CardColorFilter>("Any");
+  const [typeFilter, setTypeFilter] = useState<CardTypeFilter>("Any");
+  const [ramFilter, setRamFilter] = useState<NumberFilter>("Any");
+  const [costFilter, setCostFilter] = useState<NumberFilter>("Any");
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
 
@@ -106,10 +114,17 @@ function App() {
   const ram = useMemo(() => calculateRamLimits(deck.legends, cyberpunkCardDb, cyberpunkRulesetV0Guide), [deck.legends]);
   const exportText = useMemo(() => exportDecklist(deck, cyberpunkCardDb), [deck]);
 
-  const filteredCards = cyberpunkCardDb.cards.filter((card) => {
-    const value = `${card.display_name} ${card.color} ${card.card_type} ${card.classifications.join(" ")}`.toLowerCase();
-    return value.includes(query.toLowerCase());
-  });
+  const filteredCards = useMemo(
+    () =>
+      filterCards(cyberpunkCardDb.cards, {
+        query,
+        color: colorFilter,
+        type: typeFilter,
+        ram: ramFilter,
+        cost: costFilter
+      }),
+    [colorFilter, costFilter, query, ramFilter, typeFilter]
+  );
 
   function persist(next: Deck) {
     const updated = {
@@ -227,8 +242,40 @@ function App() {
         </section>
 
         <section className="panel">
-          <h2>Card Database</h2>
-          <input className="search" placeholder="Search cards..." value={query} onChange={(event) => setQuery(event.target.value)} />
+          <div className="panel-title">
+            <h2>Card Database</h2>
+            <span className="result-count">{filteredCards.length} cards</span>
+          </div>
+          <div className="filter-grid">
+            <label className="field">
+              <span>Search</span>
+              <input placeholder="Name, text, faction..." value={query} onChange={(event) => setQuery(event.target.value)} />
+            </label>
+            <label className="field">
+              <span>Color</span>
+              <select value={colorFilter} onChange={(event) => setColorFilter(event.target.value as CardColorFilter)}>
+                {colorOptions.map((option) => <option key={option}>{option}</option>)}
+              </select>
+            </label>
+            <label className="field">
+              <span>Type</span>
+              <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as CardTypeFilter)}>
+                {typeOptions.map((option) => <option key={option}>{option}</option>)}
+              </select>
+            </label>
+            <label className="field">
+              <span>RAM</span>
+              <select value={ramFilter} onChange={(event) => setRamFilter(event.target.value as NumberFilter)}>
+                {numberOptions.map((option) => <option key={option}>{option}</option>)}
+              </select>
+            </label>
+            <label className="field">
+              <span>Cost</span>
+              <select value={costFilter} onChange={(event) => setCostFilter(event.target.value as NumberFilter)}>
+                {numberOptions.map((option) => <option key={option}>{option}</option>)}
+              </select>
+            </label>
+          </div>
           <div className="card-list">
             {filteredCards.map((card) => (
               <article className="card-row" key={card.id}>
@@ -239,6 +286,9 @@ function App() {
                 <button onClick={() => addCard(card)}>Add</button>
               </article>
             ))}
+            {filteredCards.length === 0 && (
+              <div className="empty-state">No cards match the current filters.</div>
+            )}
           </div>
         </section>
       </div>

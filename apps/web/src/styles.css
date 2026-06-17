@@ -15,6 +15,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -168,6 +169,7 @@ h3 {
 }
 
 input,
+select,
 textarea {
   width: 100%;
   border: 1px solid #3c362f;
@@ -177,12 +179,28 @@ textarea {
   padding: 0.75rem;
 }
 
+select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #f0b35a 50%), linear-gradient(135deg, #f0b35a 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
 textarea {
   min-height: 260px;
   resize: vertical;
 }
 
-.search {
+.result-count {
+  color: #aaa295;
+  font-size: 0.82rem;
+}
+
+.filter-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(180px, 1fr) repeat(4, minmax(86px, 0.32fr));
   margin-bottom: 14px;
 }
 
@@ -249,6 +267,14 @@ textarea {
 
 .ram-row strong {
   color: #f0b35a;
+}
+
+.empty-state {
+  border: 1px dashed #47423b;
+  border-radius: 6px;
+  color: #aaa295;
+  padding: 18px;
+  text-align: center;
 }
 
 .io {
@@ -326,7 +352,8 @@ textarea {
 
   .grid,
   .workspace,
-  .source-panel {
+  .source-panel,
+  .filter-grid {
     grid-template-columns: 1fr;
   }
 

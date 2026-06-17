@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/data-contracts" },
+    { "path": "./packages/card-data" },
+    { "path": "./packages/rules-core" },
+    { "path": "./packages/deck-io" },
+    { "path": "./packages/test-fixtures" },
+    { "path": "./apps/web" }
+  ]
+}

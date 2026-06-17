@@ -1,0 +1,13 @@
+{
+  "name": "@gigsmith/test-fixtures",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@gigsmith/card-data": "file:../card-data",
+    "@gigsmith/data-contracts": "file:../data-contracts"
+  }
+}

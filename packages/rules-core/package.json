@@ -1,0 +1,16 @@
+{
+  "name": "@gigsmith/rules-core",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@gigsmith/data-contracts": "file:../data-contracts"
+  },
+  "devDependencies": {
+    "@gigsmith/card-data": "file:../card-data",
+    "@gigsmith/test-fixtures": "file:../test-fixtures"
+  }
+}

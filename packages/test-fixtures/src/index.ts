@@ -1,0 +1,45 @@
+import { cyberpunkCardDb, cyberpunkRulesetV0Guide } from "@gigsmith/card-data";
+import type { Card, Deck, DeckCardEntry } from "@gigsmith/data-contracts";
+
+export function cardBySlug(slug: string): Card {
+  const card = cyberpunkCardDb.cards.find((candidate) => candidate.slug === slug);
+  if (!card) throw new Error(`Missing fixture card: ${slug}`);
+  return card;
+}
+
+function entry(slug: string, count: number): DeckCardEntry {
+  return { cardId: cardBySlug(slug).id, count };
+}
+
+export function createValidDeck(overrides: Partial<Deck> = {}): Deck {
+  const deck: Deck = {
+    id: "fixture-valid-deck",
+    name: "Fixture Legal Deck",
+    formatId: cyberpunkRulesetV0Guide.defaultFormatId,
+    rulesetVersion: cyberpunkRulesetV0Guide.version,
+    cardDataVersion: cyberpunkCardDb.metadata.cardDataVersion,
+    legends: [
+      entry("v-streetkid", 1),
+      entry("dum-dum-maelstrom-triggerman", 1),
+      entry("goro-takemura-vengeful-bodyguard", 1)
+    ],
+    main: [
+      entry("swordwise-huscle", 3),
+      entry("kerry-eurodyne-the-last-rockerboy", 3),
+      entry("meredith-stout-stone-cold-corpo", 3),
+      entry("royce-don-t-call-me-simon", 3),
+      entry("mantis-blades", 3),
+      entry("satori-sword-of-saburo", 3),
+      entry("all-is-lost", 3),
+      entry("secondhand-bombus", 3),
+      entry("gilded-mato-n", 3),
+      entry("hanako-arasaka-in-a-gilded-cage", 3),
+      entry("offduty-malfini", 3),
+      entry("t-bug-amateur-philosopher", 3),
+      entry("corpo-security", 3),
+      entry("emergency-atlus", 1)
+    ]
+  };
+
+  return { ...deck, ...overrides };
+}

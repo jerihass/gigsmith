@@ -1,0 +1,14 @@
+{
+  "name": "@gigsmith/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "@gigsmith/card-data": "file:../../packages/card-data",
+    "@gigsmith/data-contracts": "file:../../packages/data-contracts",
+    "@gigsmith/deck-io": "file:../../packages/deck-io",
+    "@gigsmith/rules-core": "file:../../packages/rules-core",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@gigsmith/card-data",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@gigsmith/data-contracts": "file:../data-contracts"
+  }
+}

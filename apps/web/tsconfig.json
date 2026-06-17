@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "outDir": "dist"
+  },
+  "include": ["src", "vite.config.ts"],
+  "references": [
+    { "path": "../../packages/data-contracts" },
+    { "path": "../../packages/card-data" },
+    { "path": "../../packages/rules-core" },
+    { "path": "../../packages/deck-io" }
+  ]
+}

@@ -13,6 +13,11 @@ This repository starts with the constitution-compliant foundation:
 
 The current rules baseline is `ruleset.v0-guide`, derived from the public Cyberpunk TCG gameplay guide. The card metadata snapshot comes from Netdeck's Cyberpunk API and is stored locally for offline use and deterministic tests. External image URLs are references only; card art is not bundled.
 
+## Project Docs
+
+- `docs/BACKLOG.md` tracks milestone work.
+- `docs/CARD_SNAPSHOT_REFRESH.md` documents the local card snapshot refresh process.
+
 ## Commands
 
 ```sh

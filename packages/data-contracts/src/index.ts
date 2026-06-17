@@ -74,6 +74,16 @@ export interface CardDatabase {
   cards: Card[];
 }
 
+export interface SnapshotValidationError {
+  path: string;
+  message: string;
+}
+
+export interface SnapshotValidationResult {
+  valid: boolean;
+  errors: SnapshotValidationError[];
+}
+
 export interface DeckCardEntry {
   cardId: CardId;
   count: number;

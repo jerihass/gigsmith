@@ -19,6 +19,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-001: Document Card Snapshot Refresh Flow
 
+**Status:** Done.
+
 **Goal:** Make card data updates repeatable without relying on tribal knowledge.
 
 **Deliverables:**
@@ -36,6 +38,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 **Constitution Check:** Supports versioned data and text/data-first card records.
 
 ### GS-002: Add Runtime Schema Validation For Card Snapshots
+
+**Status:** Done.
 
 **Goal:** Fail clearly when Netdeck data shape changes.
 
@@ -57,6 +61,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 **Constitution Check:** Keeps data versioning honest and avoids hidden assumptions.
 
 ### GS-003: Add Source Metadata Surface In The UI
+
+**Status:** Done.
 
 **Goal:** Make data/rules provenance visible to users.
 

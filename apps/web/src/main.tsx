@@ -273,6 +273,38 @@ function App() {
           {importError && <pre className="import-error">{importError}</pre>}
         </section>
       </section>
+
+      <footer className="source-panel">
+        <div>
+          <h2>Sources</h2>
+          <p>
+            Gigsmith is an unofficial local-first companion. It is not endorsed by CD Projekt Red, Go On Board, or Netdeck.
+          </p>
+        </div>
+        <dl>
+          <div>
+            <dt>Card data</dt>
+            <dd>{cyberpunkCardSnapshot.metadata.cardDataVersion}</dd>
+          </div>
+          <div>
+            <dt>Retrieved</dt>
+            <dd>{cyberpunkCardSnapshot.metadata.sourceRetrievedAt}</dd>
+          </div>
+          <div>
+            <dt>Ruleset</dt>
+            <dd>{cyberpunkRulesetV0Guide.version}</dd>
+          </div>
+          <div>
+            <dt>Source count</dt>
+            <dd>{cyberpunkCardSnapshot.metadata.sourceCardCount} cards</dd>
+          </div>
+        </dl>
+        <nav aria-label="Source links">
+          <a href="https://cyberpunktcg.com/gameplay-guide" target="_blank" rel="noreferrer">Gameplay guide</a>
+          <a href="https://netdeck.gg/cards/cyberpunk" target="_blank" rel="noreferrer">Netdeck cards</a>
+          <a href={cyberpunkCardSnapshot.metadata.sourceUrl} target="_blank" rel="noreferrer">Snapshot API</a>
+        </nav>
+      </footer>
     </main>
   );
 }

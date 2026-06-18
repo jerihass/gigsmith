@@ -33,6 +33,16 @@ button:hover {
   background: #302c27;
 }
 
+button:disabled {
+  color: #777168;
+  cursor: default;
+  opacity: 0.7;
+}
+
+button:disabled:hover {
+  background: #211f1c;
+}
+
 button.primary {
   background: #f0b35a;
   border-color: #f0b35a;
@@ -228,6 +238,35 @@ textarea {
   gap: 12px;
   justify-content: space-between;
   padding: 10px;
+}
+
+.deck-row > span,
+.card-row > div {
+  min-width: 0;
+}
+
+.deck-row > span {
+  overflow-wrap: anywhere;
+}
+
+.count-controls {
+  align-items: center;
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: 34px 30px 34px;
+}
+
+.count-controls strong {
+  text-align: center;
+}
+
+.icon-button {
+  align-items: center;
+  display: inline-flex;
+  height: 34px;
+  justify-content: center;
+  padding: 0;
+  width: 34px;
 }
 
 .card-list {

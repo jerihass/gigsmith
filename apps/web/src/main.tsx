@@ -5,6 +5,7 @@ import type { Card, Deck, DeckCardEntry, ValidationIssue } from "@gigsmith/data-
 import { exportDecklist, importDecklist } from "@gigsmith/deck-io";
 import { calculateRamLimits, validateDeck } from "@gigsmith/rules-core";
 import { filterCards, type CardColorFilter, type CardTypeFilter, type NumberFilter } from "./cardFilters";
+import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
 import "./styles.css";
 
 const storageKey = "gigsmith.deck.v1";
@@ -74,15 +75,6 @@ function entryCount(entries: DeckCardEntry[]): number {
   return entries.reduce((sum, entry) => sum + entry.count, 0);
 }
 
-function upsertEntry(entries: DeckCardEntry[], cardId: string, delta: number): DeckCardEntry[] {
-  const next = entries.map((entry) => ({ ...entry }));
-  const existing = next.find((entry) => entry.cardId === cardId);
-  if (!existing && delta > 0) return [...next, { cardId, count: delta }];
-  if (!existing) return next;
-  existing.count += delta;
-  return next.filter((entry) => entry.count > 0);
-}
-
 function IssueList({ title, issues }: { title: string; issues: ValidationIssue[] }) {
   if (issues.length === 0) return null;
   return (
@@ -138,20 +130,17 @@ function App() {
     window.localStorage.setItem(storageKey, JSON.stringify(updated));
   }
 
-  function addCard(card: Card) {
-    if (card.card_type === "Legend") {
-      persist({ ...deck, legends: upsertEntry(deck.legends, card.id, 1) });
-      return;
-    }
-    persist({ ...deck, main: upsertEntry(deck.main, card.id, 1) });
+  function addLegend(card: Card) {
+    if (hasDeckEntry(deck.legends, card.id)) return;
+    persist({ ...deck, legends: adjustDeckEntry(deck.legends, card.id, 1) });
   }
 
-  function removeCard(card: Card) {
-    if (card.card_type === "Legend") {
-      persist({ ...deck, legends: upsertEntry(deck.legends, card.id, -1) });
-      return;
-    }
-    persist({ ...deck, main: upsertEntry(deck.main, card.id, -1) });
+  function adjustMainCard(card: Card, delta: number) {
+    persist({ ...deck, main: adjustDeckEntry(deck.main, card.id, delta) });
+  }
+
+  function removeLegend(card: Card) {
+    persist({ ...deck, legends: adjustDeckEntry(deck.legends, card.id, -1) });
   }
 
   function handleImport() {
@@ -220,8 +209,8 @@ function App() {
               const card = cardById(entry.cardId);
               return (
                 <div className="deck-row" key={entry.cardId}>
-                  <span>{entry.count}x {card?.display_name ?? entry.cardId}</span>
-                  {card && <button onClick={() => removeCard(card)}>Remove</button>}
+                  <span>{card?.display_name ?? entry.cardId}</span>
+                  {card && <button onClick={() => removeLegend(card)}>Remove</button>}
                 </div>
               );
             })}
@@ -233,8 +222,24 @@ function App() {
               const card = cardById(entry.cardId);
               return (
                 <div className="deck-row" key={entry.cardId}>
-                  <span>{entry.count}x {card?.display_name ?? entry.cardId}</span>
-                  {card && <button onClick={() => removeCard(card)}>−</button>}
+                  <span>{card?.display_name ?? entry.cardId}</span>
+                  {card && (
+                    <div className="count-controls">
+                      <button
+                        className="icon-button"
+                        aria-label={`Remove one ${card.display_name}`}
+                        title="Remove one"
+                        onClick={() => adjustMainCard(card, -1)}
+                      >−</button>
+                      <strong aria-label={`${entry.count} copies`}>{entry.count}</strong>
+                      <button
+                        className="icon-button"
+                        aria-label={`Add one ${card.display_name}`}
+                        title="Add one"
+                        onClick={() => adjustMainCard(card, 1)}
+                      >+</button>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -277,15 +282,24 @@ function App() {
             </label>
           </div>
           <div className="card-list">
-            {filteredCards.map((card) => (
-              <article className="card-row" key={card.id}>
-                <div>
-                  <strong>{card.display_name}</strong>
-                  <span>{card.color} {card.card_type} · RAM {card.ram ?? "-"} · Cost {card.cost ?? "-"}</span>
-                </div>
-                <button onClick={() => addCard(card)}>Add</button>
-              </article>
-            ))}
+            {filteredCards.map((card) => {
+              const legendSelected = card.card_type === "Legend" && hasDeckEntry(deck.legends, card.id);
+              return (
+                <article className="card-row" key={card.id}>
+                  <div>
+                    <strong>{card.display_name}</strong>
+                    <span>{card.color} {card.card_type} · RAM {card.ram ?? "-"} · Cost {card.cost ?? "-"}</span>
+                  </div>
+                  {card.card_type === "Legend" ? (
+                    <button disabled={legendSelected} onClick={() => addLegend(card)}>
+                      {legendSelected ? "Selected" : "Add Legend"}
+                    </button>
+                  ) : (
+                    <button onClick={() => adjustMainCard(card, 1)}>+ Main</button>
+                  )}
+                </article>
+              );
+            })}
             {filteredCards.length === 0 && (
               <div className="empty-state">No cards match the current filters.</div>
             )}

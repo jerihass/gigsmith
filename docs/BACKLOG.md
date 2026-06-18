@@ -104,6 +104,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-011: Improve Deck Editing Controls
 
+**Status:** Done.
+
 **Goal:** Make card count edits deliberate and hard to misclick.
 
 **Deliverables:**

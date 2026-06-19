@@ -300,6 +300,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-031: Add Eddy Curve UI
 
+**Status:** Done.
+
 **Goal:** Expose the curve report in the app.
 
 **Deliverables:**

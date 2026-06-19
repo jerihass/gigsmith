@@ -3,10 +3,10 @@
     "game": "cyberpunk",
     "sourceName": "Netdeck",
     "sourceUrl": "https://api.netdeck.gg/api/cards/cyberpunk",
-    "sourceRetrievedAt": "2026-06-14T21:56:00-04:00",
-    "cardDataVersion": "netdeck-cyberpunk-2026-06-14",
-    "sourceCardCount": 58,
-    "notes": "Text metadata snapshot for offline development. External image URLs are stored as references only; images are not bundled."
+    "sourceRetrievedAt": "2026-06-18T21:00:17-04:00",
+    "cardDataVersion": "netdeck-cyberpunk-2026-06-18",
+    "sourceCardCount": 60,
+    "notes": "60-card text metadata snapshot for offline development. External image URLs are stored as references only; images are not bundled."
   },
   "cards": [
     {
@@ -617,6 +617,41 @@
       "legality": "legal"
     },
     {
+      "id": "b3b40c68-705b-41ff-ae10-4132497c4a39",
+      "external_id": "cb-sketchy-ripper",
+      "name": "Sketchy Ripper",
+      "subname": null,
+      "display_name": "Sketchy Ripper",
+      "slug": "sketchy-ripper",
+      "rules_text": "{Attack} Search the top 3 cards of your deck. Reveal a Gear and add it to your hand. Bottom-deck the rest.\n(Units with power 0 don't steal Gigs.)",
+      "flavor_text": null,
+      "printing_id": "12f0398c-bcc3-4944-af72-ac2ae9f36761",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Common",
+      "image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/12f0398c-bcc3-4944-af72-ac2ae9f36761/render-mpvm0clc.webp?Expires=1781917217&Key-Pair-Id=K3SGRHESIHQPEW&Signature=AnY-fvA7JodhfgubGfdQgMPiy7bjUJDXmwaSg~-0K5CvLPfUrQxK3ryOItHo-dy6EqOOGawLVPpS9phJni6B5suZwp1-BtRt-Z6fRLJNxmhPeaRTNK3ZzFFRhIkDinqwBt4WRVoee3qo6wpyzyj7OVlGODN5YklvLYcAaszZFjkwfK~GcRjy4s5BUzovoDM2MKvDRrpTqDvYnfKC9R~qxd4~u3-t4wEEoKKcX0iBQV~PBI0FxYY-eRa5l1f2W-TZArmJ~FmLTdXxhwXeeTsrEgqHfqzZ8hERSWLCjBHNiky~kKWSxBT5q~3otrm66bDWVI~vS5aPD7NmxkkW9OOvUQ__",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/12f0398c-bcc3-4944-af72-ac2ae9f36761/render-mpvm0clc.webp",
+      "color": "Yellow",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "Ganger",
+        "Ripperdoc",
+        "Scavenger"
+      ],
+      "keywords": [],
+      "cost": 2,
+      "power": 0,
+      "ram": 2,
+      "artist": "Michał Dziekan",
+      "print_number": "054",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
       "id": "1f71ec32-3c11-466b-bcdd-a8a3009ea8ac",
       "external_id": "cb-gilded-mato-n",
       "name": "Gilded Matón",
@@ -1029,7 +1064,7 @@
       "subname": null,
       "display_name": "Cyberpsychosis",
       "slug": "cyberpsychosis",
-      "rules_text": "{Quick} Give an equipped Unit +3 power this turn for each of its equipped Gears. If that Unit steals or fights, defeat it at the end of this turn.",
+      "rules_text": "{Quick} Give an equipped Unit +3 power this turn for each if its equipped Gears. If that Unit steals or fights, defeat it at the end of this turn.",
       "flavor_text": null,
       "printing_id": "5aafe80b-7c7d-4060-8677-a2881a21dd72",
       "set": {
@@ -1701,7 +1736,7 @@
       "subname": null,
       "display_name": "Psycho Squad",
       "slug": "psycho-squad",
-      "rules_text": "[Flavour] Their protocol stops at “shoot first.”",
+      "rules_text": "[Flavor] Their protocol stops at “shoot first.”",
       "flavor_text": null,
       "printing_id": "d7e0e2e5-6e22-4b45-9e91-50936773e2e1",
       "set": {
@@ -1723,6 +1758,39 @@
       "ram": 1,
       "artist": "Kieran McKeown & Giada Marchisio",
       "print_number": "124",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "6b078eff-4cef-4beb-a299-ed388a72ce45",
+      "external_id": "cb-lizzy-wizzy-delicate-weapon",
+      "name": "Lizzy Wizzy — Delicate Weapon",
+      "subname": null,
+      "display_name": "Lizzy Wizzy — Delicate Weapon",
+      "slug": "lizzy-wizzy-delicate-weapon",
+      "rules_text": "{Play} You may play a Program with cost 3 or less from your hand or trash for free. Bottom-deck it after you play it.\n{Blocker}",
+      "flavor_text": null,
+      "printing_id": "7072a2d2-ec4f-4575-909e-15a107dfef79",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Rare",
+      "image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/7072a2d2-ec4f-4575-909e-15a107dfef79/render-mpvm9lt7.webp?Expires=1781917217&Key-Pair-Id=K3SGRHESIHQPEW&Signature=mxi~ngDuag-wQbXK0vDY33D0me3chpoAJ1IxwR171sSwYW0GBwrgFkBn4f~aLLPbx-c7T~68CaDQb5zHPrMPDP84dmiN8CaxapfcIXS6A0ltv~0PetcQAoT95UWtKu6NdpS3XolnVEcJlOe-3U78mGjAd2wGOdClN9TrlFA12U6sYpVpeqpaUkVfhBVXPxDgzdmqvrDWK1-j-l0IlBCbmMuE8Cgjh1GTNVw3pJCoV2IkGnB5E5SQ0Ad8f~ifnfyrDASLY3LueS5FL7LANRwk9NI6s8iLbsn9AyEetTOzyyzXwnfJ2~GUUmf8~Mv-4ImOzIeVkKleU1Ugj7tf24V3GA__",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/7072a2d2-ec4f-4575-909e-15a107dfef79/render-mpvm9lt7.webp",
+      "color": "Blue",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "Rocker"
+      ],
+      "keywords": [],
+      "cost": 5,
+      "power": 2,
+      "ram": 2,
+      "artist": "CD Projekt Red",
+      "print_number": "117",
       "printings": [],
       "selected_printing_id": null,
       "legality": "legal"
@@ -1926,7 +1994,7 @@
       "keywords": [],
       "cost": 1,
       "power": null,
-      "ram": 2,
+      "ram": 1,
       "artist": "DOFRESH",
       "print_number": "132",
       "printings": [],

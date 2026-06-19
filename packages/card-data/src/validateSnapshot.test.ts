@@ -6,6 +6,13 @@ describe("validateCardSnapshot", () => {
   it("accepts the bundled Cyberpunk card snapshot", () => {
     const result = validateCardSnapshot(cyberpunkCardSnapshot);
     expect(result).toEqual({ valid: true, errors: [] });
+    expect(cyberpunkCardSnapshot.metadata.sourceCardCount).toBe(60);
+    expect(cyberpunkCardSnapshot.cards.map((card) => card.external_id)).toEqual(
+      expect.arrayContaining([
+        "cb-sketchy-ripper",
+        "cb-lizzy-wizzy-delicate-weapon"
+      ])
+    );
   });
 
   it("reports missing card ids with paths", () => {

@@ -6,7 +6,7 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 - Initial TypeScript monorepo exists.
 - PWA shell renders a local deck editor, card browser, RAM summary, validation report, and text import/export.
-- Card data snapshot is `netdeck-cyberpunk-2026-06-14` with 58 Netdeck cards.
+- Card data snapshot is `netdeck-cyberpunk-2026-06-18` with 60 Netdeck cards.
 - Rules baseline is `ruleset.v0-guide`.
 - Implemented validation rules:
   - exactly 3 Legend cards
@@ -53,7 +53,7 @@ This backlog is organized by milestone. Each task must preserve the development 
 - Valid current snapshot passes.
 
 **Tests:**
-- Valid 58-card snapshot fixture.
+- Valid 60-card snapshot fixture.
 - Missing `id`.
 - Invalid `card_type`.
 - Missing metadata count.

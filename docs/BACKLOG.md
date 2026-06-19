@@ -5,7 +5,7 @@ This backlog is organized by milestone. Each task must preserve the development 
 ## Current Baseline
 
 - Initial TypeScript monorepo exists.
-- PWA shell renders a local deck editor, card browser, RAM summary, validation report, and text import/export.
+- Web shell renders a local deck editor, card browser, RAM summary, validation report, and text import/export.
 - Card data snapshot is `netdeck-cyberpunk-2026-06-18` with 60 Netdeck cards.
 - Rules baseline is `ruleset.v0-guide`.
 - Implemented validation rules:
@@ -79,6 +79,25 @@ This backlog is organized by milestone. Each task must preserve the development 
 - Browser/UI smoke check.
 
 **Constitution Check:** Supports legal/IP safety and explainable reports.
+
+### GS-004: Remove Transient Image URLs From Card Snapshots
+
+**Goal:** Keep card snapshots stable while preserving optional external artwork support.
+
+**Deliverables:**
+- Stop persisting temporary signed `image_url` values during snapshot refreshes.
+- Retain stable `source_image_url` references when supplied by the source.
+- Document that external artwork may be unavailable and must never be required for card details.
+
+**Acceptance Criteria:**
+- Refreshed snapshots contain no expiring signed image URLs.
+- Snapshot diffs are not dominated by image-token churn.
+- The text-only card experience remains complete.
+
+**Tests:**
+- Snapshot importer or validator test proving transient image URLs are discarded.
+
+**Constitution Check:** Preserves text/data-first records, reproducible snapshots, and legal/IP boundaries.
 
 ## M1 - Local Card Database And Deck Builder
 
@@ -167,6 +186,29 @@ This backlog is organized by milestone. Each task must preserve the development 
 - Browser smoke check across desktop and mobile.
 
 **Constitution Check:** Local snapshot remains authoritative; UI does not depend on external art or live services.
+
+### GS-014: Add Installable Offline PWA Shell
+
+**Goal:** Let users install and reopen Gigsmith without keeping a development server running.
+
+**Deliverables:**
+- Add a web app manifest with install metadata and icons.
+- Add a service worker that caches the application shell and versioned local card data.
+- Provide an explicit update path when a new application or card-data version is available.
+- Keep deck storage local and independent from network availability.
+
+**Acceptance Criteria:**
+- The production build passes installability checks.
+- An installed build opens and supports browsing, editing, and validation while offline.
+- Cache updates do not delete or replace locally stored decks.
+
+**Tests:**
+- Production-build service-worker test.
+- Browser smoke check for first load, offline reload, and update behavior.
+
+**Constitution Check:** Implements the local-first PWA direction without introducing a backend.
+
+**Scheduling Note:** Documented for explicit tracking; this does not replace `GS-021` as the next planned feature.
 
 ## M2 - Deck Validation And RAM Legality
 

@@ -17,6 +17,7 @@ The current rules baseline is `ruleset.v1-printable-2026-06-19`, derived from th
 
 - `docs/BACKLOG.md` tracks milestone work.
 - `docs/CARD_SNAPSHOT_REFRESH.md` documents the local card snapshot refresh process.
+- `docs/DECK_JSON_FORMAT.md` defines the versioned portable deck format.
 
 ## Commands
 

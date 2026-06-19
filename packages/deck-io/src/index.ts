@@ -1,5 +1,13 @@
 import type { Card, CardDatabase, Deck, DeckCardEntry } from "@gigsmith/data-contracts";
 
+export {
+  exportDeckJson,
+  importDeckJson,
+  type DeckJsonIssue,
+  type ExportDeckJsonOptions,
+  type ImportDeckJsonResult
+} from "./deckJson";
+
 export interface ImportIssue {
   line: number;
   message: string;

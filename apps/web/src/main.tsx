@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { BoardState, Card, Deck, DeckCardEntry, DieType, EddyCurveReport, Gig } from "@gigsmith/data-contracts";
-import { exportDecklist, importDecklist } from "@gigsmith/deck-io";
+import { exportDeckJson, exportDecklist, importDeckJson, importDecklist } from "@gigsmith/deck-io";
 import { analyzeEddyCurve, calculateRamLimits, calculateStreetCred, validateDeck } from "@gigsmith/rules-core";
 import {
   filterCards,
@@ -437,6 +437,7 @@ function App() {
   const [eddyPlayerOrder, setEddyPlayerOrder] = useState<"first" | "second">("first");
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
+  const [transferFormat, setTransferFormat] = useState<"text" | "json">("text");
   const [detailCardId, setDetailCardId] = useState<string>();
   const detailDialogRef = useRef<HTMLDialogElement>(null);
   const detailCloseRef = useRef<HTMLButtonElement>(null);
@@ -454,7 +455,10 @@ function App() {
     () => analyzeEddyCurve(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable),
     [deck]
   );
-  const exportText = useMemo(() => exportDecklist(deck, cyberpunkCardDb), [deck]);
+  const exportText = useMemo(
+    () => transferFormat === "json" ? exportDeckJson(deck) : exportDecklist(deck, cyberpunkCardDb),
+    [deck, transferFormat]
+  );
 
   const filteredCards = useMemo(
     () =>
@@ -550,6 +554,31 @@ function App() {
   }
 
   function handleImport() {
+    if (transferFormat === "json") {
+      const result = importDeckJson(importText);
+      if (!result.document) {
+        setImportError(result.errors.map((error) => `${error.path}: ${error.message}`).join("\n"));
+        return;
+      }
+
+      const importedDeck = result.document.deck;
+      setImportError("");
+      persist({
+        id: deck.id,
+        name: importedDeck.name,
+        legends: importedDeck.legends,
+        main: importedDeck.main,
+        formatId: importedDeck.formatId,
+        rulesetVersion: importedDeck.rulesetVersion,
+        cardDataVersion: importedDeck.cardDataVersion,
+        metadata: {
+          ...deck.metadata,
+          notes: importedDeck.notes
+        }
+      });
+      return;
+    }
+
     const result = importDecklist(importText, cyberpunkCardDb, {
       deckName: deck.name,
       formatId: deck.formatId,
@@ -561,6 +590,12 @@ function App() {
     }
     setImportError("");
     persist({ ...result.deck, id: deck.id, name: deck.name, metadata: deck.metadata });
+  }
+
+  function changeTransferFormat(format: "text" | "json") {
+    setTransferFormat(format);
+    setImportText("");
+    setImportError("");
   }
 
   return (
@@ -770,17 +805,45 @@ function App() {
 
       <GigSandbox deck={deck} />
 
-      <section className="workspace io">
-        <section className="panel">
-          <h2>Export</h2>
-          <textarea readOnly value={exportText} />
-        </section>
-        <section className="panel">
-          <h2>Import</h2>
-          <textarea value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Legends:\n1 V — StreetKid\n\nMain:\n3 Swordwise Huscle" />
-          <button className="primary" onClick={handleImport}>Import decklist</button>
-          {importError && <pre className="import-error">{importError}</pre>}
-        </section>
+      <section className="io-section">
+        <div className="panel-title io-title">
+          <div>
+            <p className="section-kicker">Portable deck</p>
+            <h2>Import / Export</h2>
+          </div>
+          <div className="segmented-control" role="group" aria-label="Deck transfer format">
+            <button
+              aria-pressed={transferFormat === "text"}
+              onClick={() => changeTransferFormat("text")}
+            >Text</button>
+            <button
+              aria-pressed={transferFormat === "json"}
+              onClick={() => changeTransferFormat("json")}
+            >JSON</button>
+          </div>
+        </div>
+        <div className="workspace io">
+          <section className="panel">
+            <div className="panel-title">
+              <h2>Export</h2>
+              <span className="result-count">{transferFormat === "json" ? "Schema v1" : "Decklist"}</span>
+            </div>
+            <textarea aria-label={`${transferFormat === "json" ? "JSON" : "Text"} deck export`} readOnly value={exportText} />
+          </section>
+          <section className="panel">
+            <h2>Import</h2>
+            <textarea
+              aria-label={`${transferFormat === "json" ? "JSON" : "Text"} deck import`}
+              value={importText}
+              onChange={(event) => setImportText(event.target.value)}
+              placeholder={transferFormat === "json"
+                ? "Paste a gigsmith.deck JSON document"
+                : "Legends:\n1 V — StreetKid\n\nMain:\n3 Swordwise Huscle"}
+            />
+            <button className="primary" onClick={handleImport}>Import {transferFormat === "json" ? "JSON" : "decklist"}</button>
+            {importError && <pre className="import-error">{importError}</pre>}
+          </section>
+        </div>
       </section>
 
       <footer className="source-panel">

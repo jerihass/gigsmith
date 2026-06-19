@@ -850,6 +850,26 @@ textarea {
   align-items: start;
 }
 
+.io-section {
+  border-top: 1px solid #34302a;
+  margin-top: 28px;
+  padding-top: 20px;
+}
+
+.io-title {
+  align-items: start;
+  margin-bottom: 14px;
+}
+
+.io-title h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0;
+}
+
+.io-section .workspace {
+  margin-bottom: 0;
+}
+
 .import-error {
   color: #ffb1a6;
   white-space: pre-wrap;
@@ -1017,6 +1037,11 @@ textarea {
   }
 
   .gig-sandbox-title {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .io-title {
     align-items: stretch;
     flex-direction: column;
   }

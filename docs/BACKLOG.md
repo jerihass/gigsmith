@@ -363,6 +363,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-050: Stabilize Deck JSON Format
 
+**Status:** Done.
+
 **Goal:** Make deck JSON a durable interchange format.
 
 **Deliverables:**

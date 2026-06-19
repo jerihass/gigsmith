@@ -106,6 +106,23 @@ export interface Deck {
   metadata?: DeckMetadata;
 }
 
+export interface PortableDeckV1 {
+  name: string;
+  legends: DeckCardEntry[];
+  main: DeckCardEntry[];
+  formatId: FormatId;
+  rulesetVersion: RulesetVersion;
+  cardDataVersion: CardDataVersion;
+  notes?: string;
+}
+
+export interface DeckDocumentV1 {
+  schema: "gigsmith.deck";
+  version: 1;
+  exportedAt: string;
+  deck: PortableDeckV1;
+}
+
 export interface Format {
   id: FormatId;
   name: string;

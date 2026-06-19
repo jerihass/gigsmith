@@ -126,6 +126,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-012: Persist Multiple Local Decks
 
+**Status:** Done.
+
 **Goal:** Move from one local deck to a usable local deck library.
 
 **Deliverables:**
@@ -142,6 +144,27 @@ This backlog is organized by milestone. Each task must preserve the development 
 - Browser smoke check.
 
 **Constitution Check:** Local-first, no accounts or backend.
+
+### GS-013: Add Card Detail View
+
+**Goal:** Let deck builders inspect what a card does without leaving the app.
+
+**Deliverables:**
+- Open a focused card detail panel from the card database.
+- Show rules text, keywords, classifications, type, color, RAM, cost, power, rarity, and source link.
+- Keep a complete text-only fallback and do not bundle copyrighted card art.
+- Reserve external image URL support for a separately reviewed asset task.
+
+**Acceptance Criteria:**
+- Users can inspect and dismiss details with keyboard, pointer, or touch input.
+- The detail layout remains readable on mobile.
+- Cards with the same base name remain distinguishable by stable ID and subname.
+
+**Tests:**
+- Card detail formatting tests.
+- Browser smoke check across desktop and mobile.
+
+**Constitution Check:** Local snapshot remains authoritative; UI does not depend on external art or live services.
 
 ## M2 - Deck Validation And RAM Legality
 

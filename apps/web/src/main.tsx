@@ -6,9 +6,17 @@ import { exportDecklist, importDecklist } from "@gigsmith/deck-io";
 import { calculateRamLimits, validateDeck } from "@gigsmith/rules-core";
 import { filterCards, type CardColorFilter, type CardTypeFilter, type NumberFilter } from "./cardFilters";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
+import {
+  addDeck,
+  getActiveDeck,
+  loadDeckLibrary,
+  removeDeck,
+  replaceActiveDeck,
+  saveDeckLibrary,
+  selectDeck
+} from "./deckLibrary";
 import "./styles.css";
 
-const storageKey = "gigsmith.deck.v1";
 const colorOptions: CardColorFilter[] = ["Any", "Red", "Yellow", "Green", "Blue"];
 const typeOptions: CardTypeFilter[] = ["Any", "Legend", "Unit", "Program", "Gear"];
 const numberOptions: NumberFilter[] = ["Any", "0", "1", "2", "3", "4", "5", "6", "7", "8"];
@@ -59,16 +67,24 @@ function createStarterDeck(overrides: Partial<Deck> = {}): Deck {
   };
 }
 
-function loadInitialDeck(): Deck {
-  const stored = window.localStorage.getItem(storageKey);
-  if (stored) {
-    try {
-      return JSON.parse(stored) as Deck;
-    } catch {
-      window.localStorage.removeItem(storageKey);
-    }
-  }
-  return createStarterDeck();
+function createDeckId(): string {
+  return typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `deck-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function createEmptyDeck(name = "Untitled Deck"): Deck {
+  const now = new Date().toISOString();
+  return {
+    id: createDeckId(),
+    name,
+    formatId: cyberpunkRulesetV0Guide.defaultFormatId,
+    rulesetVersion: cyberpunkRulesetV0Guide.version,
+    cardDataVersion: cyberpunkCardDb.metadata.cardDataVersion,
+    legends: [],
+    main: [],
+    metadata: { createdAt: now, updatedAt: now }
+  };
 }
 
 function entryCount(entries: DeckCardEntry[]): number {
@@ -93,7 +109,10 @@ function IssueList({ title, issues }: { title: string; issues: ValidationIssue[]
 }
 
 function App() {
-  const [deck, setDeck] = useState(loadInitialDeck);
+  const [library, setLibrary] = useState(() =>
+    loadDeckLibrary(window.localStorage, createStarterDeck())
+  );
+  const [pendingDelete, setPendingDelete] = useState(false);
   const [query, setQuery] = useState("");
   const [colorFilter, setColorFilter] = useState<CardColorFilter>("Any");
   const [typeFilter, setTypeFilter] = useState<CardTypeFilter>("Any");
@@ -101,6 +120,7 @@ function App() {
   const [costFilter, setCostFilter] = useState<NumberFilter>("Any");
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
+  const deck = getActiveDeck(library);
 
   const validation = useMemo(() => validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV0Guide), [deck]);
   const ram = useMemo(() => calculateRamLimits(deck.legends, cyberpunkCardDb, cyberpunkRulesetV0Guide), [deck.legends]);
@@ -118,6 +138,11 @@ function App() {
     [colorFilter, costFilter, query, ramFilter, typeFilter]
   );
 
+  function persistLibrary(next: typeof library) {
+    setLibrary(next);
+    saveDeckLibrary(window.localStorage, next);
+  }
+
   function persist(next: Deck) {
     const updated = {
       ...next,
@@ -126,8 +151,37 @@ function App() {
         updatedAt: new Date().toISOString()
       }
     };
-    setDeck(updated);
-    window.localStorage.setItem(storageKey, JSON.stringify(updated));
+    persistLibrary(replaceActiveDeck(library, updated));
+  }
+
+  function handleCreateDeck() {
+    setPendingDelete(false);
+    persistLibrary(addDeck(library, createEmptyDeck()));
+  }
+
+  function handleDuplicateDeck() {
+    const now = new Date().toISOString();
+    const duplicate: Deck = {
+      ...deck,
+      id: createDeckId(),
+      name: `${deck.name} Copy`,
+      legends: deck.legends.map((entry) => ({ ...entry })),
+      main: deck.main.map((entry) => ({ ...entry })),
+      metadata: { ...deck.metadata, createdAt: now, updatedAt: now }
+    };
+    setPendingDelete(false);
+    persistLibrary(addDeck(library, duplicate));
+  }
+
+  function handleSelectDeck(deckId: string) {
+    setPendingDelete(false);
+    setImportError("");
+    persistLibrary(selectDeck(library, deckId));
+  }
+
+  function handleDeleteDeck() {
+    persistLibrary(removeDeck(library, deck.id));
+    setPendingDelete(false);
   }
 
   function addLegend(card: Card) {
@@ -154,7 +208,7 @@ function App() {
       return;
     }
     setImportError("");
-    persist(result.deck);
+    persist({ ...result.deck, id: deck.id, name: deck.name, metadata: deck.metadata });
   }
 
   return (
@@ -196,8 +250,35 @@ function App() {
         <section className="panel deck-panel">
           <div className="panel-title">
             <h2>Deck Editor</h2>
-            <button onClick={() => persist(createStarterDeck({ id: "local-demo-deck", name: deck.name }))}>Reset</button>
+            <button onClick={() => persist(createStarterDeck({ id: deck.id, name: deck.name, metadata: deck.metadata }))}>Reset</button>
           </div>
+          <div className="deck-library-controls">
+            <label className="field deck-picker">
+              <span>Active deck</span>
+              <select value={deck.id} onChange={(event) => handleSelectDeck(event.target.value)}>
+                {library.decks.map((candidate) => (
+                  <option key={candidate.id} value={candidate.id}>{candidate.name}</option>
+                ))}
+              </select>
+            </label>
+            <div className="deck-actions" aria-label="Deck actions">
+              <button onClick={handleCreateDeck}>New</button>
+              <button onClick={handleDuplicateDeck}>Duplicate</button>
+              <button
+                disabled={library.decks.length === 1}
+                onClick={() => setPendingDelete(true)}
+              >Delete</button>
+            </div>
+          </div>
+          {pendingDelete && (
+            <div className="delete-confirmation" role="alert">
+              <span>Delete “{deck.name}” from this device?</span>
+              <div>
+                <button onClick={() => setPendingDelete(false)}>Cancel</button>
+                <button className="danger" onClick={handleDeleteDeck}>Delete deck</button>
+              </div>
+            </div>
+          )}
           <label className="field">
             <span>Deck name</span>
             <input value={deck.name} onChange={(event) => persist({ ...deck, name: event.target.value })} />

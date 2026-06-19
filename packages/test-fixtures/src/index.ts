@@ -1,5 +1,10 @@
 import { cyberpunkCardDb, cyberpunkRulesetV0Guide } from "@gigsmith/card-data";
-import type { Card, Deck, DeckCardEntry } from "@gigsmith/data-contracts";
+import type { Card, CardId, Deck, DeckCardEntry, Ruleset } from "@gigsmith/data-contracts";
+
+export interface FormatRulesetOptions {
+  banned?: CardId[];
+  restricted?: CardId[];
+}
 
 export function cardBySlug(slug: string): Card {
   const card = cyberpunkCardDb.cards.find((candidate) => candidate.slug === slug);
@@ -42,4 +47,21 @@ export function createValidDeck(overrides: Partial<Deck> = {}): Deck {
   };
 
   return { ...deck, ...overrides };
+}
+
+export function createFormatRuleset(options: FormatRulesetOptions = {}): Ruleset {
+  const formatId = "fixture-format";
+  return {
+    ...cyberpunkRulesetV0Guide,
+    version: `${cyberpunkRulesetV0Guide.version}.fixture-format`,
+    defaultFormatId: formatId,
+    formats: [
+      {
+        id: formatId,
+        name: "Fixture Format",
+        banned: [...(options.banned ?? [])],
+        restricted: [...(options.restricted ?? [])]
+      }
+    ]
+  };
 }

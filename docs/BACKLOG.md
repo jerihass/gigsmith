@@ -254,6 +254,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-022: Add Format Legality Fixtures
 
+**Status:** Done.
+
 **Goal:** Prove the format model can support future banned/restricted updates.
 
 **Deliverables:**

@@ -128,6 +128,7 @@ export function validateDeck(deck: Deck, cardDb: CardDatabase, ruleset: Ruleset)
   const mainCount = totalCount(deck.main);
   const legendCount = totalCount(deck.legends);
   const seenLegendNames = new Map<string, CardId[]>();
+  const ramLimits = calculateRamLimits(deck.legends, cardDb, ruleset);
 
   if (deck.rulesetVersion !== ruleset.version) {
     warnings.push(
@@ -183,6 +184,10 @@ export function validateDeck(deck: Deck, cardDb: CardDatabase, ruleset: Ruleset)
     const names = seenLegendNames.get(card.display_name) ?? [];
     names.push(card.id);
     seenLegendNames.set(card.display_name, names);
+
+    const cardLegality = checkCardLegality(card, ramLimits, ruleset, deck.formatId);
+    errors.push(...cardLegality.errors);
+    warnings.push(...cardLegality.warnings);
   }
 
   if (legendCount !== ruleset.requiredUniqueLegends) {
@@ -222,7 +227,6 @@ export function validateDeck(deck: Deck, cardDb: CardDatabase, ruleset: Ruleset)
     );
   }
 
-  const ramLimits = calculateRamLimits(deck.legends, cardDb, ruleset);
   const copyCounts = new Map<CardId, number>();
 
   for (const entry of deck.main) {

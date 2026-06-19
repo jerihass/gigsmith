@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb, cyberpunkRulesetV0Guide } from "@gigsmith/card-data";
-import { cardBySlug, createValidDeck } from "@gigsmith/test-fixtures";
+import { cardBySlug, createFormatRuleset, createValidDeck } from "@gigsmith/test-fixtures";
 import { calculateRamLimits, validateDeck } from "./index";
 
 describe("validateDeck", () => {
@@ -84,6 +84,44 @@ describe("validateDeck", () => {
     const result = validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV0Guide);
     expect(result.legal).toBe(false);
     expect(result.errors.map((error) => error.code)).toContain("unknown-card");
+  });
+
+  it("reports cards banned by the selected format", () => {
+    const bannedCard = cardBySlug("swordwise-huscle");
+    const ruleset = createFormatRuleset({ banned: [bannedCard.id] });
+    const deck = createValidDeck({
+      formatId: ruleset.defaultFormatId,
+      rulesetVersion: ruleset.version
+    });
+
+    const result = validateDeck(deck, cyberpunkCardDb, ruleset);
+
+    expect(result.legal).toBe(false);
+    expect(result.errors.find((error) => error.code === "banned-card")).toEqual(
+      expect.objectContaining({
+        message: `${bannedCard.display_name} is banned in Fixture Format.`,
+        affectedCards: [bannedCard.id]
+      })
+    );
+  });
+
+  it("warns when a selected Legend is restricted by the format", () => {
+    const restrictedLegend = cardBySlug("v-streetkid");
+    const ruleset = createFormatRuleset({ restricted: [restrictedLegend.id] });
+    const deck = createValidDeck({
+      formatId: ruleset.defaultFormatId,
+      rulesetVersion: ruleset.version
+    });
+
+    const result = validateDeck(deck, cyberpunkCardDb, ruleset);
+
+    expect(result.legal).toBe(true);
+    expect(result.warnings.find((warning) => warning.code === "restricted-card")).toEqual(
+      expect.objectContaining({
+        message: `${restrictedLegend.display_name} is restricted in Fixture Format.`,
+        affectedCards: [restrictedLegend.id]
+      })
+    );
   });
 
   it("calculates cumulative RAM from selected Legends", () => {

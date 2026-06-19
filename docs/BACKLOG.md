@@ -276,6 +276,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-030: Define Eddy Curve Report Contract
 
+**Status:** Done.
+
 **Goal:** Add deterministic economy analysis without hiding assumptions.
 
 **Deliverables:**

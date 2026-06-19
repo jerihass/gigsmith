@@ -13,6 +13,8 @@ import type {
   ValidationResult
 } from "@gigsmith/data-contracts";
 
+export { analyzeEddyCurve } from "./eddyCurve";
+
 function issue(
   code: string,
   severity: ValidationIssue["severity"],

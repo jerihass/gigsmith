@@ -190,6 +190,64 @@ export interface CardLegalityReport {
   warnings: ValidationIssue[];
 }
 
+export interface EddyCostBucket {
+  cost: number;
+  cardCount: number;
+  cardIds: CardId[];
+}
+
+export interface EddyDemandSummary {
+  cardCount: number;
+  cardsWithKnownCost: number;
+  totalPrintedCost: number;
+  averagePrintedCost: number | null;
+  costBuckets: EddyCostBucket[];
+  cardsWithoutPrintedCostIds: CardId[];
+}
+
+export interface EddyTurnProjection {
+  turn: number;
+  cardsSeen: number;
+  expectedSellableCardsSeen: number;
+  expectedPersistentEddies: number;
+  maximumPersistentEddies: number;
+  firstPlayerLegendCapacity: number;
+  secondPlayerLegendCapacity: number;
+  expectedFirstPlayerPaymentCapacity: number;
+  expectedSecondPlayerPaymentCapacity: number;
+}
+
+export interface EddySupplySummary {
+  sellableCardCount: number;
+  nonSellableCardCount: number;
+  sellableDensity: number;
+  maximumPersistentEddies: number;
+  turnProjections: EddyTurnProjection[];
+}
+
+export interface EddyEffectReference {
+  cardId: CardId;
+  copies: number;
+  rulesText: string;
+}
+
+export interface EddyCurveWarning {
+  code: string;
+  message: string;
+  affectedCards: CardId[];
+}
+
+export interface EddyCurveReport {
+  rulesetVersion: RulesetVersion;
+  cardDataVersion: CardDataVersion;
+  assumptions: string[];
+  mainDeckDemand: EddyDemandSummary;
+  legendDemand: EddyDemandSummary;
+  supply: EddySupplySummary;
+  effectReferences: EddyEffectReference[];
+  warnings: EddyCurveWarning[];
+}
+
 export type DieType = "d4" | "d6" | "d8" | "d10" | "d12" | "d20";
 
 export interface Gig {

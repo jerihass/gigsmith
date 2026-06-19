@@ -62,6 +62,26 @@ describe("loadDeckLibrary", () => {
     expect(getActiveDeck(library).id).toBe("fallback");
     expect(JSON.parse(storage.getItem(deckLibraryStorageKey) ?? "")).toEqual(library);
   });
+
+  it.each([
+    null,
+    {},
+    { cardId: "card-1" },
+    { cardId: "card-1", count: 0 },
+    { cardId: "card-1", count: 1.5 }
+  ])("uses the fallback when a saved deck contains an invalid entry: %j", (entry) => {
+    const invalidDeck = { ...deck("saved"), main: [entry] };
+    const storedLibrary = {
+      version: 1,
+      activeDeckId: invalidDeck.id,
+      decks: [invalidDeck]
+    };
+    const storage = memoryStorage({
+      [deckLibraryStorageKey]: JSON.stringify(storedLibrary)
+    });
+
+    expect(getActiveDeck(loadDeckLibrary(storage, deck("fallback"))).id).toBe("fallback");
+  });
 });
 
 describe("deck library operations", () => {

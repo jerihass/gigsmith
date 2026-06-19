@@ -4,7 +4,13 @@ import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV0Guide } from 
 import type { Card, Deck, DeckCardEntry } from "@gigsmith/data-contracts";
 import { exportDecklist, importDecklist } from "@gigsmith/deck-io";
 import { calculateRamLimits, validateDeck } from "@gigsmith/rules-core";
-import { filterCards, type CardColorFilter, type CardTypeFilter, type NumberFilter } from "./cardFilters";
+import {
+  filterCards,
+  numberFilterOptions,
+  type CardColorFilter,
+  type CardTypeFilter,
+  type NumberFilter
+} from "./cardFilters";
 import { cardDetailStats, cardDetailTags, cardDetailText } from "./cardDetails";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
 import {
@@ -27,7 +33,8 @@ declare global {
 
 const colorOptions: CardColorFilter[] = ["Any", "Red", "Yellow", "Green", "Blue"];
 const typeOptions: CardTypeFilter[] = ["Any", "Legend", "Unit", "Program", "Gear"];
-const numberOptions: NumberFilter[] = ["Any", "0", "1", "2", "3", "4", "5", "6", "7", "8"];
+const ramOptions = numberFilterOptions(cyberpunkCardDb.cards, "ram");
+const costOptions = numberFilterOptions(cyberpunkCardDb.cards, "cost");
 
 function cardById(cardId: string): Card | undefined {
   return cyberpunkCardDb.cards.find((card) => card.id === cardId);
@@ -404,13 +411,17 @@ function App() {
             <label className="field">
               <span>RAM</span>
               <select value={ramFilter} onChange={(event) => setRamFilter(event.target.value as NumberFilter)}>
-                {numberOptions.map((option) => <option key={option}>{option}</option>)}
+                {ramOptions.map((option) => (
+                  <option key={option} value={option}>{option === "none" ? "None" : option}</option>
+                ))}
               </select>
             </label>
             <label className="field">
               <span>Cost</span>
               <select value={costFilter} onChange={(event) => setCostFilter(event.target.value as NumberFilter)}>
-                {numberOptions.map((option) => <option key={option}>{option}</option>)}
+                {costOptions.map((option) => (
+                  <option key={option} value={option}>{option === "none" ? "None" : option}</option>
+                ))}
               </select>
             </label>
           </div>

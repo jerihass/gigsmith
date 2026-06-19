@@ -12,6 +12,27 @@ export interface CardFilters {
   cost: NumberFilter;
 }
 
+export function numberFilterOptions(
+  cards: Card[],
+  field: "ram" | "cost"
+): NumberFilter[] {
+  const values = new Set<number>();
+  let hasMissingValue = false;
+
+  for (const card of cards) {
+    const value = card[field];
+    if (value === null) hasMissingValue = true;
+    else values.add(value);
+  }
+
+  const options: NumberFilter[] = [
+    "Any",
+    ...[...values].sort((left, right) => left - right).map(String)
+  ];
+  if (hasMissingValue) options.push("none");
+  return options;
+}
+
 function normalize(value: string): string {
   return value.trim().toLowerCase();
 }

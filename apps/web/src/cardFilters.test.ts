@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb } from "@gigsmith/card-data";
-import { filterCards } from "./cardFilters";
+import { filterCards, numberFilterOptions } from "./cardFilters";
 
 const defaultFilters = {
   query: "",
@@ -39,5 +39,23 @@ describe("filterCards", () => {
     });
 
     expect(cards.every((card) => card.ram === 2 && card.cost === 1)).toBe(true);
+  });
+});
+
+describe("numberFilterOptions", () => {
+  it("derives sorted values and missing-value support from card data", () => {
+    expect(numberFilterOptions(cyberpunkCardDb.cards, "cost")).toContain("9");
+    expect(numberFilterOptions(cyberpunkCardDb.cards, "cost")).toContain("none");
+  });
+
+  it("keeps RAM and cost options independent", () => {
+    const cards = cyberpunkCardDb.cards.slice(0, 1).map((card) => ({
+      ...card,
+      ram: 2,
+      cost: 9
+    }));
+
+    expect(numberFilterOptions(cards, "ram")).toEqual(["Any", "2"]);
+    expect(numberFilterOptions(cards, "cost")).toEqual(["Any", "9"]);
   });
 });

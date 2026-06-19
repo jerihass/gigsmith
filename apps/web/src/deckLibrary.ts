@@ -19,6 +19,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function isDeckEntry(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    typeof value.cardId === "string" &&
+    value.cardId.length > 0 &&
+    typeof value.count === "number" &&
+    Number.isInteger(value.count) &&
+    value.count > 0
+  );
+}
+
 function isDeck(value: unknown): value is Deck {
   if (!isRecord(value)) return false;
   return (
@@ -28,7 +39,9 @@ function isDeck(value: unknown): value is Deck {
     typeof value.rulesetVersion === "string" &&
     typeof value.cardDataVersion === "string" &&
     Array.isArray(value.legends) &&
-    Array.isArray(value.main)
+    value.legends.every(isDeckEntry) &&
+    Array.isArray(value.main) &&
+    value.main.every(isDeckEntry)
   );
 }
 

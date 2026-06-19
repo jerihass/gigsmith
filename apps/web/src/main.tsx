@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV0Guide } from "@gigsmith/card-data";
-import type { Card, Deck, DeckCardEntry, ValidationIssue } from "@gigsmith/data-contracts";
+import type { Card, Deck, DeckCardEntry } from "@gigsmith/data-contracts";
 import { exportDecklist, importDecklist } from "@gigsmith/deck-io";
 import { calculateRamLimits, validateDeck } from "@gigsmith/rules-core";
 import { filterCards, type CardColorFilter, type CardTypeFilter, type NumberFilter } from "./cardFilters";
@@ -16,6 +16,7 @@ import {
   saveDeckLibrary,
   selectDeck
 } from "./deckLibrary";
+import { groupValidationResult, type ValidationGroup } from "./validationGroups";
 import "./styles.css";
 
 declare global {
@@ -98,17 +99,30 @@ function entryCount(entries: DeckCardEntry[]): number {
   return entries.reduce((sum, entry) => sum + entry.count, 0);
 }
 
-function IssueList({ title, issues }: { title: string; issues: ValidationIssue[] }) {
-  if (issues.length === 0) return null;
+function ValidationReport({ groups }: { groups: ValidationGroup[] }) {
+  const issueCount = groups.reduce((sum, group) => sum + group.issues.length, 0);
   return (
-    <section className="panel">
-      <h2>{title}</h2>
-      <div className="issue-list">
-        {issues.map((issue, index) => (
-          <article className={`issue ${issue.severity}`} key={`${issue.code}-${index}`}>
-            <strong>{issue.message}</strong>
-            {issue.suggestedFixes?.map((fix) => <span key={fix}>{fix}</span>)}
-          </article>
+    <section className="panel validation-report">
+      <div className="panel-title">
+        <h2>Validation</h2>
+        <span className="result-count">{issueCount} {issueCount === 1 ? "result" : "results"}</span>
+      </div>
+      <div className="validation-groups">
+        {groups.map((group) => (
+          <section className="validation-group" key={group.id}>
+            <h3>{group.title}</h3>
+            <div className="issue-list">
+              {group.issues.map((issue, index) => (
+                <article className={`issue ${issue.severity}`} key={`${issue.code}-${index}`}>
+                  <strong>{issue.message}</strong>
+                  {issue.affectedCardLabels.length > 0 && (
+                    <span className="affected-cards">Cards: {issue.affectedCardLabels.join(", ")}</span>
+                  )}
+                  {issue.suggestedFixes?.map((fix) => <span key={fix}>{fix}</span>)}
+                </article>
+              ))}
+            </div>
+          </section>
         ))}
       </div>
     </section>
@@ -135,6 +149,10 @@ function App() {
   const detailCard = detailCardId ? cardById(detailCardId) : undefined;
 
   const validation = useMemo(() => validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV0Guide), [deck]);
+  const validationGroups = useMemo(
+    () => groupValidationResult(validation, cyberpunkCardDb.cards),
+    [validation]
+  );
   const ram = useMemo(() => calculateRamLimits(deck.legends, cyberpunkCardDb, cyberpunkRulesetV0Guide), [deck.legends]);
   const exportText = useMemo(() => exportDecklist(deck, cyberpunkCardDb), [deck]);
 
@@ -425,7 +443,7 @@ function App() {
         </section>
       </div>
 
-      <section className="grid">
+      <section className="analysis-grid">
         <section className="panel">
           <h2>RAM Planner</h2>
           <div className="ram-list">
@@ -437,10 +455,7 @@ function App() {
             ))}
           </div>
         </section>
-
-        <IssueList title="Errors" issues={validation.errors} />
-        <IssueList title="Warnings" issues={validation.warnings} />
-        <IssueList title="Info" issues={validation.info} />
+        <ValidationReport groups={validationGroups} />
       </section>
 
       <section className="workspace io">

@@ -127,6 +127,12 @@ h3 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.analysis-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(220px, 0.55fr) minmax(0, 1.45fr);
+}
+
 .overview {
   margin: 24px 0;
 }
@@ -468,6 +474,24 @@ textarea {
   color: #bbb4a7;
 }
 
+.validation-groups {
+  display: grid;
+  gap: 18px;
+}
+
+.validation-group + .validation-group {
+  border-top: 1px solid #34302a;
+  padding-top: 18px;
+}
+
+.validation-group h3 {
+  margin-top: 0;
+}
+
+.issue .affected-cards {
+  color: #f0b35a;
+}
+
 .ram-row strong {
   color: #f0b35a;
 }
@@ -554,6 +578,7 @@ textarea {
   }
 
   .grid,
+  .analysis-grid,
   .workspace,
   .source-panel,
   .filter-grid {

@@ -172,6 +172,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-020: Group Validation Report By Category
 
+**Status:** Done.
+
 **Goal:** Make validation failure easier for new players to understand.
 
 **Deliverables:**

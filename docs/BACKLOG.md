@@ -321,6 +321,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-040: Add Street Cred Calculation
 
+**Status:** Done.
+
 **Goal:** Model Street Cred from controlled Gig dice.
 
 **Deliverables:**

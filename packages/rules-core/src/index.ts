@@ -14,6 +14,7 @@ import type {
 } from "@gigsmith/data-contracts";
 
 export { analyzeEddyCurve } from "./eddyCurve";
+export { calculateStreetCred } from "./streetCred";
 
 function issue(
   code: string,
@@ -272,8 +273,4 @@ export function validateDeck(deck: Deck, cardDb: CardDatabase, ruleset: Ruleset)
     info,
     rulesetVersion: ruleset.version
   };
-}
-
-export function analyzeStreetCred(gigs: { value: number }[]): number {
-  return gigs.reduce((sum, gig) => sum + gig.value, 0);
 }

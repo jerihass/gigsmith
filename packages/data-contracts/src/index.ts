@@ -261,8 +261,6 @@ export interface PlayerState {
   id: string;
   deck: Deck;
   eddies: number;
-  streetCred: number;
-  friendlyGigIds: string[];
 }
 
 export interface BoardState {
@@ -270,6 +268,26 @@ export interface BoardState {
   gigs: Gig[];
   activePlayerId: string;
   turn: number;
+}
+
+export interface StreetCredContribution {
+  gigId: string;
+  dieType: DieType;
+  value: number;
+}
+
+export interface StreetCredIssue {
+  code: "unknown-player" | "invalid-gig-value" | "duplicate-gig-id";
+  message: string;
+  affectedGigIds: string[];
+}
+
+export interface StreetCredReport {
+  playerId: string;
+  total: number;
+  contributions: StreetCredContribution[];
+  issues: StreetCredIssue[];
+  rulesetVersion: RulesetVersion;
 }
 
 export interface SimulationOutcome {

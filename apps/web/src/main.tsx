@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from "react";
-import { createRoot } from "react-dom/client";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createRoot, type Root } from "react-dom/client";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV0Guide } from "@gigsmith/card-data";
 import type { Card, Deck, DeckCardEntry, ValidationIssue } from "@gigsmith/data-contracts";
 import { exportDecklist, importDecklist } from "@gigsmith/deck-io";
 import { calculateRamLimits, validateDeck } from "@gigsmith/rules-core";
 import { filterCards, type CardColorFilter, type CardTypeFilter, type NumberFilter } from "./cardFilters";
+import { cardDetailStats, cardDetailTags, cardDetailText } from "./cardDetails";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
 import {
   addDeck,
@@ -16,6 +17,12 @@ import {
   selectDeck
 } from "./deckLibrary";
 import "./styles.css";
+
+declare global {
+  interface Window {
+    gigsmithRoot?: Root;
+  }
+}
 
 const colorOptions: CardColorFilter[] = ["Any", "Red", "Yellow", "Green", "Blue"];
 const typeOptions: CardTypeFilter[] = ["Any", "Legend", "Unit", "Program", "Gear"];
@@ -120,7 +127,12 @@ function App() {
   const [costFilter, setCostFilter] = useState<NumberFilter>("Any");
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
+  const [detailCardId, setDetailCardId] = useState<string>();
+  const detailDialogRef = useRef<HTMLDialogElement>(null);
+  const detailCloseRef = useRef<HTMLButtonElement>(null);
+  const detailTriggerRef = useRef<HTMLButtonElement>();
   const deck = getActiveDeck(library);
+  const detailCard = detailCardId ? cardById(detailCardId) : undefined;
 
   const validation = useMemo(() => validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV0Guide), [deck]);
   const ram = useMemo(() => calculateRamLimits(deck.legends, cyberpunkCardDb, cyberpunkRulesetV0Guide), [deck.legends]);
@@ -137,6 +149,18 @@ function App() {
       }),
     [colorFilter, costFilter, query, ramFilter, typeFilter]
   );
+
+  useEffect(() => {
+    const dialog = detailDialogRef.current;
+    if (!dialog) return;
+
+    if (detailCard && !dialog.open) {
+      dialog.showModal();
+      detailCloseRef.current?.focus();
+    } else if (!detailCard && dialog.open) {
+      dialog.close();
+    }
+  }, [detailCard]);
 
   function persistLibrary(next: typeof library) {
     setLibrary(next);
@@ -182,6 +206,16 @@ function App() {
   function handleDeleteDeck() {
     persistLibrary(removeDeck(library, deck.id));
     setPendingDelete(false);
+  }
+
+  function openCardDetails(card: Card, trigger: HTMLButtonElement) {
+    detailTriggerRef.current = trigger;
+    setDetailCardId(card.id);
+  }
+
+  function closeCardDetails() {
+    setDetailCardId(undefined);
+    window.requestAnimationFrame(() => detailTriggerRef.current?.focus());
   }
 
   function addLegend(card: Card) {
@@ -367,17 +401,20 @@ function App() {
               const legendSelected = card.card_type === "Legend" && hasDeckEntry(deck.legends, card.id);
               return (
                 <article className="card-row" key={card.id}>
-                  <div>
+                  <div className="card-copy">
                     <strong>{card.display_name}</strong>
                     <span>{card.color} {card.card_type} · RAM {card.ram ?? "-"} · Cost {card.cost ?? "-"}</span>
                   </div>
-                  {card.card_type === "Legend" ? (
-                    <button disabled={legendSelected} onClick={() => addLegend(card)}>
-                      {legendSelected ? "Selected" : "Add Legend"}
-                    </button>
-                  ) : (
-                    <button onClick={() => adjustMainCard(card, 1)}>+ Main</button>
-                  )}
+                  <div className="card-actions">
+                    <button onClick={(event) => openCardDetails(card, event.currentTarget)}>Details</button>
+                    {card.card_type === "Legend" ? (
+                      <button disabled={legendSelected} onClick={() => addLegend(card)}>
+                        {legendSelected ? "Selected" : "Add Legend"}
+                      </button>
+                    ) : (
+                      <button onClick={() => adjustMainCard(card, 1)}>+ Main</button>
+                    )}
+                  </div>
                 </article>
               );
             })}
@@ -450,11 +487,98 @@ function App() {
           <a href={cyberpunkCardSnapshot.metadata.sourceUrl} target="_blank" rel="noreferrer">Snapshot API</a>
         </nav>
       </footer>
+
+      <dialog
+        className="card-detail-dialog"
+        ref={detailDialogRef}
+        aria-labelledby="card-detail-title"
+        onCancel={(event) => {
+          event.preventDefault();
+          closeCardDetails();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            event.preventDefault();
+            closeCardDetails();
+          }
+        }}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) closeCardDetails();
+        }}
+      >
+        {detailCard && (
+          <div className="card-detail-content">
+            <header className="card-detail-header">
+              <div>
+                <p>{detailCard.color} {detailCard.card_type}</p>
+                <h2 id="card-detail-title">{detailCard.display_name}</h2>
+                <code>{detailCard.external_id}</code>
+              </div>
+              <button
+                className="icon-button"
+                ref={detailCloseRef}
+                aria-label="Close card details"
+                title="Close"
+                onClick={closeCardDetails}
+              >×</button>
+            </header>
+
+            <dl className="card-detail-stats">
+              {cardDetailStats(detailCard).map((stat) => (
+                <div key={stat.label}>
+                  <dt>{stat.label}</dt>
+                  <dd>{stat.value}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <section className="card-detail-section">
+              <h3>Rules</h3>
+              <p className="rules-text">{cardDetailText(detailCard.rules_text, "No rules text.")}</p>
+            </section>
+
+            {detailCard.flavor_text && (
+              <section className="card-detail-section">
+                <h3>Flavor</h3>
+                <p className="flavor-text">{detailCard.flavor_text}</p>
+              </section>
+            )}
+
+            <dl className="card-detail-taxonomy">
+              <div>
+                <dt>Keywords</dt>
+                <dd>{cardDetailTags(detailCard.keywords)}</dd>
+              </div>
+              <div>
+                <dt>Classifications</dt>
+                <dd>{cardDetailTags(detailCard.classifications)}</dd>
+              </div>
+              <div>
+                <dt>Set</dt>
+                <dd>{detailCard.set.name} ({detailCard.set.code})</dd>
+              </div>
+              <div>
+                <dt>Printing</dt>
+                <dd>{detailCard.print_number ?? detailCard.printing_id}</dd>
+              </div>
+            </dl>
+
+            <footer className="card-detail-footer">
+              <span>Card ID: <code>{detailCard.id}</code></span>
+              <a href={cyberpunkCardSnapshot.metadata.sourceUrl} target="_blank" rel="noreferrer">Snapshot source</a>
+            </footer>
+          </div>
+        )}
+      </dialog>
     </main>
   );
 }
 
-createRoot(document.getElementById("root") as HTMLElement).render(
+const rootElement = document.getElementById("root") as HTMLElement;
+const root = window.gigsmithRoot ?? createRoot(rootElement);
+window.gigsmithRoot = root;
+
+root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>

@@ -279,7 +279,7 @@ textarea {
 }
 
 .deck-row > span,
-.card-row > div {
+.card-copy {
   min-width: 0;
 }
 
@@ -312,9 +312,135 @@ textarea {
   overflow: auto;
 }
 
-.card-row div {
+.card-copy {
   display: grid;
   gap: 4px;
+}
+
+.card-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.card-detail-dialog {
+  background: #191715;
+  border: 1px solid #4b453d;
+  border-radius: 8px;
+  color: #f3f0e8;
+  max-height: min(760px, calc(100vh - 32px));
+  max-width: 680px;
+  overflow: auto;
+  padding: 0;
+  width: calc(100% - 32px);
+}
+
+.card-detail-dialog::backdrop {
+  background: rgb(0 0 0 / 72%);
+}
+
+.card-detail-content {
+  display: grid;
+  gap: 20px;
+  padding: 22px;
+}
+
+.card-detail-header {
+  align-items: start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.card-detail-header p {
+  color: #f0b35a;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.card-detail-header h2 {
+  font-size: 1.45rem;
+  margin-bottom: 6px;
+}
+
+.card-detail-header code,
+.card-detail-footer code {
+  color: #aaa295;
+  overflow-wrap: anywhere;
+}
+
+.card-detail-stats,
+.card-detail-taxonomy {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.card-detail-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.card-detail-stats > div,
+.card-detail-taxonomy > div {
+  background: #111111;
+  border: 1px solid #2b2722;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.card-detail-stats dt,
+.card-detail-taxonomy dt {
+  color: #aaa295;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.card-detail-stats dd,
+.card-detail-taxonomy dd {
+  margin: 5px 0 0;
+}
+
+.card-detail-stats dd {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.card-detail-taxonomy {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.card-detail-section h3 {
+  margin-top: 0;
+}
+
+.rules-text,
+.flavor-text {
+  line-height: 1.55;
+  margin-bottom: 0;
+  white-space: pre-line;
+}
+
+.flavor-text {
+  color: #bbb4a7;
+  font-style: italic;
+}
+
+.card-detail-footer {
+  align-items: center;
+  border-top: 1px solid #34302a;
+  color: #aaa295;
+  display: flex;
+  font-size: 0.8rem;
+  gap: 14px;
+  justify-content: space-between;
+  padding-top: 14px;
+}
+
+.card-detail-footer a {
+  color: #f0b35a;
 }
 
 .issue {
@@ -441,6 +567,31 @@ textarea {
 
   .delete-confirmation {
     align-items: stretch;
+    flex-direction: column;
+  }
+
+  .card-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .card-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card-detail-content {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .card-detail-stats,
+  .card-detail-taxonomy {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card-detail-footer {
+    align-items: flex-start;
     flex-direction: column;
   }
 

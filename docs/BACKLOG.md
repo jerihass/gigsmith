@@ -147,6 +147,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-013: Add Card Detail View
 
+**Status:** Done.
+
 **Goal:** Let deck builders inspect what a card does without leaving the app.
 
 **Deliverables:**

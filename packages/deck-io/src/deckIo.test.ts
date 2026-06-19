@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cyberpunkCardDb } from "@gigsmith/card-data";
+import { cyberpunkCardDb, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import { createValidDeck } from "@gigsmith/test-fixtures";
 import { exportDecklist, importDecklist } from "./index";
 
@@ -19,7 +19,10 @@ describe("deck import/export", () => {
   });
 
   it("returns useful import errors for unknown cards", () => {
-    const imported = importDecklist("Main:\n3 Not A Real Card", cyberpunkCardDb);
+    const imported = importDecklist("Main:\n3 Not A Real Card", cyberpunkCardDb, {
+      formatId: cyberpunkRulesetV1Printable.defaultFormatId,
+      rulesetVersion: cyberpunkRulesetV1Printable.version
+    });
     expect(imported.deck).toBeUndefined();
     expect(imported.errors[0]).toEqual({
       line: 2,

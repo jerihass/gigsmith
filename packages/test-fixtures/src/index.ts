@@ -1,4 +1,4 @@
-import { cyberpunkCardDb, cyberpunkRulesetV0Guide } from "@gigsmith/card-data";
+import { cyberpunkCardDb, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, CardId, Deck, DeckCardEntry, Ruleset } from "@gigsmith/data-contracts";
 
 export interface FormatRulesetOptions {
@@ -20,8 +20,8 @@ export function createValidDeck(overrides: Partial<Deck> = {}): Deck {
   const deck: Deck = {
     id: "fixture-valid-deck",
     name: "Fixture Legal Deck",
-    formatId: cyberpunkRulesetV0Guide.defaultFormatId,
-    rulesetVersion: cyberpunkRulesetV0Guide.version,
+    formatId: cyberpunkRulesetV1Printable.defaultFormatId,
+    rulesetVersion: cyberpunkRulesetV1Printable.version,
     cardDataVersion: cyberpunkCardDb.metadata.cardDataVersion,
     legends: [
       entry("v-streetkid", 1),
@@ -52,8 +52,8 @@ export function createValidDeck(overrides: Partial<Deck> = {}): Deck {
 export function createFormatRuleset(options: FormatRulesetOptions = {}): Ruleset {
   const formatId = "fixture-format";
   return {
-    ...cyberpunkRulesetV0Guide,
-    version: `${cyberpunkRulesetV0Guide.version}.fixture-format`,
+    ...cyberpunkRulesetV1Printable,
+    version: `${cyberpunkRulesetV1Printable.version}.fixture-format`,
     defaultFormatId: formatId,
     formats: [
       {

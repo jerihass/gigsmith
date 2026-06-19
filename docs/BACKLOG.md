@@ -7,7 +7,7 @@ This backlog is organized by milestone. Each task must preserve the development 
 - Initial TypeScript monorepo exists.
 - Web shell renders a local deck editor, card browser, RAM summary, validation report, and text import/export.
 - Card data snapshot is `netdeck-cyberpunk-2026-06-18` with 60 Netdeck cards.
-- Rules baseline is `ruleset.v0-guide`.
+- Rules baseline is `ruleset.v1-printable-2026-06-19`.
 - Implemented validation rules:
   - exactly 3 Legend cards
   - 40-50 main-deck cards
@@ -280,12 +280,15 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 **Deliverables:**
 - Add `EddyCurveReport` type.
-- Include assumptions, card cost buckets, eddiable counts, and warnings for missing costs.
+- Separate Eddy demand, baseline supply, Legend contribution, and card-effect adjustments.
+- Include assumptions, card cost buckets, sellable counts, and warnings for missing costs.
+- Account for opening hand size, one card drawn per turn, one sale per turn, and first-player Legend timing.
 - Keep function pure: `analyzeEddyCurve(deck, cardDb, ruleset)`.
 
 **Acceptance Criteria:**
 - Report explains exactly which card fields drive the curve.
-- No probabilistic claims yet.
+- Supply projections distinguish guaranteed rules ceilings from draw-dependent estimates.
+- No unsupported claim about optimal deck shape is shown.
 
 **Tests:**
 - Golden deck curve fixture.

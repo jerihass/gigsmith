@@ -11,7 +11,7 @@ This repository starts with the constitution-compliant foundation:
 - import/export helpers in `packages/deck-io`
 - golden fixtures in `packages/test-fixtures`
 
-The current rules baseline is `ruleset.v0-guide`, derived from the public Cyberpunk TCG gameplay guide. The card metadata snapshot comes from Netdeck's Cyberpunk API and is stored locally for offline use and deterministic tests. External image URLs are references only; card art is not bundled.
+The current rules baseline is `ruleset.v1-printable-2026-06-19`, derived from the official printable Cyberpunk TCG gameplay guide. The card metadata snapshot comes from Netdeck's Cyberpunk API and is stored locally for offline use and deterministic tests. External image URLs are references only; card art is not bundled.
 
 ## Project Docs
 

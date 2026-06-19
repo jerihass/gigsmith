@@ -128,6 +128,20 @@ export interface Keyword {
   rulesetVersion: RulesetVersion;
 }
 
+export interface EddyRules {
+  startingEddies: number;
+  openingHandSize: number;
+  cardsDrawnPerTurn: number;
+  maxSellsPerTurn: number;
+  eddiesPerSoldCard: number;
+  soldCardDestination: "eddies-area";
+  eddiesReadyAtStartOfTurn: boolean;
+  legendPaymentValue: number;
+  firstPlayerSpentLegendsAtSetup: number;
+  firstPlayerLegendsReadyOnFirstTurn: boolean;
+  callLegendCost: number;
+}
+
 export interface Ruleset {
   version: RulesetVersion;
   sourceUrl: string;
@@ -138,6 +152,7 @@ export interface Ruleset {
   maxMainDeckCards: number;
   requiredUniqueLegends: number;
   maxCopiesByType: Partial<Record<CardType, number>>;
+  eddyRules: EddyRules;
   keywords: Keyword[];
   errata: Errata[];
 }

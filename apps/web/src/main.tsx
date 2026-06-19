@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV0Guide } from "@gigsmith/card-data";
+import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, Deck, DeckCardEntry } from "@gigsmith/data-contracts";
 import { exportDecklist, importDecklist } from "@gigsmith/deck-io";
 import { calculateRamLimits, validateDeck } from "@gigsmith/rules-core";
@@ -54,8 +54,8 @@ function createStarterDeck(overrides: Partial<Deck> = {}): Deck {
   return {
     id: "local-demo-deck",
     name: "Starter Legal Shell",
-    formatId: cyberpunkRulesetV0Guide.defaultFormatId,
-    rulesetVersion: cyberpunkRulesetV0Guide.version,
+    formatId: cyberpunkRulesetV1Printable.defaultFormatId,
+    rulesetVersion: cyberpunkRulesetV1Printable.version,
     cardDataVersion: cyberpunkCardDb.metadata.cardDataVersion,
     legends: [
       deckEntry("v-streetkid", 1),
@@ -93,8 +93,8 @@ function createEmptyDeck(name = "Untitled Deck"): Deck {
   return {
     id: createDeckId(),
     name,
-    formatId: cyberpunkRulesetV0Guide.defaultFormatId,
-    rulesetVersion: cyberpunkRulesetV0Guide.version,
+    formatId: cyberpunkRulesetV1Printable.defaultFormatId,
+    rulesetVersion: cyberpunkRulesetV1Printable.version,
     cardDataVersion: cyberpunkCardDb.metadata.cardDataVersion,
     legends: [],
     main: [],
@@ -155,12 +155,12 @@ function App() {
   const deck = getActiveDeck(library);
   const detailCard = detailCardId ? cardById(detailCardId) : undefined;
 
-  const validation = useMemo(() => validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV0Guide), [deck]);
+  const validation = useMemo(() => validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable), [deck]);
   const validationGroups = useMemo(
     () => groupValidationResult(validation, cyberpunkCardDb.cards),
     [validation]
   );
-  const ram = useMemo(() => calculateRamLimits(deck.legends, cyberpunkCardDb, cyberpunkRulesetV0Guide), [deck.legends]);
+  const ram = useMemo(() => calculateRamLimits(deck.legends, cyberpunkCardDb, cyberpunkRulesetV1Printable), [deck.legends]);
   const exportText = useMemo(() => exportDecklist(deck, cyberpunkCardDb), [deck]);
 
   const filteredCards = useMemo(
@@ -300,8 +300,8 @@ function App() {
         </article>
         <article className="metric">
           <span>Ruleset</span>
-          <strong>v0</strong>
-          <small>{cyberpunkRulesetV0Guide.version}</small>
+          <strong>v1</strong>
+          <small>{cyberpunkRulesetV1Printable.version}</small>
         </article>
       </section>
 
@@ -500,7 +500,7 @@ function App() {
           </div>
           <div>
             <dt>Ruleset</dt>
-            <dd>{cyberpunkRulesetV0Guide.version}</dd>
+            <dd>{cyberpunkRulesetV1Printable.version}</dd>
           </div>
           <div>
             <dt>Source count</dt>
@@ -508,7 +508,7 @@ function App() {
           </div>
         </dl>
         <nav aria-label="Source links">
-          <a href="https://cyberpunktcg.com/gameplay-guide" target="_blank" rel="noreferrer">Gameplay guide</a>
+          <a href={cyberpunkRulesetV1Printable.sourceUrl} target="_blank" rel="noreferrer">Printable gameplay guide</a>
           <a href="https://netdeck.gg/cards/cyberpunk" target="_blank" rel="noreferrer">Netdeck cards</a>
           <a href={cyberpunkCardSnapshot.metadata.sourceUrl} target="_blank" rel="noreferrer">Snapshot API</a>
         </nav>

@@ -11,6 +11,12 @@ export interface ImportDecklistResult {
   warnings: ImportIssue[];
 }
 
+export interface ImportDecklistOptions {
+  deckName?: string;
+  formatId: string;
+  rulesetVersion: string;
+}
+
 function normalizeName(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
 }
@@ -47,11 +53,7 @@ function mergeEntry(entries: DeckCardEntry[], cardId: string, count: number): vo
 export function importDecklist(
   text: string,
   cardDb: CardDatabase,
-  options: {
-    deckName?: string;
-    formatId?: string;
-    rulesetVersion?: string;
-  } = {}
+  options: ImportDecklistOptions
 ): ImportDecklistResult {
   const lookup = byLookup(cardDb);
   const errors: ImportIssue[] = [];
@@ -109,8 +111,8 @@ export function importDecklist(
       name: options.deckName ?? "Imported Deck",
       legends,
       main,
-      formatId: options.formatId ?? "open-guide",
-      rulesetVersion: options.rulesetVersion ?? "ruleset.v0-guide",
+      formatId: options.formatId,
+      rulesetVersion: options.rulesetVersion,
       cardDataVersion: cardDb.metadata.cardDataVersion
     },
     errors,

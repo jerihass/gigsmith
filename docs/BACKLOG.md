@@ -341,6 +341,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-041: Add Deterministic Gig State Sandbox
 
+**Status:** Done.
+
 **Goal:** Let users model simple Gig states before probability simulation.
 
 **Deliverables:**

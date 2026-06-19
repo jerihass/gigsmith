@@ -235,6 +235,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-021: Add Obvious Suggested Fixes
 
+**Status:** Done.
+
 **Goal:** Give clear next actions for common invalid decks.
 
 **Deliverables:**

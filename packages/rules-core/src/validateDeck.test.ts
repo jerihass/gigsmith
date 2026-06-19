@@ -15,7 +15,19 @@ describe("validateDeck", () => {
     const deck = createValidDeck({ legends: [createValidDeck().legends[0]] });
     const result = validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV0Guide);
     expect(result.legal).toBe(false);
-    expect(result.errors.map((error) => error.code)).toContain("legend-total");
+    expect(result.errors.find((error) => error.code === "legend-total")?.suggestedFixes).toEqual([
+      "Add 2 different Legend cards."
+    ]);
+  });
+
+  it("suggests removing excess Legends", () => {
+    const validDeck = createValidDeck();
+    const deck = createValidDeck({ legends: [...validDeck.legends, validDeck.legends[0]] });
+    const result = validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV0Guide);
+
+    expect(result.errors.find((error) => error.code === "legend-total")?.suggestedFixes).toEqual([
+      "Remove 1 Legend card, keeping exactly 3 different Legends."
+    ]);
   });
 
   it("requires unique Legend names", () => {
@@ -30,7 +42,19 @@ describe("validateDeck", () => {
     const deck = createValidDeck({ main: createValidDeck().main.slice(0, 3) });
     const result = validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV0Guide);
     expect(result.legal).toBe(false);
-    expect(result.errors.map((error) => error.code)).toContain("main-deck-size");
+    expect(result.errors.find((error) => error.code === "main-deck-size")?.suggestedFixes).toEqual([
+      "Add 31 non-Legend cards to the main deck."
+    ]);
+  });
+
+  it("suggests removing cards above the main-deck maximum", () => {
+    const deck = createValidDeck();
+    deck.main.push({ ...deck.main[0], count: 11 });
+    const result = validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV0Guide);
+
+    expect(result.errors.find((error) => error.code === "main-deck-size")?.suggestedFixes).toEqual([
+      "Remove 1 card from the main deck."
+    ]);
   });
 
   it("enforces max 3 copies of non-Legend cards", () => {
@@ -38,15 +62,20 @@ describe("validateDeck", () => {
     deck.main[0] = { ...deck.main[0], count: 4 };
     const result = validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV0Guide);
     expect(result.legal).toBe(false);
-    expect(result.errors.map((error) => error.code)).toContain("max-copies");
+    expect(result.errors.find((error) => error.code === "max-copies")?.suggestedFixes).toEqual([
+      `Remove 1 copy of ${cardBySlug("swordwise-huscle").display_name}.`
+    ]);
   });
 
   it("enforces RAM limits by Legend color totals", () => {
     const deck = createValidDeck();
-    deck.main[0] = { cardId: cardBySlug("adam-smasher-metal-over-meat").id, count: 1 };
+    const adamSmasher = cardBySlug("adam-smasher-metal-over-meat");
+    deck.main[0] = { cardId: adamSmasher.id, count: 1 };
     const result = validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV0Guide);
     expect(result.legal).toBe(false);
-    expect(result.errors.map((error) => error.code)).toContain("ram-limit");
+    expect(result.errors.find((error) => error.code === "ram-limit")?.suggestedFixes).toEqual([
+      `Replace a selected Legend with one that provides more ${adamSmasher.color} RAM, or remove ${adamSmasher.display_name}.`
+    ]);
   });
 
   it("reports unknown card IDs", () => {

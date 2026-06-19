@@ -35,6 +35,10 @@ function totalCount(entries: DeckCardEntry[]): number {
   return entries.reduce((sum, entry) => sum + entry.count, 0);
 }
 
+function countedNoun(count: number, singular: string, plural = `${singular}s`): string {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
 export function calculateRamLimits(
   legends: DeckCardEntry[],
   cardDb: CardDatabase,
@@ -101,7 +105,9 @@ export function checkCardLegality(
           "error",
           `${card.display_name} requires ${card.ram} ${card.color} RAM, but the selected Legends provide ${limitText} RAM.`,
           [card.id],
-          [`Choose more ${card.color} Legends or remove ${card.display_name}.`]
+          [
+            `Replace a selected Legend with one that provides more ${card.color} RAM, or remove ${card.display_name}.`
+          ]
         )
       );
     }
@@ -180,13 +186,17 @@ export function validateDeck(deck: Deck, cardDb: CardDatabase, ruleset: Ruleset)
   }
 
   if (legendCount !== ruleset.requiredUniqueLegends) {
+    const difference = Math.abs(ruleset.requiredUniqueLegends - legendCount);
+    const suggestedFix = legendCount < ruleset.requiredUniqueLegends
+      ? `Add ${countedNoun(difference, "different Legend card")}.`
+      : `Remove ${countedNoun(difference, "Legend card")}, keeping exactly ${ruleset.requiredUniqueLegends} different Legends.`;
     errors.push(
       issue(
         "legend-total",
         "error",
         `Deck has ${legendCount} Legend card${legendCount === 1 ? "" : "s"}. Exactly ${ruleset.requiredUniqueLegends} unique Legends are required.`,
         deck.legends.map((entry) => entry.cardId),
-        ["Select exactly 3 different Legend cards."]
+        [suggestedFix]
       )
     );
   }
@@ -198,12 +208,16 @@ export function validateDeck(deck: Deck, cardDb: CardDatabase, ruleset: Ruleset)
   }
 
   if (mainCount < ruleset.minMainDeckCards || mainCount > ruleset.maxMainDeckCards) {
+    const suggestedFix = mainCount < ruleset.minMainDeckCards
+      ? `Add ${countedNoun(ruleset.minMainDeckCards - mainCount, "non-Legend card")} to the main deck.`
+      : `Remove ${countedNoun(mainCount - ruleset.maxMainDeckCards, "card")} from the main deck.`;
     errors.push(
       issue(
         "main-deck-size",
         "error",
         `Main deck has ${mainCount} cards. It must contain ${ruleset.minMainDeckCards}-${ruleset.maxMainDeckCards} non-Legend cards.`,
-        deck.main.map((entry) => entry.cardId)
+        deck.main.map((entry) => entry.cardId),
+        [suggestedFix]
       )
     );
   }

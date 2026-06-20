@@ -25,6 +25,7 @@ import { DeckTransfer } from "./components/DeckTransfer";
 import { EddyCurvePanel } from "./components/EddyCurvePanel";
 import { GigSandbox } from "./components/GigSandbox";
 import { PwaUpdateNotice } from "./components/PwaUpdateNotice";
+import { SampleHandPanel } from "./components/SampleHandPanel";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
 import { TacticalSandbox } from "./components/TacticalSandbox";
 import { ValidationReport } from "./components/ValidationReport";
@@ -603,6 +604,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
           playerOrder={eddyPlayerOrder}
           onPlayerOrderChange={setEddyPlayerOrder}
         />
+        <SampleHandPanel deck={deck} />
       </section>
 
       <section

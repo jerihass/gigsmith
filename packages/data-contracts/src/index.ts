@@ -264,6 +264,35 @@ export interface EddyCurveReport {
   warnings: EddyCurveWarning[];
 }
 
+export interface SampleHandCard {
+  cardId: CardId;
+  copyNumber: number;
+  known: boolean;
+  displayName?: string;
+  cost?: number | null;
+  isSellable?: boolean;
+  classifications: string[];
+}
+
+export interface SampleHandIssue {
+  code: "unknown-card" | "invalid-count" | "insufficient-deck";
+  message: string;
+  affectedCardIds: CardId[];
+}
+
+export interface SampleHandReport {
+  seed: string;
+  requestedHandSize: number;
+  deckCardCount: number;
+  cards: SampleHandCard[];
+  sellableCount: number;
+  knownPrintedCostTotal: number;
+  issues: SampleHandIssue[];
+  assumptions: string[];
+  rulesetVersion: RulesetVersion;
+  cardDataVersion: CardDataVersion;
+}
+
 export type DieType = "d4" | "d6" | "d8" | "d10" | "d12" | "d20";
 
 export interface Gig {

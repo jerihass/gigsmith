@@ -66,3 +66,19 @@ test("exports JSON and reports malformed imports", async ({ page }) => {
   await page.getByRole("button", { name: "Import JSON" }).click();
   await expect(page.locator(".import-error")).toContainText("schema");
 });
+
+test("repeats a sample hand for the same seed", async ({ page }) => {
+  await page.getByRole("tab", { name: "Analysis" }).click();
+  const cards = page.getByRole("list", { name: "Sample hand cards" }).getByRole("listitem");
+  await expect(cards).toHaveCount(6);
+
+  const seed = page.getByLabel("Seed");
+  await seed.fill("repeatable-test-seed");
+  await page.getByRole("button", { name: "Generate", exact: true }).click();
+  const firstHand = await cards.allTextContents();
+
+  await page.getByRole("button", { name: "New seed" }).click();
+  await seed.fill("repeatable-test-seed");
+  await page.getByRole("button", { name: "Generate", exact: true }).click();
+  await expect(cards).toHaveText(firstHand);
+});

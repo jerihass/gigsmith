@@ -21,6 +21,7 @@ The current rules baseline is `ruleset.v1-printable-2026-06-19`, derived from th
 - `docs/RULE_UNCERTAINTY.md` tracks confirmed tactical rules and unresolved interactions.
 - `docs/APP_NAVIGATION.md` defines task views, persistence, and browser-history behavior.
 - `docs/DECK_EDIT_HISTORY.md` defines undo/redo scope, limits, and lifecycle behavior.
+- `docs/SAMPLE_HAND_ANALYSIS.md` defines deterministic opening-hand sampling and its limits.
 
 ## Commands
 

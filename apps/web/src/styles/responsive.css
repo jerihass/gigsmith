@@ -27,7 +27,8 @@
   .workspace,
   .source-panel,
   .filter-grid,
-  .eddy-analysis-layout {
+  .eddy-analysis-layout,
+  .gig-odds-layout {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -40,6 +41,10 @@
   }
 
   .sample-hand-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .next-die-options {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -142,6 +147,19 @@
   .sample-hand-title {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .gig-odds-title {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .die-order {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .next-die-options {
+    grid-template-columns: 1fr;
   }
 
   .mulligan-heading {

@@ -4,28 +4,28 @@ Gigsmith uses measured regression budgets before optimization. The authoritative
 
 ## Baseline
 
-Recorded June 20, 2026 from the production root build with 60 cards:
+Recorded June 20, 2026 from the production root build with 61 cards and exact Gig-odds analysis:
 
 | Asset | Raw | Gzip | CI budget (raw / gzip) |
 | --- | ---: | ---: | ---: |
-| JavaScript | 284,847 B | 82,463 B | 450,000 B / 130,000 B |
-| CSS | 25,080 B | 5,352 B | 60,000 B / 12,000 B |
+| JavaScript | 297,580 B | 86,174 B | 450,000 B / 130,000 B |
+| CSS | 27,182 B | 5,651 B | 60,000 B / 12,000 B |
 | Service worker | 1,899 B | 820 B | 12,000 B / 5,000 B |
-| Card snapshot | 70,286 B | 11,161 B | 400,000 B / 80,000 B |
-| Production code total | 311,826 B | 88,635 B | 650,000 B raw |
+| Card snapshot | 71,372 B | 11,296 B | 400,000 B / 80,000 B |
+| Production code total | 326,661 B | 92,645 B | 650,000 B raw |
 
 The snapshot budget supports the working growth target of 250 cards at substantially more than the current bytes-per-card density.
 
-An unthrottled local development run at a 412x915 phone viewport recorded:
+A production run at a Pixel 7 viewport with 4x CPU throttling recorded:
 
 | Workflow | Observed |
 | --- | ---: |
-| Warm render/reload | 47 ms |
-| Card filter response | 46 ms |
-| Deck edit response | 283 ms |
-| Mulligan recalculation | 292 ms |
+| Initial render | 674 ms |
+| Card filter response | 75 ms |
+| Deck edit and derived-report response | 467 ms |
+| Analysis control recalculation | 92 ms |
 
-These local timings include automation round trips and are diagnostic only. They are not compared directly with CI because CI uses production assets and CPU throttling.
+These timings include automation round trips. Deck edits recalculate validation, Eddy, mulligan, and exact Gig-odds reports.
 
 The pure card-filter pipeline averaged approximately 0.1 ms over 50 name-sorted runs against 250 synthetic card identities. This measures computation, not DOM rendering.
 
@@ -53,7 +53,7 @@ The browser scenario intentionally does not emulate network latency because Gigs
 Do not raise a failing threshold or add an optimization dependency without recording a new trace and representative baseline.
 
 - **List virtualization:** consider only when a real snapshot near 250 cards causes filter/render response to exceed 1,000 ms at 4x CPU, or scrolling produces sustained dropped frames. Preserve search accessibility and keyboard behavior in any virtualized list.
-- **Memoization changes or worker computation:** consider when Eddy or mulligan recalculation exceeds 2,500 ms at 4x CPU and a trace identifies calculation rather than rendering as the bottleneck.
+- **Memoization changes or worker computation:** consider when Eddy, mulligan, or Gig-odds recalculation exceeds 2,500 ms at 4x CPU and a trace identifies calculation rather than rendering as the bottleneck.
 - **Code splitting:** consider when JavaScript exceeds 130,000 B gzip or initial render exceeds 5,000 ms. Split task views only if offline precaching and update behavior remain deterministic.
 - **State-management dependency:** do not add one for bundle or timing concerns alone. Require a demonstrated correctness or ownership problem across multiple views plus a trace showing current state propagation is material.
 - **Snapshot/data indexing:** consider precomputed indexes only when the 250-card pure filter computation approaches 100 ms or browser filtering exceeds its threshold while rendering remains inexpensive.

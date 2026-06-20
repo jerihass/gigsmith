@@ -102,3 +102,17 @@ test("compares a hand with a full mulligan under visible assumptions", async ({ 
   await expect(comparison.getByText(/seeded samples|exact outcomes/)).toBeVisible();
   await expect(comparison).toContainText("not claims of an objectively correct play");
 });
+
+test("connects deck Gig goals with exact roll and current-board odds", async ({ page }) => {
+  await page.getByRole("tab", { name: "Analysis" }).click();
+  const odds = page.getByRole("region", { name: "Gig Odds & Color Goals" });
+  await expect(odds).toContainText("same-value pair");
+  await expect(odds.locator(".die-order > span")).toHaveCount(6);
+  await expect(odds.getByRole("row")).toHaveCount(7);
+
+  await page.getByRole("tab", { name: "Gigs" }).click();
+  await page.getByRole("button", { name: "Roll and gain You d4" }).click();
+  await page.getByRole("tab", { name: "Analysis" }).click();
+  await expect(odds.getByRole("heading", { name: "Your Next Fixer Die" })).toBeVisible();
+  await expect(odds.locator(".next-die-options article")).toHaveCount(4);
+});

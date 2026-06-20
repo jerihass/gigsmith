@@ -4,7 +4,7 @@ import { Redo2, Undo2 } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, Deck, DeckCardEntry, DeckDocumentV1 } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload } from "@gigsmith/deck-io";
-import { analyzeEddyCurve, calculateRamLimits, validateDeck } from "@gigsmith/rules-core";
+import { analyzeEddyCurve, calculateRamLimits, createGigMatch, validateDeck } from "@gigsmith/rules-core";
 import { loadAppView, saveAppView, type AppView } from "./appViews";
 import {
   browseCards,
@@ -25,6 +25,7 @@ import { DeckRecovery } from "./components/DeckRecovery";
 import { DeckTransfer } from "./components/DeckTransfer";
 import { EddyCurvePanel } from "./components/EddyCurvePanel";
 import { GigSandbox } from "./components/GigSandbox";
+import { GigOddsPanel } from "./components/GigOddsPanel";
 import { PwaUpdateNotice } from "./components/PwaUpdateNotice";
 import { SampleHandPanel } from "./components/SampleHandPanel";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
@@ -151,6 +152,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [cardArtUrls, setCardArtUrls] = useState<ReadonlyMap<string, string>>(() => new Map());
   const [cardArtSourceStatus, setCardArtSourceStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
   const [eddyPlayerOrder, setEddyPlayerOrder] = useState<"first" | "second">("first");
+  const [gigMatch, setGigMatch] = useState(() => createGigMatch(["player", "rival"], "player", cyberpunkRulesetV1Printable));
   const [sharedDocument, setSharedDocument] = useState<DeckDocumentV1>();
   const [sharedDeckError, setSharedDeckError] = useState("");
   const [detailCardId, setDetailCardId] = useState<string>();
@@ -659,6 +661,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
           onPlayerOrderChange={setEddyPlayerOrder}
         />
         <SampleHandPanel deck={deck} />
+        <GigOddsPanel deck={deck} match={gigMatch} />
       </section>
 
       <section
@@ -668,7 +671,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         aria-labelledby="app-tab-gigs"
         hidden={activeView !== "gigs"}
       >
-        <GigSandbox />
+        <GigSandbox match={gigMatch} onChange={setGigMatch} />
       </section>
 
       <section

@@ -18,6 +18,7 @@ export { evaluateAttackLines } from "./attackLines";
 export { drawSampleHand } from "./sampleHand";
 export { analyzeMulligan, type MulliganAnalysisOptions } from "./mulligan";
 export { calculateStreetCred } from "./streetCred";
+export { analyzeGigOdds } from "./gigOdds";
 export {
   advanceGigMatchTurn,
   availableFixerGigs,

@@ -3,7 +3,7 @@
 Gigsmith organizes its tools into four locally selected views:
 
 - **Deck:** deck library, deck editor, card database, and deck counts.
-- **Analysis:** RAM limits, validation results, and Eddy curve.
+- **Analysis:** RAM limits, validation, Eddy curve, hand analysis, and deck-driven Gig odds.
 - **Gigs:** fixed 12-die match state, turn flow, Street Cred, and win tracking.
 - **Transfer:** text/JSON import, export, and share links.
 

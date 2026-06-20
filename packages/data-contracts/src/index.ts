@@ -407,6 +407,79 @@ export interface GigMatchReport {
   rulesetVersion: RulesetVersion;
 }
 
+export type GigConditionId =
+  | "high-8"
+  | "maximum"
+  | "minimum"
+  | "parity-mix"
+  | "distinct-2"
+  | "distinct-3"
+  | "value-pair"
+  | "cost-match"
+  | "street-cred-20"
+  | "street-cred-lead"
+  | "street-cred-trail";
+
+export interface CardGigRequirement {
+  externalCardId: string;
+  conditions: GigConditionId[];
+  note: string;
+}
+
+export interface GigRequirementRegistry {
+  version: string;
+  rulesetVersion: RulesetVersion;
+  entries: CardGigRequirement[];
+}
+
+export interface GigConditionDemand {
+  condition: GigConditionId;
+  copies: number;
+  cardIds: CardId[];
+  colors: CardColor[];
+  supported: boolean;
+}
+
+export interface GigRollProfile {
+  outcomeCount: number;
+  expectedStreetCred: number;
+  high8Probability: number;
+  maximumProbability: number;
+  minimumProbability: number;
+  parityMixProbability: number;
+  distinct2Probability: number;
+  distinct3Probability: number;
+  valuePairProbability: number;
+  streetCred20Probability: number;
+  expectedCostMatchDensity: number | null;
+}
+
+export interface GigOddsTurn {
+  turn: number;
+  dieType: DieType;
+  dice: DieType[];
+  profile: GigRollProfile;
+  deckFitScore: number;
+}
+
+export interface GigNextDieOption {
+  dieType: DieType;
+  profile: GigRollProfile;
+  deckFitScore: number;
+}
+
+export interface GigOddsReport {
+  registryVersion: string;
+  rulesetVersion: RulesetVersion;
+  cardDataVersion: CardDataVersion;
+  demands: GigConditionDemand[];
+  unsupportedCardIds: CardId[];
+  recommendedOrder: DieType[];
+  turns: GigOddsTurn[];
+  nextDieOptions: GigNextDieOption[];
+  assumptions: string[];
+}
+
 export interface PlayerState {
   id: string;
   deck: Deck;

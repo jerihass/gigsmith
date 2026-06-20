@@ -534,3 +534,191 @@
   margin-top: 10px;
   overflow-wrap: anywhere;
 }
+
+.gig-odds-panel {
+  margin-bottom: 16px;
+}
+
+.gig-odds-title {
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.gig-odds-title h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0;
+}
+
+.gig-odds-layout {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(240px, 0.7fr) minmax(520px, 1.3fr);
+}
+
+.gig-odds-layout h3,
+.next-die-analysis h3 {
+  margin-top: 0;
+}
+
+.gig-demand-list {
+  display: grid;
+  gap: 7px;
+}
+
+.gig-demand {
+  border-left: 3px solid #71d4e8;
+  display: grid;
+  gap: 4px;
+  padding: 7px 10px;
+}
+
+.gig-demand.unsupported {
+  border-left-color: #817b71;
+}
+
+.gig-demand > div,
+.gig-order-heading {
+  align-items: baseline;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.gig-demand span,
+.gig-order-heading span {
+  color: #aaa295;
+  font-size: 0.76rem;
+}
+
+.gig-demand small {
+  color: #bbb4a7;
+  line-height: 1.35;
+}
+
+.gig-demand em {
+  color: #e5c28e;
+  font-size: 0.72rem;
+}
+
+.die-order {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(6, minmax(48px, 1fr));
+  margin: 4px 0 14px;
+}
+
+.die-order > span {
+  align-items: center;
+  background: #292621;
+  border: 1px solid #3c362f;
+  border-radius: 5px;
+  color: #f0b35a;
+  display: flex;
+  font-weight: 800;
+  gap: 7px;
+  justify-content: center;
+  min-height: 42px;
+}
+
+.die-order small {
+  color: #817b71;
+  font-size: 0.68rem;
+}
+
+.gig-odds-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.gig-odds-table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  min-width: 690px;
+  width: 100%;
+}
+
+.gig-odds-table th,
+.gig-odds-table td {
+  border-bottom: 1px solid #2b2722;
+  padding: 8px 9px;
+  text-align: right;
+}
+
+.gig-odds-table th:first-child,
+.gig-odds-table td:first-child {
+  padding-left: 0;
+  text-align: left;
+}
+
+.gig-odds-table thead th {
+  color: #aaa295;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.gig-odds-table tbody td:nth-child(2) {
+  color: #f0b35a;
+  font-weight: 800;
+}
+
+.next-die-analysis {
+  border-top: 1px solid #34302a;
+  margin-top: 22px;
+  padding-top: 18px;
+}
+
+.next-die-options {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.next-die-options article {
+  background: #111111;
+  border: 1px solid #34302a;
+  border-radius: 6px;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 11px;
+}
+
+.next-die-options article > strong {
+  color: #f0b35a;
+  font-size: 1.05rem;
+}
+
+.next-die-options article > span {
+  color: #71d4e8;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.next-die-options dl {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+}
+
+.next-die-options dl > div {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.next-die-options dt,
+.next-die-options dd {
+  font-size: 0.7rem;
+}
+
+.next-die-options dt {
+  color: #aaa295;
+}
+
+.next-die-options dd {
+  margin: 0;
+}
+
+.gig-odds-assumptions {
+  margin-top: 20px;
+}

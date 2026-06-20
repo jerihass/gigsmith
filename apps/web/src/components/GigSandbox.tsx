@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Dices, Minus, Plus, RotateCcw, SkipForward } from "lucide-react";
 import { cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
-import type { Gig, GigMatchIssue, GigMatchTransition } from "@gigsmith/data-contracts";
+import type { Gig, GigMatchIssue, GigMatchState, GigMatchTransition } from "@gigsmith/data-contracts";
 import {
   advanceGigMatchTurn,
   createGigMatch,
@@ -27,20 +27,19 @@ function randomRoll(gig: Gig): number {
   return Math.floor(Math.random() * gigDieMaximum(gig.dieType)) + 1;
 }
 
-export function GigSandbox() {
-  const [match, setMatch] = useState(() => createGigMatch(playerIds, "player", cyberpunkRulesetV1Printable));
+export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange: (match: GigMatchState) => void }) {
   const [issues, setIssues] = useState<GigMatchIssue[]>([]);
   const report = useMemo(() => reportGigMatch(match, cyberpunkRulesetV1Printable), [match]);
   const activeLabel = playerLabel(report.activePlayerId);
   const mustGainGig = !match.gainedGigThisTurn && report.availableGigIds.length > 0;
 
   function apply(transition: GigMatchTransition) {
-    setMatch(transition.state);
+    onChange(transition.state);
     setIssues(transition.issues);
   }
 
   function reset(firstPlayerId = match.firstPlayerId) {
-    setMatch(createGigMatch(playerIds, firstPlayerId, cyberpunkRulesetV1Printable));
+    onChange(createGigMatch(playerIds, firstPlayerId, cyberpunkRulesetV1Printable));
     setIssues([]);
   }
 

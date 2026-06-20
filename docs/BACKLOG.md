@@ -689,6 +689,33 @@ domain model and tests remain available for future card-aware analysis.
 
 **Constitution Check:** Text/data remains authoritative and artwork stays optional and external.
 
+## M10 - Gig Probability And Deck Synergy
+
+### GS-100: Add Exact Deck-Driven Gig Odds
+
+**Status:** Done.
+
+**Goal:** Connect natural Gig-roll probabilities with the actual Gig-value payoffs in the active deck.
+
+**Deliverables:**
+- Curate versioned card requirements for high, minimum, parity, distinct, cost-match, and same-value-pair goals.
+- Enumerate exact outcomes for every legal die subset and all 120 pre-d20 orders.
+- Weight order recommendations by copies of enabling cards in the active deck.
+- Compare legal next Fixer dice against the shared current match state.
+- Keep Rival-relative Street Cred effects visible but unsupported without rival state.
+
+**Acceptance Criteria:**
+- Green cards are modeled as same-value-pair demand, not parity or distinct-value demand.
+- The d20 remains sixth in every recommended sequence.
+- Reports expose assumptions, card sources, exact probabilities, and unsupported effects.
+- No card-text manipulation effect is silently included in natural-roll odds.
+
+**Tests:**
+- Exact single-die outcomes, Red high-value ordering, Green pair ordering, current-board next-die odds, registry integrity, and unsupported comparisons.
+- Desktop and phone browser coverage for deck demand, six-turn odds, and live match updates.
+
+**Constitution Check:** Exact, explainable analysis remains in rules-core and uses versioned card metadata.
+
 ## Cross-Cutting Work
 
 ### GS-900: Add CI

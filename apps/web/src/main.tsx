@@ -12,7 +12,9 @@ import {
   type NumberFilter
 } from "./cardFilters";
 import { CardDetailDialog } from "./components/CardDetailDialog";
+import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
+import { DeckRecovery } from "./components/DeckRecovery";
 import { DeckTransfer } from "./components/DeckTransfer";
 import { EddyCurvePanel } from "./components/EddyCurvePanel";
 import { GigSandbox } from "./components/GigSandbox";
@@ -24,11 +26,13 @@ import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
 import {
   addDeck,
   getActiveDeck,
-  loadDeckLibrary,
+  loadDeckLibraryResult,
   removeDeck,
   replaceActiveDeck,
+  resetDeckLibrary,
   saveDeckLibrary,
-  selectDeck
+  selectDeck,
+  type DeckLibrary
 } from "./deckLibrary";
 import { groupValidationResult } from "./validationGroups";
 import "./styles.css";
@@ -114,10 +118,8 @@ function entryCount(entries: DeckCardEntry[]): number {
   return entries.reduce((sum, entry) => sum + entry.count, 0);
 }
 
-function App() {
-  const [library, setLibrary] = useState(() =>
-    loadDeckLibrary(window.localStorage, createStarterDeck())
-  );
+function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
+  const [library, setLibrary] = useState(initialLibrary);
   const [pendingDelete, setPendingDelete] = useState(false);
   const [query, setQuery] = useState("");
   const [colorFilter, setColorFilter] = useState<CardColorFilter>("Any");
@@ -530,12 +532,33 @@ function App() {
   );
 }
 
+function GigsmithLoader() {
+  const [fallbackDeck] = useState(() => createStarterDeck());
+  const [loadResult, setLoadResult] = useState(() =>
+    loadDeckLibraryResult(window.localStorage, fallbackDeck)
+  );
+
+  if (loadResult.recovery) {
+    return (
+      <DeckRecovery
+        recovery={loadResult.recovery}
+        onRetry={() => setLoadResult(loadDeckLibraryResult(window.localStorage, fallbackDeck))}
+        onReset={() => setLoadResult({ library: resetDeckLibrary(window.localStorage, fallbackDeck) })}
+      />
+    );
+  }
+
+  return <App initialLibrary={loadResult.library} />;
+}
+
 const rootElement = document.getElementById("root") as HTMLElement;
 const root = window.gigsmithRoot ?? createRoot(rootElement);
 window.gigsmithRoot = root;
 
 root.render(
   <React.StrictMode>
-    <App />
+    <AppErrorBoundary>
+      <GigsmithLoader />
+    </AppErrorBoundary>
   </React.StrictMode>
 );

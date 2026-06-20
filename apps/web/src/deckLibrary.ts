@@ -2,6 +2,7 @@ import type { Deck } from "@gigsmith/data-contracts";
 
 export const deckLibraryStorageKey = "gigsmith.deck-library.v1";
 export const legacyDeckStorageKey = "gigsmith.deck.v1";
+export const deckLibraryRecoveryStorageKey = "gigsmith.deck-library.recovery.v1";
 
 export interface DeckLibrary {
   version: 1;
@@ -14,6 +15,16 @@ export interface StorageAdapter {
   setItem(key: string, value: string): void;
   removeItem(key: string): void;
 }
+
+export interface DeckLibraryRecovery {
+  sourceKey: typeof deckLibraryStorageKey | typeof legacyDeckStorageKey;
+  rawValue: string;
+  reason: "invalid-json" | "invalid-schema";
+}
+
+export type DeckLibraryLoadResult =
+  | { library: DeckLibrary; recovery?: undefined }
+  | { library?: undefined; recovery: DeckLibraryRecovery };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -45,12 +56,11 @@ function isDeck(value: unknown): value is Deck {
   );
 }
 
-function parseStoredValue(value: string | null): unknown {
-  if (!value) return undefined;
+function parseStoredValue(value: string): { value?: unknown; validJson: boolean } {
   try {
-    return JSON.parse(value) as unknown;
+    return { value: JSON.parse(value) as unknown, validJson: true };
   } catch {
-    return undefined;
+    return { validJson: false };
   }
 }
 
@@ -68,14 +78,68 @@ export function saveDeckLibrary(storage: StorageAdapter, library: DeckLibrary): 
   storage.setItem(deckLibraryStorageKey, JSON.stringify(library));
 }
 
-export function loadDeckLibrary(storage: StorageAdapter, fallbackDeck: Deck): DeckLibrary {
-  const storedLibrary = parseStoredValue(storage.getItem(deckLibraryStorageKey));
-  if (isDeckLibrary(storedLibrary)) return storedLibrary;
+function preserveRecovery(
+  storage: StorageAdapter,
+  sourceKey: DeckLibraryRecovery["sourceKey"],
+  rawValue: string,
+  reason: DeckLibraryRecovery["reason"]
+): DeckLibraryLoadResult {
+  const recovery = { sourceKey, rawValue, reason } satisfies DeckLibraryRecovery;
+  storage.setItem(deckLibraryRecoveryStorageKey, JSON.stringify(recovery));
+  return { recovery };
+}
 
-  const legacyDeck = parseStoredValue(storage.getItem(legacyDeckStorageKey));
-  const library = createDeckLibrary(isDeck(legacyDeck) ? legacyDeck : fallbackDeck);
+export function loadDeckLibraryResult(storage: StorageAdapter, fallbackDeck: Deck): DeckLibraryLoadResult {
+  const storedLibraryRaw = storage.getItem(deckLibraryStorageKey);
+  if (storedLibraryRaw !== null) {
+    const parsed = parseStoredValue(storedLibraryRaw);
+    if (parsed.validJson && isDeckLibrary(parsed.value)) {
+      storage.removeItem(deckLibraryRecoveryStorageKey);
+      return { library: parsed.value };
+    }
+    return preserveRecovery(
+      storage,
+      deckLibraryStorageKey,
+      storedLibraryRaw,
+      parsed.validJson ? "invalid-schema" : "invalid-json"
+    );
+  }
+
+  const legacyDeckRaw = storage.getItem(legacyDeckStorageKey);
+  if (legacyDeckRaw !== null) {
+    const parsed = parseStoredValue(legacyDeckRaw);
+    if (!parsed.validJson || !isDeck(parsed.value)) {
+      return preserveRecovery(
+        storage,
+        legacyDeckStorageKey,
+        legacyDeckRaw,
+        parsed.validJson ? "invalid-schema" : "invalid-json"
+      );
+    }
+    const library = createDeckLibrary(parsed.value);
+    saveDeckLibrary(storage, library);
+    storage.removeItem(legacyDeckStorageKey);
+    storage.removeItem(deckLibraryRecoveryStorageKey);
+    return { library };
+  }
+
+  const library = createDeckLibrary(fallbackDeck);
   saveDeckLibrary(storage, library);
+  storage.removeItem(deckLibraryRecoveryStorageKey);
+  return { library };
+}
+
+export function loadDeckLibrary(storage: StorageAdapter, fallbackDeck: Deck): DeckLibrary {
+  const result = loadDeckLibraryResult(storage, fallbackDeck);
+  return result.library ?? createDeckLibrary(fallbackDeck);
+}
+
+export function resetDeckLibrary(storage: StorageAdapter, fallbackDeck: Deck): DeckLibrary {
+  storage.removeItem(deckLibraryStorageKey);
   storage.removeItem(legacyDeckStorageKey);
+  storage.removeItem(deckLibraryRecoveryStorageKey);
+  const library = createDeckLibrary(fallbackDeck);
+  saveDeckLibrary(storage, library);
   return library;
 }
 

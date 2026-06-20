@@ -78,6 +78,77 @@ main {
   font-weight: 700;
 }
 
+.recovery-page {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.recovery-panel {
+  background: #191715;
+  border: 1px solid #4b453d;
+  border-radius: 8px;
+  max-width: 760px;
+  padding: 24px;
+  width: 100%;
+}
+
+.recovery-panel h1 {
+  font-size: 2rem;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+
+.recovery-panel > p:not(.eyebrow) {
+  color: #bbb4a7;
+  line-height: 1.5;
+}
+
+.recovery-data {
+  margin: 20px 0 12px;
+}
+
+.recovery-data textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  min-height: 220px;
+}
+
+.recovery-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.copy-status {
+  color: #9ef2c4;
+  font-size: 0.8rem;
+}
+
+.recovery-reset {
+  margin-top: 24px;
+}
+
+.recovery-reset-confirmation {
+  background: #321817;
+  border: 1px solid #71332e;
+  border-radius: 6px;
+  margin-top: 24px;
+  padding: 12px;
+}
+
+.recovery-reset-confirmation p {
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.recovery-reset-confirmation > div {
+  display: flex;
+  gap: 8px;
+}
+
 .app-header {
   display: flex;
   align-items: flex-end;
@@ -1271,6 +1342,20 @@ textarea {
 }
 
 @media (max-width: 560px) {
+  .recovery-page {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .recovery-panel {
+    padding: 16px;
+  }
+
+  .recovery-actions {
+    align-items: stretch;
+    display: grid;
+  }
+
   .eddy-title {
     align-items: stretch;
     flex-direction: column;

@@ -3,11 +3,14 @@ import type { Deck } from "@gigsmith/data-contracts";
 import {
   addDeck,
   createDeckLibrary,
+  deckLibraryRecoveryStorageKey,
   deckLibraryStorageKey,
   getActiveDeck,
   legacyDeckStorageKey,
   loadDeckLibrary,
+  loadDeckLibraryResult,
   removeDeck,
+  resetDeckLibrary,
   replaceActiveDeck,
   selectDeck,
   type StorageAdapter
@@ -54,13 +57,18 @@ describe("loadDeckLibrary", () => {
     expect(storage.getItem(deckLibraryStorageKey)).not.toBeNull();
   });
 
-  it("uses and saves the fallback for invalid data", () => {
+  it("preserves invalid JSON without overwriting the original payload", () => {
     const storage = memoryStorage({ [deckLibraryStorageKey]: "not-json" });
 
-    const library = loadDeckLibrary(storage, deck("fallback"));
+    const result = loadDeckLibraryResult(storage, deck("fallback"));
 
-    expect(getActiveDeck(library).id).toBe("fallback");
-    expect(JSON.parse(storage.getItem(deckLibraryStorageKey) ?? "")).toEqual(library);
+    expect(result.recovery).toEqual({
+      sourceKey: deckLibraryStorageKey,
+      rawValue: "not-json",
+      reason: "invalid-json"
+    });
+    expect(storage.getItem(deckLibraryStorageKey)).toBe("not-json");
+    expect(JSON.parse(storage.getItem(deckLibraryRecoveryStorageKey) ?? "")).toEqual(result.recovery);
   });
 
   it.each([
@@ -69,7 +77,7 @@ describe("loadDeckLibrary", () => {
     { cardId: "card-1" },
     { cardId: "card-1", count: 0 },
     { cardId: "card-1", count: 1.5 }
-  ])("uses the fallback when a saved deck contains an invalid entry: %j", (entry) => {
+  ])("preserves a saved deck containing an invalid entry: %j", (entry) => {
     const invalidDeck = { ...deck("saved"), main: [entry] };
     const storedLibrary = {
       version: 1,
@@ -80,7 +88,39 @@ describe("loadDeckLibrary", () => {
       [deckLibraryStorageKey]: JSON.stringify(storedLibrary)
     });
 
-    expect(getActiveDeck(loadDeckLibrary(storage, deck("fallback"))).id).toBe("fallback");
+    const result = loadDeckLibraryResult(storage, deck("fallback"));
+    expect(result.recovery?.reason).toBe("invalid-schema");
+    expect(storage.getItem(deckLibraryStorageKey)).toBe(JSON.stringify(storedLibrary));
+  });
+
+  it("preserves an invalid legacy payload", () => {
+    const storage = memoryStorage({ [legacyDeckStorageKey]: "{" });
+
+    const result = loadDeckLibraryResult(storage, deck("fallback"));
+
+    expect(result.recovery).toMatchObject({
+      sourceKey: legacyDeckStorageKey,
+      rawValue: "{",
+      reason: "invalid-json"
+    });
+    expect(storage.getItem(legacyDeckStorageKey)).toBe("{");
+  });
+
+  it("clears only Gigsmith deck keys during an explicit reset", () => {
+    const storage = memoryStorage({
+      [deckLibraryStorageKey]: "broken",
+      [legacyDeckStorageKey]: "legacy",
+      [deckLibraryRecoveryStorageKey]: "recovery",
+      "unrelated.preference": "keep"
+    });
+
+    const library = resetDeckLibrary(storage, deck("fallback"));
+
+    expect(getActiveDeck(library).id).toBe("fallback");
+    expect(storage.getItem(legacyDeckStorageKey)).toBeNull();
+    expect(storage.getItem(deckLibraryRecoveryStorageKey)).toBeNull();
+    expect(JSON.parse(storage.getItem(deckLibraryStorageKey) ?? "")).toEqual(library);
+    expect(storage.getItem("unrelated.preference")).toBe("keep");
   });
 });
 

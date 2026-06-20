@@ -685,6 +685,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 **Priority:** P0.
 
+**Status:** Done.
+
 **Goal:** Prevent malformed local data or an unexpected render failure from making the app unusable.
 
 **Deliverables:**

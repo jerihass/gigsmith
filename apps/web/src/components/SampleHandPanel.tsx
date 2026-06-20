@@ -131,7 +131,7 @@ export function SampleHandPanel({ deck }: { deck: Deck }) {
           </div>
         </div>
 
-        <div className="mulligan-table-scroll">
+        <div className="mulligan-table-scroll" role="region" aria-label="Mulligan metric comparison" tabIndex={0}>
           <table className="mulligan-table">
             <thead><tr><th scope="col">Metric</th><th scope="col">Current hand</th><th scope="col">Redraw average</th></tr></thead>
             <tbody>

@@ -73,7 +73,7 @@ export function EddyCurvePanel({
             <h3 id="eddy-projection-title">Expected Supply by Turn</h3>
             <span>{playerOrder === "first" ? "First player" : "Second player"}</span>
           </div>
-          <div className="table-scroll">
+          <div className="table-scroll" role="region" aria-label="Expected Eddy supply by turn" tabIndex={0}>
             <table>
               <thead>
                 <tr><th scope="col">Turn</th><th scope="col">Seen</th><th scope="col">Eddies</th><th scope="col">Legends</th><th scope="col">Capacity</th></tr>

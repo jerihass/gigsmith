@@ -5,7 +5,6 @@ const labels: Record<AppView, string> = {
   deck: "Deck",
   analysis: "Analysis",
   gigs: "Gigs",
-  tactics: "Tactics",
   transfer: "Transfer"
 };
 

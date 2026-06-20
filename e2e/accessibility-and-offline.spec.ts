@@ -11,7 +11,7 @@ test("supports keyboard tab navigation and has no serious accessibility violatio
   await deckTab.press("ArrowRight");
   await expect(page.getByRole("tab", { name: "Analysis" })).toHaveAttribute("aria-selected", "true");
 
-  for (const view of ["Deck", "Analysis", "Gigs", "Tactics", "Transfer"]) {
+  for (const view of ["Deck", "Analysis", "Gigs", "Transfer"]) {
     await page.getByRole("tab", { name: view }).click();
     const results = await new AxeBuilder({ page }).analyze();
     const serious = results.violations.filter((violation) => ["serious", "critical"].includes(violation.impact ?? ""));

@@ -11,7 +11,7 @@ Gigsmith's CSS entry point is `apps/web/src/styles.css`. It imports files in cas
 5. `styles/deck-and-cards.css` - deck editor, form fields, filtering, card rows, optional art, and card details.
 6. `styles/validation.css` - validation issue groups and RAM emphasis.
 7. `styles/analysis.css` - Eddy curve, sample hands, and mulligan comparison.
-8. `styles/game-tools.css` - Gig and tactical sandboxes, Street Cred, and attack lines.
+8. `styles/game-tools.css` - Gig sandbox, Street Cred, and shared binary controls.
 9. `styles/transfer-and-sources.css` - import/export, share links, source metadata, and footer links.
 10. `styles/responsive.css` - all breakpoint overrides, loaded last to preserve override precedence.
 

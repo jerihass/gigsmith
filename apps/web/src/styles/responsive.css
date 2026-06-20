@@ -35,10 +35,6 @@
     grid-column: auto;
   }
 
-  .tactical-controls {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .eddy-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -209,20 +205,6 @@
 
   .gig-sandbox-title {
     align-items: stretch;
-    flex-direction: column;
-  }
-
-  .tactical-title {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .tactical-controls {
-    grid-template-columns: 1fr;
-  }
-
-  .attack-line {
-    align-items: flex-start;
     flex-direction: column;
   }
 

@@ -11,20 +11,10 @@ test("preserves Gig state across task view switches", async ({ page }) => {
   await page.getByLabel("Controller for Gig 1").selectOption("player");
   await expect(page.locator(".friendly-cred > dd:not(.street-cred-detail)")).toHaveText("4");
 
-  await page.getByRole("tab", { name: "Tactics" }).click();
-  await expect(page.getByText("Attack rival Gig area: steal 1")).toBeVisible();
+  await page.getByRole("tab", { name: "Transfer" }).click();
+  await expect(page.getByRole("heading", { name: "Import / Export" })).toBeVisible();
   await page.getByRole("tab", { name: "Gigs" }).click();
   await expect(page.getByLabel("Value for Gig 1")).toHaveValue("4");
-});
-
-test("explains Blocker changes in the tactical sandbox", async ({ page }) => {
-  await page.getByRole("tab", { name: "Tactics" }).click();
-  const steal = page.getByRole("article").filter({ hasText: "Attack rival Gig area: steal 1" });
-  await expect(steal).toContainText("Blocked");
-
-  const blocker = page.getByRole("group", { name: "Rival Blocker" });
-  await blocker.getByRole("checkbox", { name: "Ready" }).uncheck();
-  await expect(steal).toContainText("Legal");
 });
 
 test("preserves corrupt storage until the user explicitly resets it", async ({ page }) => {

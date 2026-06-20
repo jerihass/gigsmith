@@ -19,8 +19,12 @@ describe("app view persistence", () => {
 
   it("round-trips a valid selected view", () => {
     const local = storage();
-    saveAppView(local, "tactics");
-    expect(loadAppView(local)).toBe("tactics");
+    saveAppView(local, "analysis");
+    expect(loadAppView(local)).toBe("analysis");
+  });
+
+  it("returns retired Tactics selections to the Deck view", () => {
+    expect(loadAppView(storage("tactics"))).toBe("deck");
   });
 
   it("falls back safely when storage throws", () => {

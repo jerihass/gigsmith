@@ -451,7 +451,11 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 ### GS-061: Add Tactical Sandbox UI
 
-**Status:** Done.
+**Status:** Retired from the UI on June 20, 2026.
+
+**Outcome:** The sandbox duplicated straightforward combat arithmetic without
+modeling card effects, reaction timing, or sequencing. The pure attack-line
+domain model and tests remain available for future card-aware analysis.
 
 **Goal:** Expose attack-line analysis as a small usable sandbox.
 
@@ -480,7 +484,7 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 **Goal:** Replace the single long page with predictable task-oriented views without hiding deck status.
 
 **Deliverables:**
-- Add accessible tabs or equivalent navigation for Deck, Analysis, Gigs, Tactics, and Transfer.
+- Add accessible tabs or equivalent navigation for Deck, Analysis, Gigs, and Transfer.
 - Keep deck legality and active-deck identity visible across views.
 - Preserve the active view across reloads without encoding private deck data in the URL.
 - Keep source provenance and disclaimer reachable without dominating routine workflows.
@@ -730,7 +734,7 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 **Goal:** Protect the core mobile and offline workflows with repeatable browser tests.
 
 **Deliverables:**
-- Add browser tests for deck creation/editing, validation, card details, import/export, baseline upgrade, Gigs, and tactics.
+- Add browser tests for deck creation/editing, validation, card details, import/export, baseline upgrade, and Gigs.
 - Test production PWA first load and offline reload.
 - Add automated accessibility checks for labels, landmarks, dialog focus, keyboard navigation, and contrast regressions where tooling supports them.
 - Run the stable browser suite in CI.

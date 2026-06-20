@@ -28,7 +28,6 @@ import { GigSandbox } from "./components/GigSandbox";
 import { PwaUpdateNotice } from "./components/PwaUpdateNotice";
 import { SampleHandPanel } from "./components/SampleHandPanel";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
-import { TacticalSandbox } from "./components/TacticalSandbox";
 import { ValidationReport } from "./components/ValidationReport";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
 import { loadCardArtPreference, saveCardArtPreference } from "./cardArtPreference";
@@ -634,16 +633,6 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         hidden={activeView !== "gigs"}
       >
         <GigSandbox deck={deck} />
-      </section>
-
-      <section
-        className="app-view"
-        id="app-panel-tactics"
-        role="tabpanel"
-        aria-labelledby="app-tab-tactics"
-        hidden={activeView !== "tactics"}
-      >
-        <TacticalSandbox deck={deck} />
       </section>
 
       <section

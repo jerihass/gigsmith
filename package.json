@@ -13,6 +13,7 @@
     "preview": "vite preview apps/web --host 127.0.0.1 --port 4173",
     "test": "vitest run",
     "test:e2e": "npm run build && playwright test",
+    "test:performance-budgets": "node apps/web/scripts/check-performance-budgets.mjs",
     "test:pwa-builds": "node apps/web/scripts/test-pwa-builds.mjs",
     "typecheck": "tsc -b"
   },

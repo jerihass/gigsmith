@@ -773,6 +773,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 **Priority:** P2 after the new navigation and analysis views exist.
 
+**Status:** Done.
+
 **Goal:** Detect meaningful regressions and optimize only measured bottlenecks.
 
 **Deliverables:**

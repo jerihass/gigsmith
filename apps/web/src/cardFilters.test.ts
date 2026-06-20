@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb } from "@gigsmith/card-data";
+import budgets from "../performance-budgets.json" with { type: "json" };
 import { browseCards, filterCards, numberFilterOptions } from "./cardFilters";
 
 const defaultFilters = {
@@ -88,5 +89,26 @@ describe("browseCards", () => {
     const known = values.filter((value): value is number => value !== null);
     expect(known).toEqual([...known].sort((left, right) => left - right));
     expect(values.slice(known.length).every((value) => value === null)).toBe(true);
+  });
+
+  it("keeps filter computation responsive at the expected card-count target", () => {
+    const expandedCards = Array.from({ length: budgets.expectedCardCountTarget }, (_, index) => {
+      const source = cards[index % cards.length];
+      return {
+        ...source,
+        id: `${source.id}-${index}`,
+        external_id: `${source.external_id}-${index}`,
+        slug: `${source.slug}-${index}`
+      };
+    });
+    const iterations = 50;
+    const startedAt = performance.now();
+    for (let iteration = 0; iteration < iterations; iteration += 1) {
+      expect(browseCards(expandedCards, defaultFilters, "All", "Name", selectedIds)).toHaveLength(expandedCards.length);
+    }
+    const averageMs = (performance.now() - startedAt) / iterations;
+    console.log(`[performance] ${budgets.expectedCardCountTarget}-card filter computation averaged ${averageMs.toFixed(3)} ms`);
+
+    expect(averageMs).toBeLessThanOrEqual(budgets.interactions.filterComputationAtTargetMs);
   });
 });

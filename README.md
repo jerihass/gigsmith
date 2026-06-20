@@ -25,6 +25,7 @@ The current rules baseline is `ruleset.v1-printable-2026-06-19`, derived from th
 - `docs/MULLIGAN_ANALYSIS.md` defines full-hand redraw comparison, scoring, and confidence limits.
 - `docs/CARD_ART.md` defines the opt-in external artwork preference and privacy behavior.
 - `docs/PWA_DEPLOYMENT.md` defines root/subpath deployment, installation, and update behavior.
+- `docs/PERFORMANCE.md` records production baselines, CI budgets, and optimization triggers.
 
 ## Commands
 
@@ -33,6 +34,7 @@ npm install
 npm test
 npm run typecheck
 npm run build
+npm run test:performance-budgets
 npm run test:pwa-builds
 npm run dev
 npm run test:e2e

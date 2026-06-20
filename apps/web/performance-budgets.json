@@ -1,0 +1,22 @@
+{
+  "expectedCardCountTarget": 250,
+  "sizes": {
+    "javascriptRawBytes": 450000,
+    "javascriptGzipBytes": 130000,
+    "cssRawBytes": 60000,
+    "cssGzipBytes": 12000,
+    "serviceWorkerRawBytes": 12000,
+    "serviceWorkerGzipBytes": 5000,
+    "cardSnapshotRawBytes": 400000,
+    "cardSnapshotGzipBytes": 80000,
+    "productionCodeRawBytes": 650000
+  },
+  "interactions": {
+    "cpuThrottleRate": 4,
+    "initialRenderMs": 5000,
+    "filterResponseMs": 1000,
+    "deckEditResponseMs": 1000,
+    "analysisRecalculationMs": 2500,
+    "filterComputationAtTargetMs": 100
+  }
+}

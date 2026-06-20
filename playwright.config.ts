@@ -21,18 +21,23 @@ export default defineConfig({
   projects: [
     {
       name: "desktop-chromium",
-      testIgnore: /pwa-subpath\.spec\.ts/,
+      testIgnore: /(?:performance|pwa-subpath)\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], browserName: "chromium", ...localBrowser }
     },
     {
       name: "phone-chromium",
-      testIgnore: /pwa-subpath\.spec\.ts/,
+      testIgnore: /(?:performance|pwa-subpath)\.spec\.ts/,
       use: { ...devices["Pixel 7"], browserName: "chromium", ...localBrowser }
     },
     {
       name: "subpath-chromium",
       testMatch: /pwa-subpath\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], browserName: "chromium", baseURL: subpathBaseURL, ...localBrowser }
+    },
+    {
+      name: "performance-chromium",
+      testMatch: /performance\.spec\.ts/,
+      use: { ...devices["Pixel 7"], browserName: "chromium", ...localBrowser }
     }
   ],
   webServer: skipWebServer ? undefined : [

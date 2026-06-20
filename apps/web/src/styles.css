@@ -265,6 +265,35 @@ h3 {
   gap: 6px;
 }
 
+.baseline-notice {
+  align-items: center;
+  background: #162b2f;
+  border: 1px solid #356570;
+  border-radius: 6px;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 11px 12px;
+}
+
+.baseline-notice > div {
+  min-width: 0;
+}
+
+.baseline-notice ul {
+  color: #aaa295;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+  padding-left: 18px;
+}
+
+.baseline-notice button {
+  flex: 0 0 auto;
+}
+
 input,
 select,
 textarea {
@@ -1176,6 +1205,11 @@ textarea {
   }
 
   .delete-confirmation {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .baseline-notice {
     align-items: stretch;
     flex-direction: column;
   }

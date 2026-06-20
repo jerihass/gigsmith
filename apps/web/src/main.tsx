@@ -12,6 +12,7 @@ import {
   type NumberFilter
 } from "./cardFilters";
 import { CardDetailDialog } from "./components/CardDetailDialog";
+import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
 import { DeckTransfer } from "./components/DeckTransfer";
 import { EddyCurvePanel } from "./components/EddyCurvePanel";
 import { GigSandbox } from "./components/GigSandbox";
@@ -345,6 +346,7 @@ function App() {
               </div>
             </div>
           )}
+          <DeckBaselineNotice deck={deck} onUpgrade={persist} />
           <label className="field">
             <span>Deck name</span>
             <input value={deck.name} onChange={(event) => persist({ ...deck, name: event.target.value })} />

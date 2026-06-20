@@ -4,7 +4,7 @@ Gigsmith is an unofficial, local-first Cyberpunk TCG companion app.
 
 This repository starts with the constitution-compliant foundation:
 
-- TypeScript PWA shell in `apps/web`
+- TypeScript web app in `apps/web`
 - platform-neutral rules logic in `packages/rules-core`
 - shared domain contracts in `packages/data-contracts`
 - versioned card/rules snapshots in `packages/card-data`

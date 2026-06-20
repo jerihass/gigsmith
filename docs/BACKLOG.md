@@ -15,6 +15,21 @@ This backlog is organized by milestone. Each task must preserve the development 
   - RAM/color limit checks from selected Legends
   - unknown card reporting
 
+## Approved Execution Sequence
+
+Execute the remaining cleanup and feature work in this order:
+
+1. `GS-900` CI.
+2. Extract large web UI components without behavior changes.
+3. `GS-901` rule uncertainty documentation.
+4. `GS-060` attack-line domain model.
+5. `GS-061` tactical sandbox UI.
+6. Add an explicit deck baseline upgrade action.
+7. `GS-004` transient image URL cleanup.
+8. `GS-014` installable offline PWA and release verification.
+
+Each step should land as a focused commit with tests, typechecking, and a production build.
+
 ## M0 - Repository, Data Contracts, And Snapshot Discipline
 
 ### GS-001: Document Card Snapshot Refresh Flow
@@ -446,6 +461,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 ## Cross-Cutting Work
 
 ### GS-900: Add CI
+
+**Status:** Done.
 
 **Goal:** Make every commit run the same verification commands.
 

@@ -631,6 +631,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 **Priority:** P3.
 
+**Status:** Done.
+
 **Goal:** Improve visual card recognition without making artwork a runtime or legal dependency.
 
 **Deliverables:**

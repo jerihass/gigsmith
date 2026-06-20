@@ -2,8 +2,17 @@ import { useEffect, useRef } from "react";
 import { cyberpunkCardSnapshot } from "@gigsmith/card-data";
 import type { Card } from "@gigsmith/data-contracts";
 import { cardDetailStats, cardDetailTags, cardDetailText } from "../cardDetails";
+import { CardArt } from "./CardArt";
 
-export function CardDetailDialog({ card, onClose }: { card?: Card; onClose: () => void }) {
+export function CardDetailDialog({
+  card,
+  artEnabled,
+  onClose
+}: {
+  card?: Card;
+  artEnabled: boolean;
+  onClose: () => void;
+}) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -38,6 +47,7 @@ export function CardDetailDialog({ card, onClose }: { card?: Card; onClose: () =
             <button className="icon-button" ref={closeRef} aria-label="Close card details" title="Close" onClick={onClose}>×</button>
           </header>
 
+          <CardArt card={card} enabled={artEnabled} variant="detail" />
           <dl className="card-detail-stats">
             {cardDetailStats(card).map((stat) => <div key={stat.label}><dt>{stat.label}</dt><dd>{stat.value}</dd></div>)}
           </dl>

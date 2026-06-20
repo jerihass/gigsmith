@@ -16,6 +16,7 @@ import {
   type NumberFilter
 } from "./cardFilters";
 import { CardDetailDialog } from "./components/CardDetailDialog";
+import { CardArt } from "./components/CardArt";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import { AppNavigation } from "./components/AppNavigation";
 import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
@@ -30,6 +31,7 @@ import { SharedDeckPreview } from "./components/SharedDeckPreview";
 import { TacticalSandbox } from "./components/TacticalSandbox";
 import { ValidationReport } from "./components/ValidationReport";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
+import { loadCardArtPreference, saveCardArtPreference } from "./cardArtPreference";
 import {
   dropDeckHistory,
   getDeckHistory,
@@ -145,6 +147,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [costFilter, setCostFilter] = useState<NumberFilter>("Any");
   const [membershipFilter, setMembershipFilter] = useState<DeckMembershipFilter>("All");
   const [cardSort, setCardSort] = useState<CardSort>("Snapshot");
+  const [cardArtEnabled, setCardArtEnabled] = useState(() => loadCardArtPreference(window.localStorage));
   const [eddyPlayerOrder, setEddyPlayerOrder] = useState<"first" | "second">("first");
   const [sharedDocument, setSharedDocument] = useState<DeckDocumentV1>();
   const [sharedDeckError, setSharedDeckError] = useState("");
@@ -246,6 +249,11 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   function handleViewChange(view: AppView) {
     setActiveView(view);
     saveAppView(window.localStorage, view);
+  }
+
+  function handleCardArtPreference(enabled: boolean) {
+    setCardArtEnabled(enabled);
+    saveCardArtPreference(window.localStorage, enabled);
   }
 
   function handleCreateDeck() {
@@ -495,7 +503,17 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         <section className="panel">
           <div className="panel-title">
             <h2>Card Database</h2>
-            <span className="result-count">{filteredCards.length} cards</span>
+            <div className="panel-actions card-database-actions">
+              <label className="binary-field card-art-toggle" title="Loads artwork from the external card-data source">
+                <input
+                  type="checkbox"
+                  checked={cardArtEnabled}
+                  onChange={(event) => handleCardArtPreference(event.target.checked)}
+                />
+                <span>External art</span>
+              </label>
+              <span className="result-count">{filteredCards.length} cards</span>
+            </div>
           </div>
           <div className="filter-grid">
             <label className="field search-field">
@@ -548,6 +566,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
               const legendSelected = card.card_type === "Legend" && hasDeckEntry(deck.legends, card.id);
               return (
                 <article className="card-row" key={card.id}>
+                  <CardArt card={card} enabled={cardArtEnabled} variant="thumbnail" />
                   <div className="card-copy">
                     <strong>{card.display_name}</strong>
                     <span>
@@ -669,7 +688,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         </nav>
       </footer>
 
-      <CardDetailDialog card={detailCard} onClose={closeCardDetails} />
+      <CardDetailDialog card={detailCard} artEnabled={cardArtEnabled} onClose={closeCardDetails} />
     </main>
   );
 }

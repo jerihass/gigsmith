@@ -644,7 +644,78 @@ textarea {
 
 .card-copy {
   display: grid;
+  flex: 1 1 auto;
   gap: 4px;
+}
+
+.card-database-actions {
+  flex-wrap: nowrap;
+}
+
+.card-art-toggle {
+  background: #111;
+  border: 1px solid #3c362f;
+  border-radius: 6px;
+  min-height: 40px;
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+
+.card-art {
+  align-items: center;
+  aspect-ratio: 5 / 7;
+  background: #24211d;
+  border: 1px solid #3c362f;
+  border-radius: 6px;
+  color: #aaa295;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.card-art.thumbnail {
+  align-self: center;
+  width: 54px;
+}
+
+.card-art.detail {
+  justify-self: center;
+  max-width: 100%;
+  width: 280px;
+}
+
+.card-art img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  width: 100%;
+}
+
+.card-art.loaded img {
+  opacity: 1;
+}
+
+.card-art-status,
+.card-art.unavailable > span {
+  font-size: 0.68rem;
+  padding: 6px;
+  text-align: center;
+}
+
+.card-art-status {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+}
+
+.card-art.detail .card-art-status,
+.card-art.detail.unavailable > span {
+  font-size: 0.82rem;
 }
 
 .card-actions {
@@ -1811,6 +1882,10 @@ textarea {
   .card-row {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .card-row .card-art.thumbnail {
+    align-self: flex-start;
   }
 
   .card-actions {

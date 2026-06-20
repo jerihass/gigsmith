@@ -158,6 +158,71 @@ main {
   padding-bottom: 24px;
 }
 
+.header-context {
+  align-items: flex-end;
+  display: flex;
+  gap: 12px;
+}
+
+.active-deck-context {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  text-align: right;
+}
+
+.active-deck-context span {
+  color: #aaa295;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.active-deck-context strong {
+  max-width: min(38vw, 420px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-navigation {
+  border-bottom: 1px solid #34302a;
+  margin: 0 0 24px;
+  overflow-x: auto;
+  padding-top: 12px;
+}
+
+.app-navigation [role="tablist"] {
+  display: flex;
+  gap: 2px;
+  min-width: max-content;
+}
+
+.app-navigation [role="tab"] {
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  color: #aaa295;
+  min-height: 44px;
+  padding: 0 16px;
+}
+
+.app-navigation [role="tab"][aria-selected="true"] {
+  border-bottom-color: #f0b35a;
+  color: #f3f0e8;
+  font-weight: 800;
+}
+
+.app-navigation [role="tab"]:focus-visible {
+  outline: 2px solid #63d2df;
+  outline-offset: -4px;
+}
+
+.app-view[hidden] {
+  display: none;
+}
+
 .eyebrow {
   color: #f0b35a;
   font-size: 0.78rem;
@@ -1246,6 +1311,20 @@ textarea {
   .app-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .header-context {
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .active-deck-context {
+    text-align: left;
+  }
+
+  .active-deck-context strong {
+    max-width: 62vw;
   }
 
   .grid,

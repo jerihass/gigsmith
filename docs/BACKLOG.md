@@ -475,6 +475,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 **Priority:** P0.
 
+**Status:** Done.
+
 **Goal:** Replace the single long page with predictable task-oriented views without hiding deck status.
 
 **Deliverables:**

@@ -4,6 +4,7 @@ import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } f
 import type { Card, Deck, DeckCardEntry, DeckDocumentV1 } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload } from "@gigsmith/deck-io";
 import { analyzeEddyCurve, calculateRamLimits, validateDeck } from "@gigsmith/rules-core";
+import { loadAppView, saveAppView, type AppView } from "./appViews";
 import {
   filterCards,
   numberFilterOptions,
@@ -13,6 +14,7 @@ import {
 } from "./cardFilters";
 import { CardDetailDialog } from "./components/CardDetailDialog";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
+import { AppNavigation } from "./components/AppNavigation";
 import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
 import { DeckRecovery } from "./components/DeckRecovery";
 import { DeckTransfer } from "./components/DeckTransfer";
@@ -120,6 +122,7 @@ function entryCount(entries: DeckCardEntry[]): number {
 
 function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [library, setLibrary] = useState(initialLibrary);
+  const [activeView, setActiveView] = useState(() => loadAppView(window.localStorage));
   const [pendingDelete, setPendingDelete] = useState(false);
   const [query, setQuery] = useState("");
   const [colorFilter, setColorFilter] = useState<CardColorFilter>("Any");
@@ -190,6 +193,11 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
       }
     };
     persistLibrary(replaceActiveDeck(library, updated));
+  }
+
+  function handleViewChange(view: AppView) {
+    setActiveView(view);
+    saveAppView(window.localStorage, view);
   }
 
   function handleCreateDeck() {
@@ -282,12 +290,34 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
           <p className="eyebrow">Unofficial Cyberpunk TCG companion</p>
           <h1>Gigsmith</h1>
         </div>
-        <div className={`status ${validation.legal ? "legal" : "illegal"}`}>
-          {validation.legal ? "Legal" : `${validation.errors.length} issue${validation.errors.length === 1 ? "" : "s"}`}
+        <div className="header-context">
+          <div className="active-deck-context">
+            <span>Active deck</span>
+            <strong title={deck.name}>{deck.name}</strong>
+          </div>
+          <div className={`status ${validation.legal ? "legal" : "illegal"}`}>
+            {validation.legal ? "Legal" : `${validation.errors.length} issue${validation.errors.length === 1 ? "" : "s"}`}
+          </div>
         </div>
       </header>
 
-      <section className="grid overview">
+      <AppNavigation activeView={activeView} onChange={handleViewChange} />
+
+      <SharedDeckPreview
+        document={sharedDocument}
+        error={sharedDeckError}
+        onDismiss={clearSharedDeck}
+        onAdd={addSharedDeckToLibrary}
+      />
+
+      <section
+        className="app-view"
+        id="app-panel-deck"
+        role="tabpanel"
+        aria-labelledby="app-tab-deck"
+        hidden={activeView !== "deck"}
+      >
+        <section className="grid overview">
         <article className="metric">
           <span>Card Snapshot</span>
           <strong>{cyberpunkCardSnapshot.metadata.sourceCardCount}</strong>
@@ -308,16 +338,9 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
           <strong>v1</strong>
           <small>{cyberpunkRulesetV1Printable.version}</small>
         </article>
-      </section>
+        </section>
 
-      <SharedDeckPreview
-        document={sharedDocument}
-        error={sharedDeckError}
-        onDismiss={clearSharedDeck}
-        onAdd={addSharedDeckToLibrary}
-      />
-
-      <div className="workspace">
+        <div className="workspace">
         <section className="panel deck-panel">
           <div className="panel-title">
             <h2>Deck Editor</h2>
@@ -465,35 +488,68 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
             )}
           </div>
         </section>
-      </div>
-
-      <section className="analysis-grid">
-        <section className="panel">
-          <h2>RAM Planner</h2>
-          <div className="ram-list">
-            {ram.limits.map((limit) => (
-              <div className="ram-row" key={limit.color}>
-                <span>{limit.color}</span>
-                <strong>{limit.limit}</strong>
-              </div>
-            ))}
-          </div>
-        </section>
-        <ValidationReport groups={validationGroups} />
+        </div>
       </section>
 
-      <EddyCurvePanel
-        cards={cyberpunkCardDb.cards}
-        report={eddyCurve}
-        playerOrder={eddyPlayerOrder}
-        onPlayerOrderChange={setEddyPlayerOrder}
-      />
+      <section
+        className="app-view"
+        id="app-panel-analysis"
+        role="tabpanel"
+        aria-labelledby="app-tab-analysis"
+        hidden={activeView !== "analysis"}
+      >
+        <section className="analysis-grid">
+          <section className="panel">
+            <h2>RAM Planner</h2>
+            <div className="ram-list">
+              {ram.limits.map((limit) => (
+                <div className="ram-row" key={limit.color}>
+                  <span>{limit.color}</span>
+                  <strong>{limit.limit}</strong>
+                </div>
+              ))}
+            </div>
+          </section>
+          <ValidationReport groups={validationGroups} />
+        </section>
 
-      <GigSandbox deck={deck} />
+        <EddyCurvePanel
+          cards={cyberpunkCardDb.cards}
+          report={eddyCurve}
+          playerOrder={eddyPlayerOrder}
+          onPlayerOrderChange={setEddyPlayerOrder}
+        />
+      </section>
 
-      <TacticalSandbox deck={deck} />
+      <section
+        className="app-view"
+        id="app-panel-gigs"
+        role="tabpanel"
+        aria-labelledby="app-tab-gigs"
+        hidden={activeView !== "gigs"}
+      >
+        <GigSandbox deck={deck} />
+      </section>
 
-      <DeckTransfer deck={deck} onReplace={persist} />
+      <section
+        className="app-view"
+        id="app-panel-tactics"
+        role="tabpanel"
+        aria-labelledby="app-tab-tactics"
+        hidden={activeView !== "tactics"}
+      >
+        <TacticalSandbox deck={deck} />
+      </section>
+
+      <section
+        className="app-view"
+        id="app-panel-transfer"
+        role="tabpanel"
+        aria-labelledby="app-tab-transfer"
+        hidden={activeView !== "transfer"}
+      >
+        <DeckTransfer deck={deck} onReplace={persist} />
+      </section>
 
       <footer className="source-panel">
         <div>

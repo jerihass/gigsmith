@@ -479,6 +479,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 ### GS-901: Track Rule Uncertainty
 
+**Status:** Done.
+
 **Goal:** Keep emerging rules explicit instead of hidden in code.
 
 **Deliverables:**
@@ -493,3 +495,5 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 - Pending tests where applicable.
 
 **Constitution Check:** Model the game honestly.
+
+**Artifact:** [`RULE_UNCERTAINTY.md`](./RULE_UNCERTAINTY.md)

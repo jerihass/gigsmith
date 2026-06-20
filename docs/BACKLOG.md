@@ -6,7 +6,7 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 - Initial TypeScript monorepo exists.
 - Web shell renders a local deck editor, card browser, RAM summary, validation report, and text import/export.
-- Card data snapshot is `netdeck-cyberpunk-2026-06-18` with 60 Netdeck cards.
+- Card data snapshot is `netdeck-cyberpunk-2026-06-20` with 61 Netdeck cards.
 - Rules baseline is `ruleset.v1-printable-2026-06-19`.
 - Implemented validation rules:
   - exactly 3 Legend cards
@@ -71,7 +71,7 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 - Valid current snapshot passes.
 
 **Tests:**
-- Valid 60-card snapshot fixture.
+- Valid 61-card snapshot fixture.
 - Missing `id`.
 - Invalid `card_type`.
 - Missing metadata count.

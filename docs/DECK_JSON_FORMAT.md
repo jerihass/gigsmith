@@ -19,7 +19,7 @@ Gigsmith deck JSON is a portable interchange document. It is separate from the l
     ],
     "formatId": "open-guide",
     "rulesetVersion": "ruleset.v1-printable-2026-06-19",
-    "cardDataVersion": "netdeck-cyberpunk-2026-06-18",
+    "cardDataVersion": "netdeck-cyberpunk-2026-06-20",
     "notes": "Optional user-authored notes."
   }
 }

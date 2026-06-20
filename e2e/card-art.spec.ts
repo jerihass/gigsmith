@@ -43,7 +43,7 @@ test("makes no external art request until the preference is enabled", async ({ p
 
   const preference = page.getByLabel("External art");
   await preference.check();
-  await expect(page.locator("img[src*='dstcynss47vun.cloudfront.net']")).toHaveCount(60);
+  await expect(page.locator("img[src*='dstcynss47vun.cloudfront.net']")).toHaveCount(snapshot.cards.length);
   await expect.poll(() => sourceRequests.length).toBe(1);
   await expect.poll(() => artRequests.length).toBeGreaterThan(0);
 

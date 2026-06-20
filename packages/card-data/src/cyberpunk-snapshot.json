@@ -3,10 +3,10 @@
     "game": "cyberpunk",
     "sourceName": "Netdeck",
     "sourceUrl": "https://api.netdeck.gg/api/cards/cyberpunk",
-    "sourceRetrievedAt": "2026-06-18T21:00:17-04:00",
-    "cardDataVersion": "netdeck-cyberpunk-2026-06-18",
-    "sourceCardCount": 60,
-    "notes": "60-card text metadata snapshot for offline development. External image URLs are stored as references only; images are not bundled."
+    "sourceRetrievedAt": "2026-06-20T22:22:54Z",
+    "cardDataVersion": "netdeck-cyberpunk-2026-06-20",
+    "sourceCardCount": 61,
+    "notes": "61-card text metadata snapshot for offline development. External image URLs are stored as references only; images are not bundled."
   },
   "cards": [
     {
@@ -168,6 +168,39 @@
       "ram": 2,
       "artist": "Olgierd Ciszak",
       "print_number": "019",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "e48c9d39-ef27-4b8f-8690-d75c3a4807b0",
+      "external_id": "cb-6th-street-recruits",
+      "name": "6th Street Recruits",
+      "subname": null,
+      "display_name": "6th Street Recruits",
+      "slug": "6th-street-recruits",
+      "rules_text": "When a friendly Unit steals a d6, increase a Gig by up to 6.",
+      "flavor_text": null,
+      "printing_id": "756f3e53-9ff3-4c01-9f33-bb27a1cd5957",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Common",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/756f3e53-9ff3-4c01-9f33-bb27a1cd5957/render-mpvlsra8.webp",
+      "color": "Red",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "6th Street",
+        "Ganger"
+      ],
+      "keywords": [],
+      "cost": 4,
+      "power": 6,
+      "ram": 1,
+      "artist": "Daniel Valaisis",
+      "print_number": "006",
       "printings": [],
       "selected_printing_id": null,
       "legality": "legal"

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { Card } from "@gigsmith/data-contracts";
-import { selectCardArtUrl } from "../cardArtPreference";
 
 type CardArtVariant = "thumbnail" | "detail";
 type MediaStatus = "loading" | "loaded" | "unavailable";
@@ -8,13 +7,16 @@ type MediaStatus = "loading" | "loaded" | "unavailable";
 export function CardArt({
   card,
   enabled,
+  source,
+  sourcePending = false,
   variant
 }: {
   card: Card;
   enabled: boolean;
+  source?: string;
+  sourcePending?: boolean;
   variant: CardArtVariant;
 }) {
-  const source = selectCardArtUrl(card, enabled);
   const [media, setMedia] = useState<{ source: string; status: MediaStatus }>({
     source: "",
     status: "loading"
@@ -23,8 +25,12 @@ export function CardArt({
   if (!enabled) return null;
   if (!source) {
     return (
-      <div className={`card-art ${variant} unavailable`} role="img" aria-label={`Artwork unavailable for ${card.display_name}`}>
-        <span>No art</span>
+      <div
+        className={`card-art ${variant} unavailable`}
+        role="img"
+        aria-label={`${sourcePending ? "Loading artwork" : "Artwork unavailable"} for ${card.display_name}`}
+      >
+        <span>{sourcePending ? "Loading art source" : "Art unavailable"}</span>
       </div>
     );
   }

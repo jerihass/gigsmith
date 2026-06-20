@@ -35,21 +35,24 @@ function card(source_image_url?: string): Card {
 
 describe("CardArt", () => {
   it("renders no image or placeholder while disabled", () => {
-    expect(renderToStaticMarkup(<CardArt card={card("https://images.example/card.webp")} enabled={false} variant="thumbnail" />)).toBe("");
+    expect(renderToStaticMarkup(<CardArt card={card()} enabled={false} source="https://images.example/card.webp?Signature=test" variant="thumbnail" />)).toBe("");
   });
 
   it("renders a stable loading surface for enabled artwork", () => {
-    const markup = renderToStaticMarkup(<CardArt card={card("https://images.example/card.webp")} enabled variant="detail" />);
+    const markup = renderToStaticMarkup(<CardArt card={card()} enabled source="https://images.example/card.webp?Signature=test" variant="detail" />);
     expect(markup).toContain("Loading art");
     expect(markup).toContain("loading=\"lazy\"");
     expect(markup).toContain("referrerPolicy=\"no-referrer\"");
     expect(markup).toContain("Test Card card art");
   });
 
-  it("renders a text fallback when no stable artwork is available", () => {
-    const markup = renderToStaticMarkup(<CardArt card={card()} enabled variant="thumbnail" />);
-    expect(markup).not.toContain("<img");
-    expect(markup).toContain("No art");
-    expect(markup).toContain("Artwork unavailable for Test Card");
+  it("renders source loading and unavailable fallbacks", () => {
+    const pending = renderToStaticMarkup(<CardArt card={card()} enabled sourcePending variant="thumbnail" />);
+    const unavailable = renderToStaticMarkup(<CardArt card={card()} enabled variant="thumbnail" />);
+
+    expect(pending).toContain("Loading art source");
+    expect(unavailable).not.toContain("<img");
+    expect(unavailable).toContain("Art unavailable");
+    expect(unavailable).toContain("Artwork unavailable for Test Card");
   });
 });

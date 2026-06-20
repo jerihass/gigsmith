@@ -643,7 +643,8 @@ domain model and tests remain available for future card-aware analysis.
 
 **Deliverables:**
 - Add an opt-in card-art display preference, disabled by default.
-- Load only stable external `source_image_url` references; never bundle or proxy card art.
+- On opt-in, request current signed image URLs from the snapshot's Netdeck API source and keep them in memory only.
+- Validate image URLs against the expected HTTPS artwork host; never bundle or proxy card art.
 - Provide loading, unavailable, and text-only states without layout shifts.
 - Allow users to disable external requests immediately.
 

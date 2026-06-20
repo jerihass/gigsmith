@@ -1,25 +1,50 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
 
 const artHostPattern = "https://dstcynss47vun.cloudfront.net/**";
+const artSourcePattern = "https://api.netdeck.gg/api/cards/cyberpunk**";
 const transparentPng = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
   "base64"
 );
+const snapshot = JSON.parse(readFileSync(new URL("../packages/card-data/src/cyberpunk-snapshot.json", import.meta.url), "utf8")) as {
+  cards: Array<{ id: string; external_id: string; source_image_url: string }>;
+};
+
+async function routeArtSource(page: Page) {
+  await page.route(artSourcePattern, (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify({
+      total: snapshot.cards.length,
+      items: snapshot.cards.map((card) => ({
+        id: card.id,
+        external_id: card.external_id,
+        image_url: `${card.source_image_url}?Expires=9999999999&Signature=test`
+      }))
+    })
+  }));
+}
 
 test("makes no external art request until the preference is enabled", async ({ page }) => {
   const artRequests: string[] = [];
+  const sourceRequests: string[] = [];
   page.on("request", (request) => {
     if (request.url().startsWith("https://dstcynss47vun.cloudfront.net/")) artRequests.push(request.url());
+    if (request.url().startsWith("https://api.netdeck.gg/api/cards/cyberpunk")) sourceRequests.push(request.url());
   });
+  await routeArtSource(page);
   await page.route(artHostPattern, (route) => route.fulfill({ status: 200, contentType: "image/png", body: transparentPng }));
   await page.goto("/");
 
   await expect(page.locator("img[src*='dstcynss47vun.cloudfront.net']")).toHaveCount(0);
   expect(artRequests).toEqual([]);
+  expect(sourceRequests).toEqual([]);
 
   const preference = page.getByLabel("External art");
   await preference.check();
   await expect(page.locator("img[src*='dstcynss47vun.cloudfront.net']")).toHaveCount(60);
+  await expect.poll(() => sourceRequests.length).toBe(1);
   await expect.poll(() => artRequests.length).toBeGreaterThan(0);
 
   await preference.uncheck();
@@ -27,6 +52,7 @@ test("makes no external art request until the preference is enabled", async ({ p
 });
 
 test("keeps card text and actions available when artwork fails", async ({ page }) => {
+  await routeArtSource(page);
   await page.route(artHostPattern, (route) => route.abort());
   await page.goto("/");
   await page.getByLabel("External art").check();
@@ -43,6 +69,7 @@ test("keeps card text and actions available when artwork fails", async ({ page }
 
 test("keeps text-only card workflows usable offline with art enabled", async ({ page, context }) => {
   test.skip(process.env.PLAYWRIGHT_SKIP_WEBSERVER === "1", "Offline coverage requires the production service worker.");
+  await routeArtSource(page);
   await page.route(artHostPattern, (route) => route.abort());
   await page.goto("/");
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });

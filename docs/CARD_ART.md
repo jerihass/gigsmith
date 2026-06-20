@@ -8,10 +8,11 @@ The **External art** checkbox in Card Database is an explicit, device-local opt-
 
 ## Sources And Requests
 
-- Images use only stable HTTPS `source_image_url` values from the versioned card snapshot.
-- URLs containing query parameters, fragments, or non-HTTPS schemes are rejected.
+- Enabling artwork makes one request to the snapshot's Netdeck API source to obtain current signed image URLs.
+- Signed URLs remain in memory only and are refreshed after a reload; they are never written to local storage or the card snapshot.
+- Image URLs must use HTTPS and Netdeck's expected CloudFront artwork host. Other hosts and unsigned paths are rejected.
 - Requests use `no-referrer` and images load lazily.
 - Gigsmith does not download, proxy, bundle, or persist artwork.
 - The service worker ignores cross-origin requests, so artwork is not added to Gigsmith's offline shell cache.
 
-The interface reserves each image's dimensions before loading and shows loading, unavailable, or no-art states without shifting surrounding controls. Failed or offline artwork never removes card names, metadata, rules text, or deck actions.
+The interface reserves each image's dimensions before loading and shows source-loading, image-loading, or unavailable states without shifting surrounding controls. Failed or offline artwork never removes card names, metadata, rules text, or deck actions.

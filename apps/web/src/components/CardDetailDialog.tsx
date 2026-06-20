@@ -7,10 +7,14 @@ import { CardArt } from "./CardArt";
 export function CardDetailDialog({
   card,
   artEnabled,
+  artSource,
+  artSourcePending,
   onClose
 }: {
   card?: Card;
   artEnabled: boolean;
+  artSource?: string;
+  artSourcePending: boolean;
   onClose: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -47,7 +51,7 @@ export function CardDetailDialog({
             <button className="icon-button" ref={closeRef} aria-label="Close card details" title="Close" onClick={onClose}>×</button>
           </header>
 
-          <CardArt card={card} enabled={artEnabled} variant="detail" />
+          <CardArt card={card} enabled={artEnabled} source={artSource} sourcePending={artSourcePending} variant="detail" />
           <dl className="card-detail-stats">
             {cardDetailStats(card).map((stat) => <div key={stat.label}><dt>{stat.label}</dt><dd>{stat.value}</dd></div>)}
           </dl>

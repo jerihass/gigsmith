@@ -31,6 +31,7 @@ import { SharedDeckPreview } from "./components/SharedDeckPreview";
 import { ValidationReport } from "./components/ValidationReport";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
 import { loadCardArtPreference, saveCardArtPreference } from "./cardArtPreference";
+import { fetchExternalCardArtUrls, selectExternalCardArtUrl } from "./externalCardArt";
 import {
   dropDeckHistory,
   getDeckHistory,
@@ -147,6 +148,8 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [membershipFilter, setMembershipFilter] = useState<DeckMembershipFilter>("All");
   const [cardSort, setCardSort] = useState<CardSort>("Snapshot");
   const [cardArtEnabled, setCardArtEnabled] = useState(() => loadCardArtPreference(window.localStorage));
+  const [cardArtUrls, setCardArtUrls] = useState<ReadonlyMap<string, string>>(() => new Map());
+  const [cardArtSourceStatus, setCardArtSourceStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
   const [eddyPlayerOrder, setEddyPlayerOrder] = useState<"first" | "second">("first");
   const [sharedDocument, setSharedDocument] = useState<DeckDocumentV1>();
   const [sharedDeckError, setSharedDeckError] = useState("");
@@ -185,6 +188,28 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
       ),
     [cardSort, colorFilter, costFilter, deckCardIds, membershipFilter, query, ramFilter, typeFilter]
   );
+
+  useEffect(() => {
+    if (!cardArtEnabled) {
+      setCardArtUrls(new Map());
+      setCardArtSourceStatus("idle");
+      return;
+    }
+
+    const controller = new AbortController();
+    setCardArtSourceStatus("loading");
+    fetchExternalCardArtUrls(cyberpunkCardSnapshot.metadata.sourceUrl, controller.signal)
+      .then((urls) => {
+        setCardArtUrls(urls);
+        setCardArtSourceStatus("ready");
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setCardArtUrls(new Map());
+        setCardArtSourceStatus("unavailable");
+      });
+    return () => controller.abort();
+  }, [cardArtEnabled]);
 
   useEffect(() => {
     function readSharedDeckFromHash() {
@@ -511,6 +536,11 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
                 />
                 <span>External art</span>
               </label>
+              {cardArtEnabled && cardArtSourceStatus !== "ready" && (
+                <span className="result-count" aria-live="polite">
+                  {cardArtSourceStatus === "loading" ? "Loading art" : "Art unavailable"}
+                </span>
+              )}
               <span className="result-count">{filteredCards.length} cards</span>
             </div>
           </div>
@@ -565,7 +595,13 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
               const legendSelected = card.card_type === "Legend" && hasDeckEntry(deck.legends, card.id);
               return (
                 <article className="card-row" key={card.id}>
-                  <CardArt card={card} enabled={cardArtEnabled} variant="thumbnail" />
+                  <CardArt
+                    card={card}
+                    enabled={cardArtEnabled}
+                    source={selectExternalCardArtUrl(card, cardArtUrls)}
+                    sourcePending={cardArtSourceStatus === "loading"}
+                    variant="thumbnail"
+                  />
                   <div className="card-copy">
                     <strong>{card.display_name}</strong>
                     <span>
@@ -677,7 +713,13 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         </nav>
       </footer>
 
-      <CardDetailDialog card={detailCard} artEnabled={cardArtEnabled} onClose={closeCardDetails} />
+      <CardDetailDialog
+        card={detailCard}
+        artEnabled={cardArtEnabled}
+        artSource={detailCard ? selectExternalCardArtUrl(detailCard, cardArtUrls) : undefined}
+        artSourcePending={cardArtSourceStatus === "loading"}
+        onClose={closeCardDetails}
+      />
     </main>
   );
 }

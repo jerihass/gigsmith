@@ -26,6 +26,7 @@ The current rules baseline is `ruleset.v1-printable-2026-06-19`, derived from th
 - `docs/CARD_ART.md` defines the opt-in external artwork preference and privacy behavior.
 - `docs/PWA_DEPLOYMENT.md` defines root/subpath deployment, installation, and update behavior.
 - `docs/PERFORMANCE.md` records production baselines, CI budgets, and optimization triggers.
+- `docs/STYLE_ARCHITECTURE.md` defines stylesheet ownership, visual tokens, and breakpoints.
 
 ## Commands
 

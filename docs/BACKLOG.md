@@ -554,6 +554,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 **Priority:** P3.
 
+**Status:** Done.
+
 **Goal:** Make UI changes safer after the navigation and deck workflow stabilize.
 
 **Deliverables:**

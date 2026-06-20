@@ -1,0 +1,46 @@
+.issue {
+  border-left: 3px solid #777;
+  border-radius: 4px;
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  background: #111111;
+}
+
+.issue.error {
+  border-left-color: #ff705d;
+}
+
+.issue.warning {
+  border-left-color: #f0b35a;
+}
+
+.issue.info {
+  border-left-color: #7ee3aa;
+}
+
+.issue span {
+  color: #bbb4a7;
+}
+
+.validation-groups {
+  display: grid;
+  gap: 18px;
+}
+
+.validation-group + .validation-group {
+  border-top: 1px solid #34302a;
+  padding-top: 18px;
+}
+
+.validation-group h3 {
+  margin-top: 0;
+}
+
+.issue .affected-cards {
+  color: #f0b35a;
+}
+
+.ram-row strong {
+  color: #f0b35a;
+}

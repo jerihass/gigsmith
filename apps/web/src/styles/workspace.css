@@ -1,0 +1,50 @@
+.metric,
+.panel {
+  background: #191715;
+  border: 1px solid #34302a;
+  border-radius: 8px;
+}
+
+.metric {
+  min-height: 104px;
+  padding: 16px;
+}
+
+.metric span,
+.metric small,
+.card-row span {
+  color: #aaa295;
+}
+
+.metric strong {
+  display: block;
+  font-size: 1.9rem;
+  margin: 8px 0;
+}
+
+.workspace {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(320px, 0.85fr) minmax(420px, 1.15fr);
+  margin-bottom: 16px;
+}
+
+.panel {
+  min-width: 0;
+  padding: 18px;
+}
+
+.panel-title {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panel-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}

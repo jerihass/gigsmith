@@ -1,0 +1,42 @@
+.share-preview {
+  align-items: center;
+  background: #162b2f;
+  border: 1px solid #356570;
+  border-radius: 8px;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin: -8px 0 24px;
+  padding: 16px 18px;
+}
+
+.share-preview.invalid {
+  background: #321817;
+  border-color: #71332e;
+}
+
+.share-preview h2 {
+  margin-bottom: 5px;
+}
+
+.share-preview p {
+  color: #d5d0c6;
+  margin-bottom: 5px;
+}
+
+.share-preview small {
+  color: #aaa295;
+  overflow-wrap: anywhere;
+}
+
+.share-preview-actions,
+.io-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.share-preview-actions {
+  flex: 0 0 auto;
+}

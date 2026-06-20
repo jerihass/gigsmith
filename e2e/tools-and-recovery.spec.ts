@@ -6,15 +6,28 @@ test.beforeEach(async ({ page }) => {
 
 test("preserves Gig state across task view switches", async ({ page }) => {
   await page.getByRole("tab", { name: "Gigs" }).click();
-  await page.getByRole("button", { name: "+ Add Gig" }).click();
-  await page.getByLabel("Value for Gig 1").fill("4");
-  await page.getByLabel("Controller for Gig 1").selectOption("player");
-  await expect(page.locator(".friendly-cred > dd:not(.street-cred-detail)")).toHaveText("4");
+  await expect(page.locator(".match-gig")).toHaveCount(12);
+  await page.getByRole("button", { name: "Roll and gain You d4" }).click();
+  await expect(page.locator(".friendly-cred > dd:not(.street-cred-detail)")).toHaveText("1 Gig");
 
   await page.getByRole("tab", { name: "Transfer" }).click();
   await expect(page.getByRole("heading", { name: "Import / Export" })).toBeVisible();
   await page.getByRole("tab", { name: "Gigs" }).click();
-  await expect(page.getByLabel("Value for Gig 1")).toHaveValue("4");
+  await expect(page.locator(".friendly-cred > dd:not(.street-cred-detail)")).toHaveText("1 Gig");
+});
+
+test("enforces the fixed pool, one Gig per turn, and d20-last rule", async ({ page }) => {
+  await page.getByRole("tab", { name: "Gigs" }).click();
+  await expect(page.getByRole("button", { name: "Roll and gain You d20" })).toBeDisabled();
+
+  await page.getByRole("button", { name: "Roll and gain You d6" }).click();
+  await expect(page.getByRole("button", { name: "Roll and gain You d4" })).toBeDisabled();
+  await page.getByRole("button", { name: "End turn" }).click();
+  await expect(page.getByRole("button", { name: "Roll and gain Rival d4" })).toBeEnabled();
+
+  await page.getByRole("button", { name: "Reset match" }).click();
+  await expect(page.locator(".match-gig")).toHaveCount(12);
+  await expect(page.locator(".friendly-cred > dd:not(.street-cred-detail)")).toHaveText("0 Gigs");
 });
 
 test("preserves corrupt storage until the user explicitly resets it", async ({ page }) => {

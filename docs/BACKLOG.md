@@ -363,7 +363,11 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 ### GS-041: Add Deterministic Gig State Sandbox
 
-**Status:** Done.
+**Status:** Retired from the UI on June 20, 2026.
+
+**Outcome:** The free-form add/remove model did not match the official fixed
+12-die setup. Its Street Cred primitive remains in rules-core; GS-042 replaces
+the UI with an official match-state tracker.
 
 **Goal:** Let users model simple Gig states before probability simulation.
 
@@ -380,6 +384,31 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 - Browser smoke check.
 
 **Constitution Check:** Deterministic before clever; local simulations.
+
+### GS-042: Replace The Gig Sandbox With A Fixed Match Tracker
+
+**Status:** Done.
+
+**Goal:** Make the Gigs view represent an actual Cyberpunk TCG match rather than an arbitrary dice calculator.
+
+**Deliverables:**
+- Create one `d4`, `d6`, `d8`, `d10`, `d12`, and `d20` per player in their Fixer areas.
+- Enforce one start-phase gain per turn and keep each player's `d20` last.
+- Track original ownership, current control, die values, Street Cred, active player, and completed turns.
+- Support explicit rolling, value adjustment, stealing, reset, and first-player selection.
+- Report start-turn seven-Gig wins and immediate overtime wins.
+
+**Acceptance Criteria:**
+- Dice cannot be added, removed, or changed to another type.
+- Stealing changes control without changing original ownership.
+- Overtime begins only after both players complete seven turns.
+- All transitions return structured issues and remain outside React components.
+
+**Tests:**
+- Fixed setup, d20-last, one gain per turn, value limits, stealing, normal wins, and overtime wins.
+- Desktop and phone browser workflows with accessibility and overflow checks.
+
+**Constitution Check:** Versioned rules data drives a useful, deterministic local match tool.
 
 ## M5 - Import, Export, And Shareable Decks
 

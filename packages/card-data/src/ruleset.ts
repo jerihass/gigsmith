@@ -34,6 +34,12 @@ export const cyberpunkRulesetV1Printable: Ruleset = {
     shuffleReturnedCards: true,
     drawCount: 6
   },
+  gigRules: {
+    playerDieTypes: ["d4", "d6", "d8", "d10", "d12", "d20"],
+    gigsToWin: 7,
+    d20MustBeGainedLast: true,
+    overtimeAfterCompletedTurnsPerPlayer: 7
+  },
   formats: [
     {
       id: "open-guide",

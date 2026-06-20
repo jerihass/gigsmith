@@ -34,4 +34,13 @@ describe("cyberpunkRulesetV1Printable", () => {
       drawCount: 6
     });
   });
+
+  it("encodes the fixed Gig pool and overtime threshold", () => {
+    expect(cyberpunkRulesetV1Printable.gigRules).toEqual({
+      playerDieTypes: ["d4", "d6", "d8", "d10", "d12", "d20"],
+      gigsToWin: 7,
+      d20MustBeGainedLast: true,
+      overtimeAfterCompletedTurnsPerPlayer: 7
+    });
+  });
 });

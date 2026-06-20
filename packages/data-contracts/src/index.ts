@@ -165,6 +165,13 @@ export interface MulliganRules {
   drawCount: number;
 }
 
+export interface GigRules {
+  playerDieTypes: DieType[];
+  gigsToWin: number;
+  d20MustBeGainedLast: boolean;
+  overtimeAfterCompletedTurnsPerPlayer: number;
+}
+
 export interface Ruleset {
   version: RulesetVersion;
   sourceUrl: string;
@@ -177,6 +184,7 @@ export interface Ruleset {
   maxCopiesByType: Partial<Record<CardType, number>>;
   eddyRules: EddyRules;
   mulliganRules: MulliganRules;
+  gigRules: GigRules;
   keywords: Keyword[];
   errata: Errata[];
 }
@@ -352,7 +360,51 @@ export interface Gig {
   id: string;
   dieType: DieType;
   value: number;
+  ownerId?: string;
   controllerId?: string;
+}
+
+export type GigMatchWinReason = "start-turn-majority" | "overtime-majority";
+
+export interface GigMatchState {
+  playerIds: [string, string];
+  firstPlayerId: string;
+  activePlayerId: string;
+  completedTurns: Record<string, number>;
+  gigs: Gig[];
+  gainedGigThisTurn: boolean;
+  overtime: boolean;
+  winnerId?: string;
+  winReason?: GigMatchWinReason;
+}
+
+export interface GigMatchIssue {
+  code: string;
+  message: string;
+  affectedGigIds: string[];
+}
+
+export interface GigMatchTransition {
+  state: GigMatchState;
+  issues: GigMatchIssue[];
+}
+
+export interface GigMatchPlayerReport {
+  playerId: string;
+  controlledGigCount: number;
+  streetCred: number;
+  fixerGigCount: number;
+}
+
+export interface GigMatchReport {
+  players: GigMatchPlayerReport[];
+  activePlayerId: string;
+  activePlayerTurn: number;
+  availableGigIds: string[];
+  overtime: boolean;
+  winnerId?: string;
+  winReason?: GigMatchWinReason;
+  rulesetVersion: RulesetVersion;
 }
 
 export interface PlayerState {

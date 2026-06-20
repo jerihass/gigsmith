@@ -668,7 +668,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         aria-labelledby="app-tab-gigs"
         hidden={activeView !== "gigs"}
       >
-        <GigSandbox deck={deck} />
+        <GigSandbox />
       </section>
 
       <section

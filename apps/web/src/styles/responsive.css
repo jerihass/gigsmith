@@ -47,16 +47,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .gig-row {
-    grid-template-columns: 32px repeat(2, minmax(0, 1fr)) 34px;
-  }
-
-  .gig-controller-field {
-    grid-column: 2 / 4;
-  }
-
-  .gig-issue {
-    grid-column: 2 / -1;
+  .gig-pools {
+    grid-template-columns: 1fr;
   }
 
   .eddy-summary > div:nth-child(3) {
@@ -208,6 +200,21 @@
     flex-direction: column;
   }
 
+  .gig-match-toolbar {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .turn-command {
+    align-items: stretch;
+    justify-content: space-between;
+  }
+
+  .gig-winner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .io-title {
     align-items: stretch;
     flex-direction: column;
@@ -223,40 +230,17 @@
     min-width: 0;
   }
 
-  .gig-row {
-    align-items: stretch;
-    grid-template-columns: 28px minmax(0, 1fr) 34px;
+  .match-gig {
+    grid-template-columns: 68px minmax(0, 1fr);
   }
 
-  .gig-index {
-    grid-column: 1;
-    grid-row: 1;
+  .gig-value-controls,
+  .gig-command {
+    grid-column: 1 / -1;
   }
 
-  .gig-row .field {
-    grid-column: 2;
-  }
-
-  .gig-row .field:nth-of-type(1) {
-    grid-row: 1;
-  }
-
-  .gig-row .field:nth-of-type(2) {
-    grid-row: 2;
-  }
-
-  .gig-controller-field {
-    grid-row: 3;
-  }
-
-  .gig-remove {
-    grid-column: 3;
-    grid-row: 1;
-    margin-bottom: 0;
-  }
-
-  .gig-issue {
-    grid-column: 2 / -1;
+  .gig-value-controls {
+    grid-template-columns: 34px minmax(52px, 1fr) 34px 34px;
   }
 
   .eddy-summary > div + div,

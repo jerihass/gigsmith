@@ -19,6 +19,7 @@ The current rules baseline is `ruleset.v1-printable-2026-06-19`, derived from th
 - `docs/CARD_SNAPSHOT_REFRESH.md` documents the local card snapshot refresh process.
 - `docs/DECK_JSON_FORMAT.md` defines the versioned portable deck format.
 - `docs/RULE_UNCERTAINTY.md` tracks confirmed tactical rules and unresolved interactions.
+- `docs/RULE_SOURCE.md` records the retained official guide and weekly freshness policy.
 - `docs/APP_NAVIGATION.md` defines task views, persistence, and browser-history behavior.
 - `docs/DECK_EDIT_HISTORY.md` defines undo/redo scope, limits, and lifecycle behavior.
 - `docs/SAMPLE_HAND_ANALYSIS.md` defines deterministic opening-hand sampling and its limits.

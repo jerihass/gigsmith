@@ -283,8 +283,63 @@ export interface PlayerState {
 export interface BoardState {
   players: PlayerState[];
   gigs: Gig[];
+  units?: TacticalUnit[];
   activePlayerId: string;
   turn: number;
+}
+
+export interface TacticalUnit {
+  id: string;
+  controllerId: string;
+  cardId?: CardId;
+  name: string;
+  power: number;
+  ready: boolean;
+  hasLag: boolean;
+  hasBlocker: boolean;
+  cannotReactReason?: string;
+}
+
+export type AttackTarget =
+  | { type: "gig-area"; playerId: string }
+  | { type: "unit"; unitId: string };
+
+export type AttackOutcome = "fight" | "steal";
+export type FightResult = "attacker-defeated" | "defender-defeated" | "both-defeated";
+
+export interface AttackLineReason {
+  code: string;
+  message: string;
+  affectedUnitIds: string[];
+}
+
+export interface AttackLine {
+  id: string;
+  attackerUnitId: string;
+  declaredTarget: AttackTarget;
+  finalTarget: AttackTarget;
+  legal: boolean;
+  outcome: AttackOutcome;
+  blockerUnitId?: string;
+  fightResult?: FightResult;
+  gigsStolen?: number;
+  reasons: AttackLineReason[];
+}
+
+export interface AttackLineWarning {
+  code: string;
+  message: string;
+  relatedRuleUncertainty?: string;
+  affectedUnitIds: string[];
+}
+
+export interface AttackLineReport {
+  activePlayerId: string;
+  rivalPlayerId?: string;
+  lines: AttackLine[];
+  warnings: AttackLineWarning[];
+  assumptions: string[];
+  rulesetVersion: RulesetVersion;
 }
 
 export interface StreetCredContribution {

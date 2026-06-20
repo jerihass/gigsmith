@@ -14,6 +14,7 @@ import type {
 } from "@gigsmith/data-contracts";
 
 export { analyzeEddyCurve } from "./eddyCurve";
+export { evaluateAttackLines } from "./attackLines";
 export { calculateStreetCred } from "./streetCred";
 
 function issue(

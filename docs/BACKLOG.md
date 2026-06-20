@@ -423,6 +423,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 ### GS-060: Define Attack Line Domain Model
 
+**Status:** Done.
+
 **Goal:** Model attack decisions without putting logic in UI.
 
 **Deliverables:**

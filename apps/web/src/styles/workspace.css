@@ -1,8 +1,8 @@
 .metric,
 .panel {
-  background: #191715;
-  border: 1px solid #34302a;
-  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
 }
 
 .metric {
@@ -13,13 +13,18 @@
 .metric span,
 .metric small,
 .card-row span {
-  color: #aaa295;
+  color: var(--muted);
 }
 
 .metric strong {
   display: block;
   font-size: 1.9rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   margin: 8px 0;
+}
+
+.metric {
+  border-top-color: var(--cyan);
 }
 
 .workspace {
@@ -32,6 +37,7 @@
 .panel {
   min-width: 0;
   padding: 18px;
+  box-shadow: inset 0 2px 0 rgb(69 216 232 / 10%);
 }
 
 .panel-title {

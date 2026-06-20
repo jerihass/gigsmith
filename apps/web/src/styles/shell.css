@@ -96,7 +96,9 @@ main {
   align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
-  border-bottom: 1px solid #34302a;
+  border-bottom: 1px solid var(--border);
+  border-top: 3px solid var(--cyan);
+  padding-top: 20px;
   padding-bottom: 24px;
 }
 
@@ -128,7 +130,7 @@ main {
 }
 
 .app-navigation {
-  border-bottom: 1px solid #34302a;
+  border-bottom: 1px solid var(--border);
   margin: 0 0 24px;
   overflow-x: auto;
   padding-top: 12px;
@@ -145,19 +147,30 @@ main {
   border: 0;
   border-bottom: 3px solid transparent;
   border-radius: 0;
-  color: #aaa295;
+  color: var(--muted);
   min-height: 44px;
   padding: 0 16px;
 }
 
 .app-navigation [role="tab"][aria-selected="true"] {
-  border-bottom-color: #f0b35a;
-  color: #f3f0e8;
+  border-bottom-color: var(--cyan);
+  color: var(--text);
   font-weight: 800;
 }
 
+.app-navigation [role="tab"]:hover {
+  background: var(--surface);
+  border-color: transparent;
+  border-bottom-color: var(--border-strong);
+  color: var(--text);
+}
+
+.app-navigation [role="tab"][aria-selected="true"]:hover {
+  border-bottom-color: var(--cyan);
+}
+
 .app-navigation [role="tab"]:focus-visible {
-  outline: 2px solid #63d2df;
+  outline: 2px solid var(--cyan);
   outline-offset: -4px;
 }
 
@@ -166,9 +179,11 @@ main {
 }
 
 .eyebrow {
-  color: #f0b35a;
+  color: var(--accent);
   font-size: 0.78rem;
   font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0;
   margin: 0 0 8px;
   text-transform: uppercase;
 }
@@ -185,6 +200,8 @@ h1 {
   font-size: 3rem;
   line-height: 1;
   margin-bottom: 0;
+  color: var(--text);
+  text-shadow: 2px 2px 0 #183b40;
 }
 
 h2 {
@@ -193,14 +210,16 @@ h2 {
 }
 
 h3 {
-  color: #bbb4a7;
+  color: var(--muted-strong);
   font-size: 0.82rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0;
   margin: 20px 0 8px;
   text-transform: uppercase;
 }
 
 .status {
-  border-radius: 6px;
+  border-radius: 3px;
   font-weight: 800;
   padding: 0.65rem 0.9rem;
 }

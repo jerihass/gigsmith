@@ -21,24 +21,25 @@ The extraction deliberately retains a centralized responsive file. Moving breakp
 
 ## Shared Visual Tokens
 
-The current interface uses literal values; this task does not convert them to custom properties because that would mix refactoring with a visual change. Treat these values as the established tokens:
+The Night City workbench theme is defined as custom properties in `styles/base.css`. Feature styles should use these properties for shared surfaces, borders, text, and interactive accents; feature-specific semantic colors may remain local.
 
 | Role | Value |
 | --- | --- |
-| Page/background | `#111111` |
-| Panel surface | `#191715` |
-| Primary border | `#34302a` |
-| Strong border | `#4b453d` |
-| Primary text | `#f3f0e8` |
-| Muted text | `#aaa295`, `#bbb4a7` |
-| Amber command/accent | `#f0b35a` |
-| Cyan analysis accent | `#63d2df`, `#71d4e8` |
-| Success | `#163b2b`, `#9ef2c4` |
-| Danger | `#4b1b1b`, `#ffb1a6` |
-| Standard control/item radius | `6px` |
-| Panel/dialog radius | `8px` |
+| Page/background | `--page` |
+| Panel surface | `--surface` |
+| Raised/control surfaces | `--surface-raised`, `--surface-control` |
+| Primary/strong border | `--border`, `--border-strong` |
+| Primary/muted text | `--text`, `--muted`, `--muted-strong` |
+| Command accent | `--accent` |
+| Navigation/focus accent | `--cyan` |
+| Success | `--success` |
+| Danger | `--danger` |
+| Standard control/item radius | `3px` |
+| Panel/dialog radius | `4px` |
 | Primary layout gap | `16px` |
 | App maximum width | `1380px` |
+
+Card database rows use a `data-color` attribute and local `--card-accent` / `--card-surface` properties. Keep both the tinted surface and text color label so color is supplementary rather than the only way to identify a card's color.
 
 Spacing is based primarily on `6`, `8`, `10`, `12`, `14`, `16`, `18`, `20`, `24`, and `28px`. New fixed-format controls should follow existing stable dimensions rather than introduce viewport-scaled type.
 

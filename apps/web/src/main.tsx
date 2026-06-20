@@ -596,7 +596,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
             {filteredCards.map((card) => {
               const legendSelected = card.card_type === "Legend" && hasDeckEntry(deck.legends, card.id);
               return (
-                <article className="card-row" key={card.id}>
+                <article className="card-row" data-color={card.color.toLowerCase()} key={card.id}>
                   <CardArt
                     card={card}
                     enabled={cardArtEnabled}

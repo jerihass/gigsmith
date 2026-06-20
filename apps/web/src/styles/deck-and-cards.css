@@ -162,19 +162,15 @@ input,
 select,
 textarea {
   width: 100%;
-  border: 1px solid #3c362f;
-  border-radius: 6px;
-  background: #111111;
-  color: #f3f0e8;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  background: var(--surface-control);
+  color: var(--text);
   padding: 0.75rem;
 }
 
 select {
-  appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, #f0b35a 50%), linear-gradient(135deg, #f0b35a 50%, transparent 50%);
-  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
+  appearance: auto;
 }
 
 textarea {
@@ -215,9 +211,9 @@ textarea {
 .card-row,
 .ram-row {
   align-items: center;
-  background: #111111;
-  border: 1px solid #2b2722;
-  border-radius: 6px;
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-radius: 3px;
   display: flex;
   gap: 12px;
   justify-content: space-between;
@@ -258,6 +254,52 @@ textarea {
   overflow: auto;
 }
 
+.card-row {
+  --card-accent: #aeb8bc;
+  --card-surface: #15191b;
+  background: var(--card-surface);
+  border-left: 4px solid var(--card-accent);
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.card-row:hover {
+  border-color: var(--card-accent);
+  border-left-width: 4px;
+}
+
+.card-row[data-color="red"] {
+  --card-accent: #ff6670;
+  --card-surface: #211316;
+}
+
+.card-row[data-color="blue"] {
+  --card-accent: #4abcf0;
+  --card-surface: #101b22;
+}
+
+.card-row[data-color="green"] {
+  --card-accent: #52d69a;
+  --card-surface: #102019;
+}
+
+.card-row[data-color="yellow"] {
+  --card-accent: #e9d743;
+  --card-surface: #201e10;
+}
+
+.card-row[data-color="colorless"] {
+  --card-accent: #aeb8bc;
+  --card-surface: #171a1c;
+}
+
+.card-row .card-copy strong {
+  color: var(--text);
+}
+
+.card-row .card-copy span {
+  color: #b9c2c4;
+}
+
 .card-copy {
   display: grid;
   flex: 1 1 auto;
@@ -269,9 +311,9 @@ textarea {
 }
 
 .card-art-toggle {
-  background: #111;
-  border: 1px solid #3c362f;
-  border-radius: 6px;
+  background: var(--surface-control);
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
   min-height: 40px;
   padding: 8px 10px;
   white-space: nowrap;

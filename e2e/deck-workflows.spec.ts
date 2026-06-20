@@ -38,6 +38,14 @@ test("opens card details and restores focus when dismissed", async ({ page }) =>
   await expect(details).toBeFocused();
 });
 
+test("opens card details from the deck editor", async ({ page }) => {
+  const details = page.getByRole("button", { name: "View details for V — StreetKid" });
+  await details.click();
+  await expect(page.getByRole("dialog", { name: "V — StreetKid" })).toBeVisible();
+  await page.getByRole("button", { name: "Close card details" }).click();
+  await expect(details).toBeFocused();
+});
+
 test("upgrades a stale deck baseline only after explicit action", async ({ page }) => {
   await page.evaluate(() => {
     const key = "gigsmith.deck-library.v1";

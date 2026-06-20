@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { Redo2, Undo2 } from "lucide-react";
+import { Info, Redo2, Undo2 } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, Deck, DeckCardEntry, DeckDocumentV1 } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload } from "@gigsmith/deck-io";
@@ -490,7 +490,17 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
               return (
                 <div className="deck-row" data-color={card?.color.toLowerCase()} key={entry.cardId}>
                   <span>{card?.display_name ?? entry.cardId}</span>
-                  {card && <button onClick={() => removeLegend(card)}>Remove</button>}
+                  {card && (
+                    <div className="deck-row-actions">
+                      <button
+                        className="icon-button"
+                        aria-label={`View details for ${card.display_name}`}
+                        title="Card details"
+                        onClick={(event) => openCardDetails(card, event.currentTarget)}
+                      ><Info size={17} aria-hidden="true" /></button>
+                      <button onClick={() => removeLegend(card)}>Remove</button>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -504,20 +514,28 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
                 <div className="deck-row" data-color={card?.color.toLowerCase()} key={entry.cardId}>
                   <span>{card?.display_name ?? entry.cardId}</span>
                   {card && (
-                    <div className="count-controls">
+                    <div className="deck-row-actions">
                       <button
                         className="icon-button"
-                        aria-label={`Remove one ${card.display_name}`}
-                        title="Remove one"
-                        onClick={() => adjustMainCard(card, -1)}
-                      >−</button>
-                      <strong aria-label={`${entry.count} copies`}>{entry.count}</strong>
-                      <button
-                        className="icon-button"
-                        aria-label={`Add one ${card.display_name}`}
-                        title="Add one"
-                        onClick={() => adjustMainCard(card, 1)}
-                      >+</button>
+                        aria-label={`View details for ${card.display_name}`}
+                        title="Card details"
+                        onClick={(event) => openCardDetails(card, event.currentTarget)}
+                      ><Info size={17} aria-hidden="true" /></button>
+                      <div className="count-controls">
+                        <button
+                          className="icon-button"
+                          aria-label={`Remove one ${card.display_name}`}
+                          title="Remove one"
+                          onClick={() => adjustMainCard(card, -1)}
+                        >−</button>
+                        <strong aria-label={`${entry.count} copies`}>{entry.count}</strong>
+                        <button
+                          className="icon-button"
+                          aria-label={`Add one ${card.display_name}`}
+                          title="Add one"
+                          onClick={() => adjustMainCard(card, 1)}
+                        >+</button>
+                      </div>
                     </div>
                   )}
                 </div>

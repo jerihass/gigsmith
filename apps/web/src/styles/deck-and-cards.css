@@ -229,6 +229,13 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.deck-row-actions {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
 .count-controls {
   align-items: center;
   display: grid;

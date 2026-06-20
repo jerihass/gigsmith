@@ -747,6 +747,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 **Priority:** P2.
 
+**Status:** Done.
+
 **Goal:** Make installation and updates reliable outside root-path localhost previews.
 
 **Deliverables:**

@@ -1,51 +1,18 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
+import packageMetadata from "../../package.json";
 import snapshot from "../../packages/card-data/src/cyberpunk-snapshot.json";
+import { cyberpunkRulesetV1Printable } from "../../packages/card-data/src/ruleset";
+import {
+  buildIdentityFromFiles,
+  createCacheIdentity,
+  normalizeBasePath,
+  renderServiceWorker
+} from "./pwaBuild";
 
-function renderServiceWorker(files: string[], cacheName: string): string {
-  return `const CACHE_NAME = ${JSON.stringify(cacheName)};
-const SHELL_FILES = ${JSON.stringify(files, null, 2)};
+declare const process: { env: Record<string, string | undefined> };
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_FILES)));
-});
-
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key.startsWith("gigsmith-shell-") && key !== CACHE_NAME).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener("message", (event) => {
-  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
-});
-
-self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
-  const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin) return;
-
-  if (event.request.mode === "navigate") {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match("./index.html"))
-    );
-    return;
-  }
-
-  event.respondWith(
-    caches.match(event.request).then((cached) => cached ?? fetch(event.request).then((response) => {
-      if (response.ok && url.pathname !== new URL("./sw.js", self.registration.scope).pathname) {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-      }
-      return response;
-    }))
-  );
-});
-`;
-}
+const basePath = normalizeBasePath(process.env.GIGSMITH_BASE_PATH);
 
 function serviceWorkerPlugin(): Plugin {
   return {
@@ -53,27 +20,45 @@ function serviceWorkerPlugin(): Plugin {
     apply: "build",
     generateBundle(_options, bundle) {
       const files = [
-        "./",
-        "./index.html",
-        "./manifest.webmanifest",
-        "./icons/gigsmith-192.png",
-        "./icons/gigsmith-512.png",
-        ...Object.keys(bundle).filter((fileName) => fileName !== "sw.js").map((fileName) => `./${fileName}`)
+        "",
+        "index.html",
+        "manifest.webmanifest",
+        "pwa-meta.json",
+        "icons/gigsmith-192.png",
+        "icons/gigsmith-512.png",
+        ...Object.keys(bundle).filter((fileName) => fileName !== "sw.js")
       ];
-      const uniqueFiles = [...new Set(files)].sort();
+      const buildIdentity = process.env.GIGSMITH_BUILD_ID?.trim() || buildIdentityFromFiles(Object.keys(bundle));
+      const identity = createCacheIdentity({
+        appVersion: packageMetadata.version,
+        basePath,
+        buildIdentity,
+        cardDataVersion: snapshot.metadata.cardDataVersion,
+        rulesetVersion: cyberpunkRulesetV1Printable.version
+      });
       this.emitFile({
         type: "asset",
         fileName: "sw.js",
-        source: renderServiceWorker(
-          uniqueFiles,
-          `gigsmith-shell-0.1.0-${snapshot.metadata.cardDataVersion}`
-        )
+        source: renderServiceWorker({ basePath, files, ...identity })
+      });
+      this.emitFile({
+        type: "asset",
+        fileName: "pwa-meta.json",
+        source: JSON.stringify({
+          appVersion: packageMetadata.version,
+          basePath,
+          buildIdentity,
+          cardDataVersion: snapshot.metadata.cardDataVersion,
+          rulesetVersion: cyberpunkRulesetV1Printable.version,
+          ...identity
+        }, null, 2)
       });
     }
   };
 }
 
 export default defineConfig({
+  base: basePath,
   plugins: [react(), serviceWorkerPlugin()],
   server: {
     host: "127.0.0.1",

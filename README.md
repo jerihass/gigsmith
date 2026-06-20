@@ -24,6 +24,7 @@ The current rules baseline is `ruleset.v1-printable-2026-06-19`, derived from th
 - `docs/SAMPLE_HAND_ANALYSIS.md` defines deterministic opening-hand sampling and its limits.
 - `docs/MULLIGAN_ANALYSIS.md` defines full-hand redraw comparison, scoring, and confidence limits.
 - `docs/CARD_ART.md` defines the opt-in external artwork preference and privacy behavior.
+- `docs/PWA_DEPLOYMENT.md` defines root/subpath deployment, installation, and update behavior.
 
 ## Commands
 
@@ -32,11 +33,12 @@ npm install
 npm test
 npm run typecheck
 npm run build
+npm run test:pwa-builds
 npm run dev
 npm run test:e2e
 ```
 
-`npm run build` also verifies the production manifest, install icons, generated service worker, and hashed-asset precache list.
+`npm run build` also verifies the production manifest, install icons, generated service worker, version identity, and hashed-asset precache list. Set `GIGSMITH_BASE_PATH=/gigsmith/` for a subpath build and provide `GIGSMITH_BUILD_ID` in release builds.
 
 Browser tests use Playwright against the production preview. Run `npx playwright install chromium` once before the first local run. The suite covers desktop and phone-sized Chromium, accessibility checks, local-data recovery, and offline reload behavior.
 

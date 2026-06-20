@@ -1,10 +1,11 @@
 import { access, readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
-const dist = resolve("apps/web/dist");
+const dist = resolve(process.env.PWA_DIST_DIR ?? "apps/web/dist");
 const requiredFiles = [
   "index.html",
   "manifest.webmanifest",
+  "pwa-meta.json",
   "sw.js",
   "icons/gigsmith-192.png",
   "icons/gigsmith-512.png"
@@ -12,13 +13,23 @@ const requiredFiles = [
 
 await Promise.all(requiredFiles.map((file) => access(resolve(dist, file))));
 
-const [html, manifestText, serviceWorker, assetFiles] = await Promise.all([
+const [html, manifestText, metadataText, serviceWorker, assetFiles] = await Promise.all([
   readFile(resolve(dist, "index.html"), "utf8"),
   readFile(resolve(dist, "manifest.webmanifest"), "utf8"),
+  readFile(resolve(dist, "pwa-meta.json"), "utf8"),
   readFile(resolve(dist, "sw.js"), "utf8"),
   readdir(resolve(dist, "assets"))
 ]);
 const manifest = JSON.parse(manifestText);
+const metadata = JSON.parse(metadataText);
+const expectedBasePath = process.env.PWA_BASE_PATH ?? metadata.basePath;
+
+if (metadata.basePath !== expectedBasePath) {
+  throw new Error(`Expected PWA base ${expectedBasePath}, received ${metadata.basePath}.`);
+}
+if (process.env.PWA_BUILD_ID && metadata.buildIdentity !== process.env.PWA_BUILD_ID) {
+  throw new Error(`Expected build identity ${process.env.PWA_BUILD_ID}, received ${metadata.buildIdentity}.`);
+}
 
 async function assertPngSize(file, expectedSize) {
   const bytes = await readFile(resolve(dist, file));
@@ -30,8 +41,10 @@ async function assertPngSize(file, expectedSize) {
   }
 }
 
-if (!html.includes('rel="manifest"')) throw new Error("Built index is missing its web app manifest link.");
+if (!html.includes(`href="${expectedBasePath}manifest.webmanifest"`)) throw new Error("Built index has the wrong web app manifest URL.");
+if (!html.includes(`href="${expectedBasePath}icons/gigsmith-192.png"`)) throw new Error("Built index has the wrong install icon URL.");
 if (manifest.display !== "standalone") throw new Error("Manifest must use standalone display mode.");
+if (manifest.start_url !== "./" || manifest.scope !== "./") throw new Error("Manifest start URL and scope must remain deployment-relative.");
 if (!manifest.icons.some((icon) => icon.sizes === "192x192")) throw new Error("Manifest is missing a 192x192 icon.");
 if (!manifest.icons.some((icon) => icon.sizes === "512x512")) throw new Error("Manifest is missing a 512x512 icon.");
 await Promise.all([
@@ -39,14 +52,19 @@ await Promise.all([
   assertPngSize("icons/gigsmith-512.png", 512)
 ]);
 for (const file of requiredFiles.filter((file) => file !== "sw.js")) {
-  if (!serviceWorker.includes(`./${file}`)) throw new Error(`Service worker does not precache ${file}.`);
+  if (!serviceWorker.includes(`${expectedBasePath}${file}`)) throw new Error(`Service worker does not precache ${expectedBasePath}${file}.`);
 }
 for (const asset of assetFiles) {
-  if (!serviceWorker.includes(`./assets/${asset}`)) throw new Error(`Service worker does not precache assets/${asset}.`);
+  if (!serviceWorker.includes(`${expectedBasePath}assets/${asset}`)) throw new Error(`Service worker does not precache ${expectedBasePath}assets/${asset}.`);
+}
+if (!serviceWorker.includes(`const CACHE_PREFIX = ${JSON.stringify(metadata.cachePrefix)}`)) throw new Error("Service worker cache prefix does not match build metadata.");
+if (!serviceWorker.includes(`const CACHE_NAME = ${JSON.stringify(metadata.cacheName)}`)) throw new Error("Service worker cache name does not match build metadata.");
+for (const identity of [metadata.appVersion, metadata.buildIdentity, metadata.cardDataVersion, metadata.rulesetVersion]) {
+  if (!metadata.cacheName.includes(identity)) throw new Error(`Cache name is missing identity ${identity}.`);
 }
 if (!serviceWorker.includes("SKIP_WAITING")) throw new Error("Service worker has no explicit update activation path.");
 if (serviceWorker.includes("localStorage") || serviceWorker.includes("indexedDB")) {
   throw new Error("Service worker must not mutate local deck storage.");
 }
 
-console.log(`PWA verified: ${assetFiles.length} hashed assets precached.`);
+console.log(`PWA verified at ${expectedBasePath}: ${assetFiles.length} hashed assets precached in ${metadata.cacheName}.`);

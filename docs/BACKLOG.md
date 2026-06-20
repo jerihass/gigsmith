@@ -15,18 +15,21 @@ This backlog is organized by milestone. Each task must preserve the development 
   - RAM/color limit checks from selected Legends
   - unknown card reporting
 
-## Approved Execution Sequence
+## Next Execution Sequence
 
-Execute the remaining cleanup and feature work in this order:
+Execute the next reliability, UX, and feature work in this order:
 
-1. `GS-900` CI.
-2. Extract large web UI components without behavior changes.
-3. `GS-901` rule uncertainty documentation.
-4. `GS-060` attack-line domain model.
-5. `GS-061` tactical sandbox UI.
-6. Add an explicit deck baseline upgrade action.
-7. `GS-004` transient image URL cleanup.
-8. `GS-014` installable offline PWA and release verification.
+1. `GS-902` local-data recovery and application error boundary.
+2. `GS-070` task-focused application navigation.
+3. `GS-071` deck-building sort, filter, and count ergonomics.
+4. `GS-903` browser workflow and accessibility coverage.
+5. `GS-072` deck-edit undo and redo.
+6. `GS-080` deterministic sample-hand analysis.
+7. `GS-081` mulligan comparison and recommendations.
+8. `GS-904` PWA deployment and update hardening.
+9. `GS-905` measured performance budgets.
+10. `GS-073` feature-oriented stylesheet split.
+11. `GS-090` optional external card art.
 
 Each step should land as a focused commit with tests, typechecking, and a production build.
 
@@ -466,6 +469,178 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 **Constitution Check:** UI explains failure and does not hide mutation in views.
 
+## M7 - Application UX And Deck-Building Workflow
+
+### GS-070: Add Task-Focused Application Navigation
+
+**Priority:** P0.
+
+**Goal:** Replace the single long page with predictable task-oriented views without hiding deck status.
+
+**Deliverables:**
+- Add accessible tabs or equivalent navigation for Deck, Analysis, Gigs, Tactics, and Transfer.
+- Keep deck legality and active-deck identity visible across views.
+- Preserve the active view across reloads without encoding private deck data in the URL.
+- Keep source provenance and disclaimer reachable without dominating routine workflows.
+
+**Acceptance Criteria:**
+- A user can reach every existing feature in two actions or fewer.
+- Browser back/forward behavior is deliberate and documented.
+- Mobile layouts do not require scrolling through unrelated tools.
+- No rules logic moves into navigation components.
+
+**Tests:**
+- Browser tests for switching views on desktop and mobile.
+- Keyboard navigation and focus-order checks.
+- Reload restores a valid selected view.
+
+**Constitution Check:** Improves tournament usability while keeping the existing local-first slices intact.
+
+### GS-071: Improve Deck-Building Sort, Filter, And Counts
+
+**Priority:** P0.
+
+**Goal:** Make repeated deck editing faster and easier to audit.
+
+**Deliverables:**
+- Add card-browser sorting by name, cost, RAM, power, color, and type.
+- Add a deck-membership filter with All, In Deck, and Not In Deck modes.
+- Show main-deck and Legend counts near editing controls.
+- Add a compact deck curve summary within the Deck view.
+- Preserve stable control dimensions on mobile.
+
+**Acceptance Criteria:**
+- Users can isolate cards already present in the active deck.
+- Sort and filter changes never mutate the deck.
+- Counts update immediately after every edit.
+- Duplicate base names remain distinguishable by stable card identity and subname.
+
+**Tests:**
+- Unit tests for sorting and deck-membership filtering.
+- Browser test for an add, filter, sort, and remove workflow.
+
+**Constitution Check:** Speeds up deck construction without duplicating legality rules in the UI.
+
+### GS-072: Add Deck Edit Undo And Redo
+
+**Priority:** P1.
+
+**Goal:** Let users recover from accidental deck changes without restoring an entire saved deck.
+
+**Deliverables:**
+- Track bounded, per-deck edit history for card, Legend, and deck-name changes.
+- Add familiar undo and redo icon buttons with tooltips and disabled states.
+- Clear redo history after a new edit.
+- Define behavior for import, reset, baseline upgrade, deck switching, and deletion.
+
+**Acceptance Criteria:**
+- Undo and redo never cross deck boundaries.
+- Reload preserves the saved deck but does not require preserving transient history.
+- Undoing an edit immediately recalculates validation, RAM, and analysis.
+
+**Tests:**
+- History reducer tests covering undo, redo, branching, limits, and deck switches.
+- Browser smoke test for add, undo, and redo.
+
+**Constitution Check:** Mutation remains explicit and local; derived reports continue to come from pure functions.
+
+### GS-073: Split Styles By Feature Boundary
+
+**Priority:** P3.
+
+**Goal:** Make UI changes safer after the navigation and deck workflow stabilize.
+
+**Deliverables:**
+- Split the monolithic stylesheet into base, layout, and feature-owned styles.
+- Preserve the existing cascade intentionally; do not redesign during extraction.
+- Document shared tokens and responsive breakpoints.
+- Remove duplicated declarations found during the mechanical split.
+
+**Acceptance Criteria:**
+- Rendered desktop and mobile layouts remain visually equivalent before intentional follow-up changes.
+- Feature components import or own their relevant styles predictably.
+
+**Tests:**
+- Production build and browser screenshot comparison at desktop and phone widths.
+- No new overflow or overlap findings.
+
+**Constitution Check:** This is deferred cleanup after useful UX work, not speculative architecture.
+
+## M8 - Hand And Mulligan Analysis
+
+### GS-080: Add Deterministic Sample-Hand Analysis
+
+**Priority:** P1.
+
+**Goal:** Let users inspect representative opening hands from the active deck.
+
+**Deliverables:**
+- Add a pure seeded shuffle and draw function outside the UI.
+- Generate six-card opening hands from main-deck copies.
+- Show costs, sellable cards, classifications, and known data limitations.
+- Allow seed entry or regeneration while displaying the active seed.
+
+**Acceptance Criteria:**
+- The same deck and seed always produce the same hand.
+- Unknown card IDs and incomplete card data return structured issues instead of crashing.
+- Sampling does not modify the saved deck.
+
+**Tests:**
+- Seed determinism, copy counts, hand size, empty/short deck, and unknown-card tests.
+- Browser test for regenerating and reproducing a hand.
+
+**Constitution Check:** Deterministic, explainable analysis precedes simulation or strategic recommendations.
+
+### GS-081: Add Mulligan Comparison And Recommendations
+
+**Priority:** P2.
+
+**Goal:** Compare keep and mulligan outcomes using visible, conservative assumptions.
+
+**Deliverables:**
+- Define a versioned mulligan-analysis report in data contracts.
+- Compare opening-hand cost, sellable density, playable capacity, and selected user goals.
+- Support exact enumeration when practical and seeded simulation otherwise.
+- Expose assumptions, sample size, confidence limits, and unsupported card-text effects.
+
+**Acceptance Criteria:**
+- Recommendations explain the metrics that produced them.
+- The app never labels a hand objectively correct when card-text sequencing is not modeled.
+- Simulation accepts a seed and is reproducible.
+
+**Tests:**
+- Known small-deck exact cases.
+- Seeded regression fixtures.
+- Insufficient-data and unsupported-effect warnings.
+
+**Constitution Check:** Avoids black-box advice and records simulation assumptions explicitly.
+
+## M9 - Optional Card Media
+
+### GS-090: Add Optional External Card Art
+
+**Priority:** P3.
+
+**Goal:** Improve visual card recognition without making artwork a runtime or legal dependency.
+
+**Deliverables:**
+- Add an opt-in card-art display preference, disabled by default.
+- Load only stable external `source_image_url` references; never bundle or proxy card art.
+- Provide loading, unavailable, and text-only states without layout shifts.
+- Allow users to disable external requests immediately.
+
+**Acceptance Criteria:**
+- Every card workflow remains complete when offline or when images fail.
+- No signed URLs, downloaded art, or external image cache is committed to the repository.
+- The interface remains clearly unofficial.
+
+**Tests:**
+- Unit tests for image preference and fallback selection.
+- Browser tests with images enabled, unavailable, and offline.
+- Verify no external image request occurs while the preference is disabled.
+
+**Constitution Check:** Text/data remains authoritative and artwork stays optional and external.
+
 ## Cross-Cutting Work
 
 ### GS-900: Add CI
@@ -505,3 +680,96 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 **Constitution Check:** Model the game honestly.
 
 **Artifact:** [`RULE_UNCERTAINTY.md`](./RULE_UNCERTAINTY.md)
+
+### GS-902: Add Local-Data Recovery And An Application Error Boundary
+
+**Priority:** P0.
+
+**Goal:** Prevent malformed local data or an unexpected render failure from making the app unusable.
+
+**Deliverables:**
+- Preserve the raw invalid deck-library payload instead of silently overwriting it.
+- Show a recovery surface with export, reset, and retry actions.
+- Add an application-level error boundary that does not expose private deck data in logs.
+- Keep destructive recovery actions explicit and scoped to Gigsmith storage keys.
+
+**Acceptance Criteria:**
+- Corrupted local storage does not produce a blank screen or silently destroy the stored payload.
+- Users can download or copy the raw recovery payload before resetting.
+- Resetting local data does not clear service-worker caches, unrelated site storage, or browser data.
+
+**Tests:**
+- Storage tests for invalid JSON, invalid schema, recovery preservation, and explicit reset.
+- Browser test for recovery from a corrupted deck library.
+- Error-boundary rendering test.
+
+**Constitution Check:** Protects local-first ownership and makes failure understandable and reversible.
+
+### GS-903: Add Browser Workflow And Accessibility Coverage
+
+**Priority:** P0 after `GS-070` and `GS-071`.
+
+**Goal:** Protect the core mobile and offline workflows with repeatable browser tests.
+
+**Deliverables:**
+- Add browser tests for deck creation/editing, validation, card details, import/export, baseline upgrade, Gigs, and tactics.
+- Test production PWA first load and offline reload.
+- Add automated accessibility checks for labels, landmarks, dialog focus, keyboard navigation, and contrast regressions where tooling supports them.
+- Run the stable browser suite in CI.
+
+**Acceptance Criteria:**
+- Core workflows pass at desktop and phone viewports.
+- Tests fail on horizontal overflow, inaccessible dialogs, or missing control names.
+- Offline tests prove local deck persistence without a server.
+
+**Tests:**
+- This item is the browser and accessibility test suite.
+
+**Constitution Check:** Raises confidence around real event conditions without moving game logic into UI tests.
+
+### GS-904: Harden PWA Deployment And Update Versioning
+
+**Priority:** P2.
+
+**Goal:** Make installation and updates reliable outside root-path localhost previews.
+
+**Deliverables:**
+- Derive service-worker scope and asset URLs from the configured Vite base path.
+- Generate cache versions from build identity plus card-data and ruleset versions.
+- Verify update activation across two sequential production builds.
+- Document HTTPS deployment, installation, update, and storage-preservation behavior.
+
+**Acceptance Criteria:**
+- The app installs and works offline from both root and configured subpath deployments.
+- A new build prompts for update, activates on request, and removes obsolete shell caches.
+- Updates never replace or delete local deck storage.
+
+**Tests:**
+- Sequential-build service-worker update test.
+- Root-path and subpath production smoke tests.
+- Offline reload and local-deck persistence regression tests.
+
+**Constitution Check:** Strengthens local-first delivery without introducing a backend.
+
+### GS-905: Establish Performance Budgets Before Optimizing
+
+**Priority:** P2 after the new navigation and analysis views exist.
+
+**Goal:** Detect meaningful regressions and optimize only measured bottlenecks.
+
+**Deliverables:**
+- Record production JavaScript, CSS, service-worker, and card-snapshot sizes.
+- Measure initial render, filter response, deck-edit response, and analysis recalculation on representative phone hardware or throttling.
+- Add generous CI size budgets with actionable failures.
+- Document thresholds that would justify list virtualization, memoization changes, code splitting, or a state-management dependency.
+
+**Acceptance Criteria:**
+- CI reports bundle sizes and fails only when an agreed budget is exceeded.
+- No optimization dependency is added without a measured failing case.
+- Card browsing and deck edits remain responsive at the expected card-set growth target.
+
+**Tests:**
+- Build-size budget check.
+- Repeatable browser performance scenario with recorded methodology.
+
+**Constitution Check:** Follows deterministic-before-clever and small-dependency principles.

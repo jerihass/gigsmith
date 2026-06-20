@@ -15,6 +15,17 @@ test("creates and edits a deck with immediate validation", async ({ page }) => {
   await expect(page.getByText("1 in deck", { exact: false })).toBeVisible();
 });
 
+test("undoes and redoes an active-deck card edit", async ({ page }) => {
+  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
+  await page.getByRole("button", { name: "+ Main", exact: true }).click();
+  await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: "Undo deck edit" }).click();
+  await expect(page.getByText("40 / 40-50", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Redo deck edit" }).click();
+  await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
+});
+
 test("opens card details and restores focus when dismissed", async ({ page }) => {
   await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
   const card = page.getByRole("article").filter({ hasText: "Chrome Reverie" });

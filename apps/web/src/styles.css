@@ -383,6 +383,16 @@ h3 {
   justify-content: flex-end;
 }
 
+.history-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.history-controls .icon-button {
+  height: 44px;
+  width: 44px;
+}
+
 .deck-section-title {
   align-items: baseline;
   display: flex;

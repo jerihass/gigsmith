@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { Redo2, Undo2 } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, Deck, DeckCardEntry, DeckDocumentV1 } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload } from "@gigsmith/deck-io";
@@ -28,6 +29,14 @@ import { SharedDeckPreview } from "./components/SharedDeckPreview";
 import { TacticalSandbox } from "./components/TacticalSandbox";
 import { ValidationReport } from "./components/ValidationReport";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
+import {
+  dropDeckHistory,
+  getDeckHistory,
+  recordDeckEdit,
+  redoDeckEdit,
+  undoDeckEdit,
+  type DeckHistories
+} from "./deckHistory";
 import {
   addDeck,
   getActiveDeck,
@@ -125,6 +134,7 @@ function entryCount(entries: DeckCardEntry[]): number {
 
 function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [library, setLibrary] = useState(initialLibrary);
+  const [deckHistories, setDeckHistories] = useState<DeckHistories>({});
   const [activeView, setActiveView] = useState(() => loadAppView(window.localStorage));
   const [pendingDelete, setPendingDelete] = useState(false);
   const [query, setQuery] = useState("");
@@ -140,6 +150,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [detailCardId, setDetailCardId] = useState<string>();
   const detailTriggerRef = useRef<HTMLButtonElement>();
   const deck = getActiveDeck(library);
+  const activeHistory = getDeckHistory(deckHistories, deck.id);
   const detailCard = detailCardId ? cardById(detailCardId) : undefined;
 
   const validation = useMemo(() => validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable), [deck]);
@@ -205,7 +216,30 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         updatedAt: new Date().toISOString()
       }
     };
+    setDeckHistories((current) => recordDeckEdit(current, deck));
     persistLibrary(replaceActiveDeck(library, updated));
+  }
+
+  function restoreFromHistory(restored: Deck) {
+    const updated = {
+      ...restored,
+      metadata: { ...restored.metadata, updatedAt: new Date().toISOString() }
+    };
+    persistLibrary(replaceActiveDeck(library, updated));
+  }
+
+  function handleUndo() {
+    const transition = undoDeckEdit(deckHistories, deck);
+    if (!transition.deck) return;
+    setDeckHistories(transition.histories);
+    restoreFromHistory(transition.deck);
+  }
+
+  function handleRedo() {
+    const transition = redoDeckEdit(deckHistories, deck);
+    if (!transition.deck) return;
+    setDeckHistories(transition.histories);
+    restoreFromHistory(transition.deck);
   }
 
   function handleViewChange(view: AppView) {
@@ -238,6 +272,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   }
 
   function handleDeleteDeck() {
+    setDeckHistories((current) => dropDeckHistory(current, deck.id));
     persistLibrary(removeDeck(library, deck.id));
     setPendingDelete(false);
   }
@@ -359,6 +394,22 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
             <h2>Deck Editor</h2>
             <div className="panel-actions">
               <span className="result-count">{entryCount(deck.legends)} Legends · {entryCount(deck.main)} main</span>
+              <div className="history-controls" aria-label="Deck edit history">
+                <button
+                  className="icon-button"
+                  aria-label="Undo deck edit"
+                  title="Undo deck edit"
+                  disabled={activeHistory.past.length === 0}
+                  onClick={handleUndo}
+                ><Undo2 size={17} aria-hidden="true" /></button>
+                <button
+                  className="icon-button"
+                  aria-label="Redo deck edit"
+                  title="Redo deck edit"
+                  disabled={activeHistory.future.length === 0}
+                  onClick={handleRedo}
+                ><Redo2 size={17} aria-hidden="true" /></button>
+              </div>
               <button onClick={() => persist(createStarterDeck({ id: deck.id, name: deck.name, metadata: deck.metadata }))}>Reset</button>
             </div>
           </div>

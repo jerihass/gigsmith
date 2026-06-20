@@ -529,6 +529,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 **Priority:** P1.
 
+**Status:** Done.
+
 **Goal:** Let users recover from accidental deck changes without restoring an entire saved deck.
 
 **Deliverables:**

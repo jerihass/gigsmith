@@ -7,6 +7,7 @@ export {
   type ExportDeckJsonOptions,
   type ImportDeckJsonResult
 } from "./deckJson";
+export { decodeDeckSharePayload, encodeDeckSharePayload } from "./sharePayload";
 
 export interface ImportIssue {
   line: number;

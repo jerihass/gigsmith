@@ -6,7 +6,7 @@ import type {
 } from "@gigsmith/data-contracts";
 
 export interface DeckJsonIssue {
-  code: "invalid-json" | "invalid-schema" | "unsupported-version" | "invalid-field";
+  code: "invalid-json" | "invalid-schema" | "unsupported-version" | "invalid-field" | "invalid-payload";
   path: string;
   message: string;
 }

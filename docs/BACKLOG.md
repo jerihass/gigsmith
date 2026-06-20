@@ -385,6 +385,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ### GS-051: Add Shareable Encoded Deck URLs
 
+**Status:** Done.
+
 **Goal:** Support local-first sharing without accounts.
 
 **Deliverables:**

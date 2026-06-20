@@ -1,8 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
-import type { BoardState, Card, Deck, DeckCardEntry, DieType, EddyCurveReport, Gig } from "@gigsmith/data-contracts";
-import { exportDeckJson, exportDecklist, importDeckJson, importDecklist } from "@gigsmith/deck-io";
+import type { BoardState, Card, Deck, DeckCardEntry, DeckDocumentV1, DieType, EddyCurveReport, Gig } from "@gigsmith/data-contracts";
+import {
+  decodeDeckSharePayload,
+  encodeDeckSharePayload,
+  exportDeckJson,
+  exportDecklist,
+  importDeckJson,
+  importDecklist
+} from "@gigsmith/deck-io";
 import { analyzeEddyCurve, calculateRamLimits, calculateStreetCred, validateDeck } from "@gigsmith/rules-core";
 import {
   filterCards,
@@ -438,6 +445,10 @@ function App() {
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
   const [transferFormat, setTransferFormat] = useState<"text" | "json">("text");
+  const [sharedDocument, setSharedDocument] = useState<DeckDocumentV1>();
+  const [sharedDeckError, setSharedDeckError] = useState("");
+  const [shareStatus, setShareStatus] = useState("");
+  const [shareUrl, setShareUrl] = useState("");
   const [detailCardId, setDetailCardId] = useState<string>();
   const detailDialogRef = useRef<HTMLDialogElement>(null);
   const detailCloseRef = useRef<HTMLButtonElement>(null);
@@ -483,6 +494,26 @@ function App() {
       dialog.close();
     }
   }, [detailCard]);
+
+  useEffect(() => {
+    function readSharedDeckFromHash() {
+      const payload = new URLSearchParams(window.location.hash.slice(1)).get("deck");
+      if (!payload) return;
+
+      const result = decodeDeckSharePayload(payload);
+      if (result.document) {
+        setSharedDocument(result.document);
+        setSharedDeckError("");
+      } else {
+        setSharedDocument(undefined);
+        setSharedDeckError(result.errors.map((error) => error.message).join(" "));
+      }
+    }
+
+    readSharedDeckFromHash();
+    window.addEventListener("hashchange", readSharedDeckFromHash);
+    return () => window.removeEventListener("hashchange", readSharedDeckFromHash);
+  }, []);
 
   function persistLibrary(next: typeof library) {
     setLibrary(next);
@@ -598,6 +629,48 @@ function App() {
     setImportError("");
   }
 
+  function clearSharedDeck() {
+    setSharedDocument(undefined);
+    setSharedDeckError("");
+    const url = new URL(window.location.href);
+    url.hash = "";
+    window.history.replaceState(null, "", url);
+  }
+
+  function addSharedDeckToLibrary() {
+    if (!sharedDocument) return;
+    const now = new Date().toISOString();
+    const portableDeck = sharedDocument.deck;
+    const importedDeck: Deck = {
+      id: createDeckId(),
+      name: portableDeck.name,
+      legends: portableDeck.legends.map((entry) => ({ ...entry })),
+      main: portableDeck.main.map((entry) => ({ ...entry })),
+      formatId: portableDeck.formatId,
+      rulesetVersion: portableDeck.rulesetVersion,
+      cardDataVersion: portableDeck.cardDataVersion,
+      metadata: {
+        createdAt: now,
+        updatedAt: now,
+        notes: portableDeck.notes
+      }
+    };
+    persistLibrary(addDeck(library, importedDeck));
+    clearSharedDeck();
+  }
+
+  async function copyShareLink() {
+    const url = new URL(window.location.href);
+    url.hash = `deck=${encodeDeckSharePayload(deck)}`;
+    setShareUrl(url.toString());
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      setShareStatus("Link copied");
+    } catch {
+      setShareStatus("Link ready below");
+    }
+  }
+
   return (
     <main>
       <header className="app-header">
@@ -632,6 +705,37 @@ function App() {
           <small>{cyberpunkRulesetV1Printable.version}</small>
         </article>
       </section>
+
+      {(sharedDocument || sharedDeckError) && (
+        <section
+          aria-label="Shared deck preview"
+          className={`share-preview ${sharedDeckError ? "invalid" : ""}`}
+        >
+          <div>
+            <p className="section-kicker">Shared deck</p>
+            {sharedDocument ? (
+              <>
+                <h2>{sharedDocument.deck.name}</h2>
+                <p>
+                  {entryCount(sharedDocument.deck.legends)} Legends · {entryCount(sharedDocument.deck.main)} main-deck cards
+                </p>
+                <small>{sharedDocument.deck.rulesetVersion} · {sharedDocument.deck.cardDataVersion}</small>
+              </>
+            ) : (
+              <>
+                <h2>Unable to open shared deck</h2>
+                <p>{sharedDeckError}</p>
+              </>
+            )}
+          </div>
+          <div className="share-preview-actions">
+            <button onClick={clearSharedDeck}>Dismiss</button>
+            {sharedDocument && (
+              <button className="primary" onClick={addSharedDeckToLibrary}>Add to library</button>
+            )}
+          </div>
+        </section>
+      )}
 
       <div className="workspace">
         <section className="panel deck-panel">
@@ -811,17 +915,32 @@ function App() {
             <p className="section-kicker">Portable deck</p>
             <h2>Import / Export</h2>
           </div>
-          <div className="segmented-control" role="group" aria-label="Deck transfer format">
-            <button
-              aria-pressed={transferFormat === "text"}
-              onClick={() => changeTransferFormat("text")}
-            >Text</button>
-            <button
-              aria-pressed={transferFormat === "json"}
-              onClick={() => changeTransferFormat("json")}
-            >JSON</button>
+          <div className="io-actions">
+            <div className="segmented-control" role="group" aria-label="Deck transfer format">
+              <button
+                aria-pressed={transferFormat === "text"}
+                onClick={() => changeTransferFormat("text")}
+              >Text</button>
+              <button
+                aria-pressed={transferFormat === "json"}
+                onClick={() => changeTransferFormat("json")}
+              >JSON</button>
+            </div>
+            <button onClick={copyShareLink}>Copy share link</button>
+            <span className="share-status" aria-live="polite">{shareStatus}</span>
           </div>
         </div>
+        {shareUrl && (
+          <label className="field share-link-field">
+            <span>Deck share link</span>
+            <input
+              aria-label="Deck share link"
+              readOnly
+              value={shareUrl}
+              onFocus={(event) => event.currentTarget.select()}
+            />
+          </label>
+        )}
         <div className="workspace io">
           <section className="panel">
             <div className="panel-title">

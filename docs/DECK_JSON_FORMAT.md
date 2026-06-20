@@ -33,3 +33,13 @@ Gigsmith deck JSON is a portable interchange document. It is separate from the l
 - Unknown card IDs are preserved so validation can explain decks created with a different card snapshot.
 - Card counts must be positive integers.
 - Local deck IDs plus `createdAt` and `updatedAt` timestamps are never imported or exported.
+
+## Share Links
+
+Share links encode the compact version 1 document as UTF-8 base64url data in the URL fragment:
+
+```text
+https://example.app/#deck=BASE64URL_PAYLOAD
+```
+
+URL fragments are decoded locally and are not sent to the hosting server. Gigsmith validates and previews the document before adding it to the local deck library.

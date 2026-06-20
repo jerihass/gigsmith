@@ -137,6 +137,49 @@ h3 {
   margin: 24px 0;
 }
 
+.share-preview {
+  align-items: center;
+  background: #162b2f;
+  border: 1px solid #356570;
+  border-radius: 8px;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin: -8px 0 24px;
+  padding: 16px 18px;
+}
+
+.share-preview.invalid {
+  background: #321817;
+  border-color: #71332e;
+}
+
+.share-preview h2 {
+  margin-bottom: 5px;
+}
+
+.share-preview p {
+  color: #d5d0c6;
+  margin-bottom: 5px;
+}
+
+.share-preview small {
+  color: #aaa295;
+  overflow-wrap: anywhere;
+}
+
+.share-preview-actions,
+.io-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.share-preview-actions {
+  flex: 0 0 auto;
+}
+
 .metric,
 .panel {
   background: #191715;
@@ -866,6 +909,26 @@ textarea {
   margin-bottom: 0;
 }
 
+.io-actions {
+  justify-content: flex-end;
+}
+
+.share-status {
+  color: #9ef2c4;
+  font-size: 0.8rem;
+  min-width: 72px;
+}
+
+.share-link-field {
+  margin-bottom: 14px;
+}
+
+.share-link-field input {
+  color: #b9f2fb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+}
+
 .io-section .workspace {
   margin-bottom: 0;
 }
@@ -983,6 +1046,16 @@ textarea {
     flex-direction: column;
   }
 
+  .share-preview {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .share-preview-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .card-row {
     align-items: stretch;
     flex-direction: column;
@@ -1044,6 +1117,16 @@ textarea {
   .io-title {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .io-actions {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .share-status {
+    min-width: 0;
   }
 
   .gig-row {

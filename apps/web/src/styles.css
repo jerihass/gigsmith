@@ -776,6 +776,136 @@ textarea {
   margin-bottom: 16px;
 }
 
+.tactical-sandbox {
+  margin-bottom: 16px;
+}
+
+.tactical-title {
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.tactical-title h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0;
+}
+
+.tactical-controls {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.tactical-controls fieldset {
+  border: 1px solid #34302a;
+  border-radius: 6px;
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  min-width: 0;
+  padding: 12px;
+}
+
+.tactical-controls legend {
+  color: #f0b35a;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0 5px;
+  text-transform: uppercase;
+}
+
+.binary-field {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.binary-field input {
+  accent-color: #f0b35a;
+  height: 18px;
+  margin: 0;
+  width: 18px;
+}
+
+.binary-field span {
+  color: #d5d0c6;
+  font-size: 0.84rem;
+}
+
+.attack-lines {
+  display: grid;
+  gap: 8px;
+}
+
+.attack-line {
+  align-items: center;
+  background: #111111;
+  border: 1px solid #34302a;
+  border-radius: 6px;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 11px 12px;
+}
+
+.attack-line > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.attack-line span {
+  color: #aaa295;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.attack-line.legal {
+  border-left: 3px solid #4fbd86;
+}
+
+.attack-line.blocked {
+  border-left: 3px solid #c75c52;
+}
+
+.attack-line .line-status {
+  border-radius: 4px;
+  flex: 0 0 auto;
+  font-weight: 800;
+  padding: 4px 7px;
+}
+
+.attack-line.legal .line-status {
+  background: #163b2b;
+  color: #9ef2c4;
+}
+
+.attack-line.blocked .line-status {
+  background: #4b1b1b;
+  color: #ffb1a6;
+}
+
+.tactical-notes {
+  border-top: 1px solid #34302a;
+  margin-top: 16px;
+  padding-top: 12px;
+}
+
+.tactical-notes summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.tactical-notes li,
+.tactical-notes p {
+  color: #aaa295;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
 .gig-sandbox-title {
   align-items: start;
   margin-bottom: 18px;
@@ -1011,6 +1141,10 @@ textarea {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .tactical-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .eddy-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1111,6 +1245,20 @@ textarea {
 
   .gig-sandbox-title {
     align-items: stretch;
+    flex-direction: column;
+  }
+
+  .tactical-title {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .tactical-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .attack-line {
+    align-items: flex-start;
     flex-direction: column;
   }
 

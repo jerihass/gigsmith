@@ -444,6 +444,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 ### GS-061: Add Tactical Sandbox UI
 
+**Status:** Done.
+
 **Goal:** Expose attack-line analysis as a small usable sandbox.
 
 **Deliverables:**

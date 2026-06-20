@@ -16,6 +16,7 @@ import { DeckTransfer } from "./components/DeckTransfer";
 import { EddyCurvePanel } from "./components/EddyCurvePanel";
 import { GigSandbox } from "./components/GigSandbox";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
+import { TacticalSandbox } from "./components/TacticalSandbox";
 import { ValidationReport } from "./components/ValidationReport";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
 import {
@@ -483,6 +484,8 @@ function App() {
       />
 
       <GigSandbox deck={deck} />
+
+      <TacticalSandbox deck={deck} />
 
       <DeckTransfer deck={deck} onReplace={persist} />
 

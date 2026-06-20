@@ -29,3 +29,7 @@ npm run typecheck
 npm run build
 npm run dev
 ```
+
+`npm run build` also verifies the production manifest, install icons, generated service worker, and hashed-asset precache list.
+
+The production output is in `apps/web/dist`. Service workers require HTTPS in normal deployments (localhost is the development exception). Once installed and loaded successfully, Gigsmith can reopen offline without a running server; deck data remains in local browser storage.

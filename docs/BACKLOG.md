@@ -206,6 +206,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 ### GS-014: Add Installable Offline PWA Shell
 
+**Status:** Done.
+
 **Goal:** Let users install and reopen Gigsmith without keeping a development server running.
 
 **Deliverables:**

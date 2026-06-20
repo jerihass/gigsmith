@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "dev": "vite apps/web --host 127.0.0.1",
-    "build": "tsc -b && vite build apps/web",
+    "build": "tsc -b && vite build apps/web && node apps/web/scripts/verify-pwa.mjs",
     "test": "vitest run",
     "typecheck": "tsc -b"
   },

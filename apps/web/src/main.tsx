@@ -16,6 +16,7 @@ import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
 import { DeckTransfer } from "./components/DeckTransfer";
 import { EddyCurvePanel } from "./components/EddyCurvePanel";
 import { GigSandbox } from "./components/GigSandbox";
+import { PwaUpdateNotice } from "./components/PwaUpdateNotice";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
 import { TacticalSandbox } from "./components/TacticalSandbox";
 import { ValidationReport } from "./components/ValidationReport";
@@ -273,6 +274,7 @@ function App() {
 
   return (
     <main>
+      <PwaUpdateNotice />
       <header className="app-header">
         <div>
           <p className="eyebrow">Unofficial Cyberpunk TCG companion</p>

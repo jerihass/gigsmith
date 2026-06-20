@@ -32,22 +32,22 @@ export function EddyCurvePanel({
         <div>
           <dt>Sellable</dt>
           <dd>{report.supply.sellableCardCount} <span>/ {report.mainDeckDemand.cardCount}</span></dd>
-          <small>{percentSellable}% of main deck</small>
+          <dd className="eddy-summary-detail">{percentSellable}% of main deck</dd>
         </div>
         <div>
           <dt>Average cost</dt>
           <dd>{report.mainDeckDemand.averagePrintedCost?.toFixed(1) ?? "-"}</dd>
-          <small>printed main-deck cost</small>
+          <dd className="eddy-summary-detail">printed main-deck cost</dd>
         </div>
         <div>
           <dt>Total demand</dt>
           <dd>{report.mainDeckDemand.totalPrintedCost}</dd>
-          <small>sum of printed costs</small>
+          <dd className="eddy-summary-detail">sum of printed costs</dd>
         </div>
         <div>
           <dt>Eddy ceiling</dt>
           <dd>{report.supply.maximumPersistentEddies}</dd>
-          <small>sellable cards in deck</small>
+          <dd className="eddy-summary-detail">sellable cards in deck</dd>
         </div>
       </dl>
 

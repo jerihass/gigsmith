@@ -29,8 +29,11 @@ npm test
 npm run typecheck
 npm run build
 npm run dev
+npm run test:e2e
 ```
 
 `npm run build` also verifies the production manifest, install icons, generated service worker, and hashed-asset precache list.
+
+Browser tests use Playwright against the production preview. Run `npx playwright install chromium` once before the first local run. The suite covers desktop and phone-sized Chromium, accessibility checks, local-data recovery, and offline reload behavior.
 
 The production output is in `apps/web/dist`. Service workers require HTTPS in normal deployments (localhost is the development exception). Once installed and loaded successfully, Gigsmith can reopen offline without a running server; deck data remains in local browser storage.

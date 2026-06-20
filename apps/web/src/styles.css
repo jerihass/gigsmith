@@ -884,8 +884,10 @@ textarea {
 }
 
 .eddy-summary dd span,
-.eddy-summary small {
+.eddy-summary-detail {
   color: #aaa295;
+  font-size: 0.8rem;
+  margin: 0;
 }
 
 .eddy-summary dd span {
@@ -1217,8 +1219,10 @@ textarea {
   margin: 4px 0 1px;
 }
 
-.street-cred-summary small {
+.street-cred-summary .street-cred-detail {
   color: #aaa295;
+  font-size: 0.8rem;
+  margin: 0;
   overflow-wrap: anywhere;
 }
 

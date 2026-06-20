@@ -43,9 +43,9 @@ export function GigSandbox({ deck }: { deck: Deck }) {
       </div>
 
       <dl className="street-cred-summary">
-        <div className="friendly-cred"><dt>Your Street Cred</dt><dd>{playerStreetCred.total}</dd><small>{playerStreetCred.contributions.length} controlled Gigs</small></div>
-        <div className="rival-cred"><dt>Rival Street Cred</dt><dd>{rivalStreetCred.total}</dd><small>{rivalStreetCred.contributions.length} controlled Gigs</small></div>
-        <div><dt>Fixer Area</dt><dd>{fixerCount}</dd><small>uncontrolled Gigs</small></div>
+        <div className="friendly-cred"><dt>Your Street Cred</dt><dd>{playerStreetCred.total}</dd><dd className="street-cred-detail">{playerStreetCred.contributions.length} controlled Gigs</dd></div>
+        <div className="rival-cred"><dt>Rival Street Cred</dt><dd>{rivalStreetCred.total}</dd><dd className="street-cred-detail">{rivalStreetCred.contributions.length} controlled Gigs</dd></div>
+        <div><dt>Fixer Area</dt><dd>{fixerCount}</dd><dd className="street-cred-detail">uncontrolled Gigs</dd></div>
       </dl>
 
       <div className="gig-list">

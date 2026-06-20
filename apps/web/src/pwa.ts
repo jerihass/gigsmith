@@ -6,14 +6,17 @@ export async function registerGigsmithServiceWorker(
   if (!("serviceWorker" in navigator)) return () => undefined;
 
   const registration = await navigator.serviceWorker.register("/sw.js");
-  let refreshing = false;
+  let reloadForUpdate = false;
   const handleControllerChange = () => {
-    if (refreshing) return;
-    refreshing = true;
+    if (!reloadForUpdate) return;
+    reloadForUpdate = false;
     window.location.reload();
   };
   const exposeUpdate = (worker: ServiceWorker) => {
-    onUpdate(() => worker.postMessage({ type: "SKIP_WAITING" }));
+    onUpdate(() => {
+      reloadForUpdate = true;
+      worker.postMessage({ type: "SKIP_WAITING" });
+    });
   };
   const watchInstallingWorker = () => {
     const worker = registration.installing;

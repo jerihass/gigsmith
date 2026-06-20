@@ -502,6 +502,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 **Priority:** P0.
 
+**Status:** Done.
+
 **Goal:** Make repeated deck editing faster and easier to audit.
 
 **Deliverables:**

@@ -6,16 +6,19 @@ import { decodeDeckSharePayload } from "@gigsmith/deck-io";
 import { analyzeEddyCurve, calculateRamLimits, validateDeck } from "@gigsmith/rules-core";
 import { loadAppView, saveAppView, type AppView } from "./appViews";
 import {
-  filterCards,
+  browseCards,
   numberFilterOptions,
+  type CardSort,
   type CardColorFilter,
   type CardTypeFilter,
+  type DeckMembershipFilter,
   type NumberFilter
 } from "./cardFilters";
 import { CardDetailDialog } from "./components/CardDetailDialog";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import { AppNavigation } from "./components/AppNavigation";
 import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
+import { DeckCurveSummary } from "./components/DeckCurveSummary";
 import { DeckRecovery } from "./components/DeckRecovery";
 import { DeckTransfer } from "./components/DeckTransfer";
 import { EddyCurvePanel } from "./components/EddyCurvePanel";
@@ -129,6 +132,8 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [typeFilter, setTypeFilter] = useState<CardTypeFilter>("Any");
   const [ramFilter, setRamFilter] = useState<NumberFilter>("Any");
   const [costFilter, setCostFilter] = useState<NumberFilter>("Any");
+  const [membershipFilter, setMembershipFilter] = useState<DeckMembershipFilter>("All");
+  const [cardSort, setCardSort] = useState<CardSort>("Snapshot");
   const [eddyPlayerOrder, setEddyPlayerOrder] = useState<"first" | "second">("first");
   const [sharedDocument, setSharedDocument] = useState<DeckDocumentV1>();
   const [sharedDeckError, setSharedDeckError] = useState("");
@@ -147,16 +152,24 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
     () => analyzeEddyCurve(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable),
     [deck]
   );
+  const deckCountById = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const entry of [...deck.legends, ...deck.main]) {
+      counts.set(entry.cardId, (counts.get(entry.cardId) ?? 0) + entry.count);
+    }
+    return counts;
+  }, [deck.legends, deck.main]);
+  const deckCardIds = useMemo(() => new Set(deckCountById.keys()), [deckCountById]);
   const filteredCards = useMemo(
     () =>
-      filterCards(cyberpunkCardDb.cards, {
-        query,
-        color: colorFilter,
-        type: typeFilter,
-        ram: ramFilter,
-        cost: costFilter
-      }),
-    [colorFilter, costFilter, query, ramFilter, typeFilter]
+      browseCards(
+        cyberpunkCardDb.cards,
+        { query, color: colorFilter, type: typeFilter, ram: ramFilter, cost: costFilter },
+        membershipFilter,
+        cardSort,
+        deckCardIds
+      ),
+    [cardSort, colorFilter, costFilter, deckCardIds, membershipFilter, query, ramFilter, typeFilter]
   );
 
   useEffect(() => {
@@ -344,7 +357,10 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         <section className="panel deck-panel">
           <div className="panel-title">
             <h2>Deck Editor</h2>
-            <button onClick={() => persist(createStarterDeck({ id: deck.id, name: deck.name, metadata: deck.metadata }))}>Reset</button>
+            <div className="panel-actions">
+              <span className="result-count">{entryCount(deck.legends)} Legends · {entryCount(deck.main)} main</span>
+              <button onClick={() => persist(createStarterDeck({ id: deck.id, name: deck.name, metadata: deck.metadata }))}>Reset</button>
+            </div>
           </div>
           <div className="deck-library-controls">
             <label className="field deck-picker">
@@ -379,7 +395,9 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
             <input value={deck.name} onChange={(event) => persist({ ...deck, name: event.target.value })} />
           </label>
 
-          <h3>Legends</h3>
+          <DeckCurveSummary demand={eddyCurve.mainDeckDemand} />
+
+          <div className="deck-section-title"><h3>Legends</h3><span>{entryCount(deck.legends)} / 3</span></div>
           <div className="deck-list">
             {deck.legends.map((entry) => {
               const card = cardById(entry.cardId);
@@ -392,7 +410,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
             })}
           </div>
 
-          <h3>Main</h3>
+          <div className="deck-section-title"><h3>Main</h3><span>{entryCount(deck.main)} / 40-50</span></div>
           <div className="deck-list">
             {deck.main.map((entry) => {
               const card = cardById(entry.cardId);
@@ -428,7 +446,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
             <span className="result-count">{filteredCards.length} cards</span>
           </div>
           <div className="filter-grid">
-            <label className="field">
+            <label className="field search-field">
               <span>Search</span>
               <input placeholder="Name, text, faction..." value={query} onChange={(event) => setQuery(event.target.value)} />
             </label>
@@ -460,6 +478,18 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
                 ))}
               </select>
             </label>
+            <label className="field">
+              <span>Deck</span>
+              <select value={membershipFilter} onChange={(event) => setMembershipFilter(event.target.value as DeckMembershipFilter)}>
+                {(["All", "In Deck", "Not In Deck"] as const).map((option) => <option key={option}>{option}</option>)}
+              </select>
+            </label>
+            <label className="field">
+              <span>Sort</span>
+              <select value={cardSort} onChange={(event) => setCardSort(event.target.value as CardSort)}>
+                {(["Snapshot", "Name", "Cost", "RAM", "Power", "Color", "Type"] as const).map((option) => <option key={option}>{option}</option>)}
+              </select>
+            </label>
           </div>
           <div className="card-list">
             {filteredCards.map((card) => {
@@ -468,7 +498,10 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
                 <article className="card-row" key={card.id}>
                   <div className="card-copy">
                     <strong>{card.display_name}</strong>
-                    <span>{card.color} {card.card_type} · RAM {card.ram ?? "-"} · Cost {card.cost ?? "-"}</span>
+                    <span>
+                      {card.color} {card.card_type} · RAM {card.ram ?? "-"} · Cost {card.cost ?? "-"}
+                      {deckCountById.has(card.id) ? ` · ${deckCountById.get(card.id)} in deck` : ""}
+                    </span>
                   </div>
                   <div className="card-actions">
                     <button onClick={(event) => openCardDetails(card, event.currentTarget)}>Details</button>

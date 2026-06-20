@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb } from "@gigsmith/card-data";
-import { filterCards, numberFilterOptions } from "./cardFilters";
+import { browseCards, filterCards, numberFilterOptions } from "./cardFilters";
 
 const defaultFilters = {
   query: "",
@@ -57,5 +57,36 @@ describe("numberFilterOptions", () => {
 
     expect(numberFilterOptions(cards, "ram")).toEqual(["Any", "2"]);
     expect(numberFilterOptions(cards, "cost")).toEqual(["Any", "9"]);
+  });
+});
+
+describe("browseCards", () => {
+  const cards = cyberpunkCardDb.cards;
+  const selectedIds = new Set([cards[0].id, cards[4].id]);
+
+  it("filters by active-deck membership", () => {
+    expect(browseCards(cards, defaultFilters, "In Deck", "Snapshot", selectedIds).map((card) => card.id))
+      .toEqual([cards[0].id, cards[4].id]);
+    expect(browseCards(cards, defaultFilters, "Not In Deck", "Snapshot", selectedIds))
+      .toHaveLength(cards.length - 2);
+  });
+
+  it.each([
+    ["Name", (card: typeof cards[number]) => card.display_name],
+    ["Color", (card: typeof cards[number]) => card.color],
+    ["Type", (card: typeof cards[number]) => card.card_type]
+  ] as const)("sorts by %s", (sort, value) => {
+    const sorted = browseCards(cards, defaultFilters, "All", sort, selectedIds);
+    const values = sorted.map(value);
+    expect(values).toEqual([...values].sort((left, right) => left.localeCompare(right)));
+  });
+
+  it.each(["Cost", "RAM", "Power"] as const)("sorts known %s values before missing values", (sort) => {
+    const sorted = browseCards(cards, defaultFilters, "All", sort, selectedIds);
+    const field = sort.toLowerCase() as "cost" | "ram" | "power";
+    const values = sorted.map((card) => card[field]);
+    const known = values.filter((value): value is number => value !== null);
+    expect(known).toEqual([...known].sort((left, right) => left - right));
+    expect(values.slice(known.length).every((value) => value === null)).toBe(true);
   });
 });

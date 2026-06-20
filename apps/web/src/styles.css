@@ -375,6 +375,92 @@ h3 {
   gap: 12px;
 }
 
+.panel-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.deck-section-title {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.deck-section-title h3 {
+  margin: 0 0 8px;
+}
+
+.deck-section-title span {
+  color: #aaa295;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.deck-curve-summary {
+  border-bottom: 1px solid #34302a;
+  border-top: 1px solid #34302a;
+  margin-top: 16px;
+  padding: 12px 0;
+}
+
+.deck-curve-heading {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.deck-curve-heading span {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.deck-curve-heading small {
+  color: #aaa295;
+}
+
+.deck-curve-bars {
+  align-items: end;
+  display: flex;
+  gap: 6px;
+  min-height: 78px;
+  overflow-x: auto;
+}
+
+.deck-curve-bars > div {
+  align-items: center;
+  display: grid;
+  flex: 1 0 30px;
+  gap: 3px;
+  grid-template-rows: 48px auto auto;
+  max-width: 52px;
+  text-align: center;
+}
+
+.deck-curve-bars > div > span {
+  align-self: end;
+  background: #63d2df;
+  border-radius: 2px 2px 0 0;
+  justify-self: center;
+  max-height: 48px;
+  min-height: 6px;
+  width: 18px;
+}
+
+.deck-curve-bars strong {
+  font-size: 0.76rem;
+}
+
+.deck-curve-bars small {
+  color: #aaa295;
+  font-size: 0.68rem;
+}
+
 .field {
   display: grid;
   gap: 8px;
@@ -478,8 +564,12 @@ textarea {
 .filter-grid {
   display: grid;
   gap: 10px;
-  grid-template-columns: minmax(180px, 1fr) repeat(4, minmax(86px, 0.32fr));
+  grid-template-columns: repeat(4, minmax(100px, 1fr));
   margin-bottom: 14px;
+}
+
+.filter-grid .search-field {
+  grid-column: span 2;
 }
 
 .deck-list,
@@ -1334,6 +1424,10 @@ textarea {
   .filter-grid,
   .eddy-analysis-layout {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .filter-grid .search-field {
+    grid-column: auto;
   }
 
   .tactical-controls {

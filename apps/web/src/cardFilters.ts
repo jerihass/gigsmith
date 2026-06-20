@@ -3,6 +3,8 @@ import type { Card, CardColor, CardType } from "@gigsmith/data-contracts";
 export type CardColorFilter = "Any" | CardColor;
 export type CardTypeFilter = "Any" | CardType;
 export type NumberFilter = "Any" | string;
+export type DeckMembershipFilter = "All" | "In Deck" | "Not In Deck";
+export type CardSort = "Snapshot" | "Name" | "Cost" | "RAM" | "Power" | "Color" | "Type";
 
 export interface CardFilters {
   query: string;
@@ -72,4 +74,46 @@ export function filterCards(cards: Card[], filters: CardFilters): Card[] {
     if (!fieldMatchesNumberFilter(card.cost, filters.cost)) return false;
     return true;
   });
+}
+
+function compareNullableNumber(left: number | null, right: number | null): number {
+  if (left === null && right === null) return 0;
+  if (left === null) return 1;
+  if (right === null) return -1;
+  return left - right;
+}
+
+function compareCards(left: Card, right: Card, sort: CardSort): number {
+  if (sort === "Name") return left.display_name.localeCompare(right.display_name);
+  if (sort === "Cost") return compareNullableNumber(left.cost, right.cost);
+  if (sort === "RAM") return compareNullableNumber(left.ram, right.ram);
+  if (sort === "Power") return compareNullableNumber(left.power, right.power);
+  if (sort === "Color") return left.color.localeCompare(right.color);
+  if (sort === "Type") return left.card_type.localeCompare(right.card_type);
+  return 0;
+}
+
+export function browseCards(
+  cards: Card[],
+  filters: CardFilters,
+  membership: DeckMembershipFilter,
+  sort: CardSort,
+  deckCardIds: ReadonlySet<string>
+): Card[] {
+  const filtered = filterCards(cards, filters).filter((card) => {
+    if (membership === "In Deck") return deckCardIds.has(card.id);
+    if (membership === "Not In Deck") return !deckCardIds.has(card.id);
+    return true;
+  });
+  if (sort === "Snapshot") return filtered;
+
+  return filtered
+    .map((card, index) => ({ card, index }))
+    .sort((left, right) =>
+      compareCards(left.card, right.card, sort) ||
+      left.card.display_name.localeCompare(right.card.display_name) ||
+      left.card.external_id.localeCompare(right.card.external_id) ||
+      left.index - right.index
+    )
+    .map(({ card }) => card);
 }

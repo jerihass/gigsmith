@@ -9,7 +9,7 @@ Gigsmith draws sample opening hands with a deterministic seeded shuffle. The sam
 - Never mutates or persists changes to the deck.
 - Returns structured issues for unknown cards, invalid copy counts, and decks shorter than the requested hand.
 
-The analysis does not model mulligans, card draw effects, card-text interactions, or play sequencing. Those limitations remain visible beside every result. Mulligan comparisons are tracked separately as `GS-081`.
+Sample generation does not itself model card draw effects, card-text interactions, or play sequencing. The adjacent mulligan comparison evaluates a full-hand redraw using the limits documented in `MULLIGAN_ANALYSIS.md`.
 
 ## Reproduction
 

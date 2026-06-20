@@ -82,3 +82,23 @@ test("repeats a sample hand for the same seed", async ({ page }) => {
   await page.getByRole("button", { name: "Generate", exact: true }).click();
   await expect(cards).toHaveText(firstHand);
 });
+
+test("compares a hand with a full mulligan under visible assumptions", async ({ page }) => {
+  await page.getByRole("tab", { name: "Analysis" }).click();
+  const comparison = page.getByRole("region", { name: "Mulligan Comparison" });
+  await expect(comparison.getByText(/Lean keep|Lean mulligan|Close call/)).toBeVisible();
+  await expect(comparison.getByRole("list", { name: "Sample mulligan cards" }).getByRole("listitem")).toHaveCount(6);
+
+  const goal = comparison.getByRole("combobox", { name: "Goal" });
+  await goal.selectOption("eddy-supply");
+  await expect(goal).toHaveValue("eddy-supply");
+
+  const capacityRow = comparison.getByRole("row", { name: /Gross capacity/ });
+  const firstPlayerCapacity = await capacityRow.getByRole("cell").nth(0).textContent();
+  await comparison.getByRole("button", { name: "Going second" }).click();
+  await expect(capacityRow.getByRole("cell").nth(0)).not.toHaveText(firstPlayerCapacity ?? "");
+
+  await comparison.getByText("Recommendation method and limits").click();
+  await expect(comparison.getByText(/seeded samples|exact outcomes/)).toBeVisible();
+  await expect(comparison).toContainText("not claims of an objectively correct play");
+});

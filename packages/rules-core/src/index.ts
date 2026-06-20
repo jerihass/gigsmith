@@ -16,6 +16,7 @@ import type {
 export { analyzeEddyCurve } from "./eddyCurve";
 export { evaluateAttackLines } from "./attackLines";
 export { drawSampleHand } from "./sampleHand";
+export { analyzeMulligan, type MulliganAnalysisOptions } from "./mulligan";
 export { calculateStreetCred } from "./streetCred";
 
 function issue(

@@ -603,6 +603,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 **Priority:** P2.
 
+**Status:** Done.
+
 **Goal:** Compare keep and mulligan outcomes using visible, conservative assumptions.
 
 **Deliverables:**

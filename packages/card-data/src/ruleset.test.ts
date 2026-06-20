@@ -25,4 +25,13 @@ describe("cyberpunkRulesetV1Printable", () => {
       callLegendCost: 1
     });
   });
+
+  it("encodes the guide full-hand mulligan", () => {
+    expect(cyberpunkRulesetV1Printable.mulliganRules).toEqual({
+      maxMulligans: 1,
+      returnScope: "full-hand",
+      shuffleReturnedCards: true,
+      drawCount: 6
+    });
+  });
 });

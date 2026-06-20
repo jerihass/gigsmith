@@ -158,6 +158,13 @@ export interface EddyRules {
   callLegendCost: number;
 }
 
+export interface MulliganRules {
+  maxMulligans: number;
+  returnScope: "full-hand";
+  shuffleReturnedCards: boolean;
+  drawCount: number;
+}
+
 export interface Ruleset {
   version: RulesetVersion;
   sourceUrl: string;
@@ -169,6 +176,7 @@ export interface Ruleset {
   requiredUniqueLegends: number;
   maxCopiesByType: Partial<Record<CardType, number>>;
   eddyRules: EddyRules;
+  mulliganRules: MulliganRules;
   keywords: Keyword[];
   errata: Errata[];
 }
@@ -289,6 +297,51 @@ export interface SampleHandReport {
   knownPrintedCostTotal: number;
   issues: SampleHandIssue[];
   assumptions: string[];
+  rulesetVersion: RulesetVersion;
+  cardDataVersion: CardDataVersion;
+}
+
+export type MulliganGoal = "balanced" | "early-play" | "eddy-supply";
+export type MulliganPlayerOrder = "first" | "second";
+export type MulliganRecommendation = "lean-keep" | "lean-mulligan" | "close-call";
+
+export interface MulliganHandMetrics {
+  cardCount: number;
+  knownCostCount: number;
+  totalPrintedCost: number;
+  averagePrintedCost: number | null;
+  sellableCount: number;
+  sellableDensity: number;
+  firstTurnPaymentCapacity: number;
+  playableCardCount: number;
+  playableDensity: number;
+  score: number;
+}
+
+export interface MulliganIssue {
+  code: "insufficient-data" | "unknown-card" | "unsupported-card-text";
+  message: string;
+  affectedCardIds: CardId[];
+}
+
+export interface MulliganAnalysisReport {
+  version: "mulligan-analysis.v1";
+  seed: string;
+  goal: MulliganGoal;
+  playerOrder: MulliganPlayerOrder;
+  method: "exact" | "seeded-simulation";
+  sampleSize: number;
+  totalOutcomes: number | null;
+  currentHand: SampleHandReport;
+  sampledMulliganHand: SampleHandReport;
+  currentMetrics: MulliganHandMetrics;
+  expectedMulliganMetrics: MulliganHandMetrics;
+  confidenceLevel: number;
+  scoreMarginOfError: number;
+  recommendation: MulliganRecommendation;
+  reasons: string[];
+  assumptions: string[];
+  issues: MulliganIssue[];
   rulesetVersion: RulesetVersion;
   cardDataVersion: CardDataVersion;
 }

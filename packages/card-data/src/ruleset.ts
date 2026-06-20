@@ -28,6 +28,12 @@ export const cyberpunkRulesetV1Printable: Ruleset = {
     firstPlayerLegendsReadyOnFirstTurn: false,
     callLegendCost: 1
   },
+  mulliganRules: {
+    maxMulligans: 1,
+    returnScope: "full-hand",
+    shuffleReturnedCards: true,
+    drawCount: 6
+  },
   formats: [
     {
       id: "open-guide",

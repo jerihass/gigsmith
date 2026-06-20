@@ -254,6 +254,38 @@ textarea {
   overflow: auto;
 }
 
+.deck-row[data-color] {
+  --card-accent: #aeb8bc;
+  --deck-surface: #121618;
+  background: var(--deck-surface);
+  border-left: 3px solid var(--card-accent);
+}
+
+.deck-row[data-color="red"] {
+  --card-accent: #ff6670;
+  --deck-surface: #191214;
+}
+
+.deck-row[data-color="blue"] {
+  --card-accent: #4abcf0;
+  --deck-surface: #0e171c;
+}
+
+.deck-row[data-color="green"] {
+  --card-accent: #52d69a;
+  --deck-surface: #0f1915;
+}
+
+.deck-row[data-color="yellow"] {
+  --card-accent: #e9d743;
+  --deck-surface: #19180f;
+}
+
+.deck-row[data-color="colorless"] {
+  --card-accent: #aeb8bc;
+  --deck-surface: #151719;
+}
+
 .card-row {
   --card-accent: #aeb8bc;
   --card-surface: #15191b;

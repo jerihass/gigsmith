@@ -488,7 +488,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
             {deck.legends.map((entry) => {
               const card = cardById(entry.cardId);
               return (
-                <div className="deck-row" key={entry.cardId}>
+                <div className="deck-row" data-color={card?.color.toLowerCase()} key={entry.cardId}>
                   <span>{card?.display_name ?? entry.cardId}</span>
                   {card && <button onClick={() => removeLegend(card)}>Remove</button>}
                 </div>
@@ -501,7 +501,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
             {deck.main.map((entry) => {
               const card = cardById(entry.cardId);
               return (
-                <div className="deck-row" key={entry.cardId}>
+                <div className="deck-row" data-color={card?.color.toLowerCase()} key={entry.cardId}>
                   <span>{card?.display_name ?? entry.cardId}</span>
                   {card && (
                     <div className="count-controls">

@@ -39,7 +39,7 @@ The Night City workbench theme is defined as custom properties in `styles/base.c
 | Primary layout gap | `16px` |
 | App maximum width | `1380px` |
 
-Card database rows use a `data-color` attribute and local `--card-accent` / `--card-surface` properties. Keep both the tinted surface and text color label so color is supplementary rather than the only way to identify a card's color.
+Card database and deck editor rows use a `data-color` attribute with local color properties. Database rows use the stronger `--card-surface` tint, while editor rows use the quieter `--deck-surface` tint. Keep the database's text color label so color is supplementary rather than the only way to identify a card's color.
 
 Spacing is based primarily on `6`, `8`, `10`, `12`, `14`, `16`, `18`, `20`, `24`, and `28px`. New fixed-format controls should follow existing stable dimensions rather than introduce viewport-scaled type.
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cyberpunkCardSnapshot } from "./index";
-import { validateCardSnapshot } from "./validateSnapshot";
+import { sanitizeCardSnapshot, validateCardSnapshot } from "./validateSnapshot";
 
 describe("validateCardSnapshot", () => {
   it("accepts the bundled Cyberpunk card snapshot", () => {
@@ -57,6 +57,32 @@ describe("validateCardSnapshot", () => {
     expect(result.errors).toContainEqual({
       path: "metadata.sourceCardCount",
       message: "Expected a non-negative integer."
+    });
+  });
+
+  it("discards transient image URLs and normalizes stable source references", () => {
+    const snapshot = structuredClone(cyberpunkCardSnapshot) as unknown as {
+      cards: Array<Record<string, unknown>>;
+    };
+    snapshot.cards[0].image_url = "https://images.example/card.webp?Expires=1&Signature=token";
+    snapshot.cards[0].source_image_url = "https://images.example/card.webp?cache=temporary#front";
+
+    const sanitized = sanitizeCardSnapshot(snapshot) as typeof snapshot;
+
+    expect(sanitized.cards[0]).not.toHaveProperty("image_url");
+    expect(sanitized.cards[0].source_image_url).toBe("https://images.example/card.webp");
+    expect(validateCardSnapshot(sanitized)).toEqual({ valid: true, errors: [] });
+  });
+
+  it("rejects transient image fields in committed snapshots", () => {
+    const snapshot = structuredClone(cyberpunkCardSnapshot) as unknown as {
+      cards: Array<Record<string, unknown>>;
+    };
+    snapshot.cards[0].image_url = "https://images.example/card.webp?Signature=token";
+
+    expect(validateCardSnapshot(snapshot).errors).toContainEqual({
+      path: "cards[0].image_url",
+      message: "Transient image_url values are not allowed in card snapshots."
     });
   });
 });

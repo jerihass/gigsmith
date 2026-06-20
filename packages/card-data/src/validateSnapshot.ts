@@ -73,6 +73,33 @@ function validateStringArray(value: unknown, path: string, errors: SnapshotValid
   });
 }
 
+function stableImageUrl(value: unknown): string | null | undefined {
+  if (value === null || value === undefined) return value;
+  if (typeof value !== "string") return undefined;
+  try {
+    const url = new URL(value);
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return undefined;
+  }
+}
+
+export function sanitizeCardSnapshot(snapshot: unknown): unknown {
+  if (!isRecord(snapshot) || !Array.isArray(snapshot.cards)) return snapshot;
+  return {
+    ...snapshot,
+    cards: snapshot.cards.map((card) => {
+      if (!isRecord(card)) return card;
+      const { image_url: _transientImageUrl, ...stableCard } = card;
+      const sourceImageUrl = stableImageUrl(card.source_image_url);
+      if (sourceImageUrl !== undefined) stableCard.source_image_url = sourceImageUrl;
+      return stableCard;
+    })
+  };
+}
+
 function validateCard(value: unknown, index: number, errors: SnapshotValidationError[]): string | undefined {
   const path = `cards[${index}]`;
   if (!isRecord(value)) {
@@ -93,6 +120,16 @@ function validateCard(value: unknown, index: number, errors: SnapshotValidationE
   requireNumberOrNull(value.cost, `${path}.cost`, errors);
   requireNumberOrNull(value.power, `${path}.power`, errors);
   requireNumberOrNull(value.ram, `${path}.ram`, errors);
+
+  if ("image_url" in value) {
+    addError(errors, `${path}.image_url`, "Transient image_url values are not allowed in card snapshots.");
+  }
+  if (value.source_image_url !== undefined && value.source_image_url !== null) {
+    requireString(value.source_image_url, `${path}.source_image_url`, errors);
+    if (stableImageUrl(value.source_image_url) !== value.source_image_url) {
+      addError(errors, `${path}.source_image_url`, "Expected a stable URL without query parameters or fragments.");
+    }
+  }
 
   if (typeof value.color !== "string" || !validColors.has(value.color)) {
     addError(errors, `${path}.color`, `Expected one of: ${[...validColors].join(", ")}.`);

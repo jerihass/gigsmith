@@ -3,7 +3,7 @@ import type { CardSnapshot } from "@gigsmith/data-contracts";
 import { assertValidCardSnapshot } from "./validateSnapshot";
 
 export { cyberpunkRulesetV1Printable } from "./ruleset";
-export { assertValidCardSnapshot, validateCardSnapshot } from "./validateSnapshot";
+export { assertValidCardSnapshot, sanitizeCardSnapshot, validateCardSnapshot } from "./validateSnapshot";
 
 assertValidCardSnapshot(snapshot);
 export const cyberpunkCardSnapshot = snapshot as CardSnapshot;

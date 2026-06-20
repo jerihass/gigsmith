@@ -97,6 +97,8 @@ Each step should land as a focused commit with tests, typechecking, and a produc
 
 ### GS-004: Remove Transient Image URLs From Card Snapshots
 
+**Status:** Done.
+
 **Goal:** Keep card snapshots stable while preserving optional external artwork support.
 
 **Deliverables:**

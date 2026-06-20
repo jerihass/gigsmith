@@ -9,7 +9,7 @@ Gigsmith is local-first. The app should not require live Netdeck access at runti
 - Current snapshot: `packages/card-data/src/cyberpunk-snapshot.json`
 - Current version: `netdeck-cyberpunk-2026-06-18`
 
-Do not bundle card art. The snapshot may preserve external image URLs as references, but images are not app assets and should not be redistributed by this repository.
+Do not bundle card art. The snapshot may preserve stable `source_image_url` references, but images are not app assets and should not be redistributed by this repository. Never persist Netdeck's signed `image_url` field: its `Expires`, `Signature`, and related query parameters are transient.
 
 ## Manual Refresh Steps
 
@@ -42,7 +42,12 @@ Do not bundle card art. The snapshot may preserve external image URLs as referen
    - `ram`
    - `artist`
    - `print_number`
-   - optional external image URL references
+   - optional stable `source_image_url` references
+
+   Pass source records through `sanitizeCardSnapshot` (or apply the same transform in
+   the refresh script) before writing JSON. The transform removes `image_url` and strips
+   query parameters and fragments from `source_image_url`. Snapshot validation rejects
+   these transient fields if the cleanup step is missed.
 
 3. Update snapshot metadata:
 

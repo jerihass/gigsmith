@@ -1,16 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
-import type { BoardState, Card, Deck, DeckCardEntry, DeckDocumentV1, DieType, EddyCurveReport, Gig } from "@gigsmith/data-contracts";
-import {
-  decodeDeckSharePayload,
-  encodeDeckSharePayload,
-  exportDeckJson,
-  exportDecklist,
-  importDeckJson,
-  importDecklist
-} from "@gigsmith/deck-io";
-import { analyzeEddyCurve, calculateRamLimits, calculateStreetCred, validateDeck } from "@gigsmith/rules-core";
+import type { Card, Deck, DeckCardEntry, DeckDocumentV1 } from "@gigsmith/data-contracts";
+import { decodeDeckSharePayload } from "@gigsmith/deck-io";
+import { analyzeEddyCurve, calculateRamLimits, validateDeck } from "@gigsmith/rules-core";
 import {
   filterCards,
   numberFilterOptions,
@@ -18,17 +11,13 @@ import {
   type CardTypeFilter,
   type NumberFilter
 } from "./cardFilters";
-import { cardDetailStats, cardDetailTags, cardDetailText } from "./cardDetails";
+import { CardDetailDialog } from "./components/CardDetailDialog";
+import { DeckTransfer } from "./components/DeckTransfer";
+import { EddyCurvePanel } from "./components/EddyCurvePanel";
+import { GigSandbox } from "./components/GigSandbox";
+import { SharedDeckPreview } from "./components/SharedDeckPreview";
+import { ValidationReport } from "./components/ValidationReport";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
-import {
-  assignGigController,
-  changeGigDieType,
-  createSandboxGig,
-  dieMaximums,
-  dieTypes,
-  gigController,
-  type GigController
-} from "./gigSandbox";
 import {
   addDeck,
   getActiveDeck,
@@ -38,7 +27,7 @@ import {
   saveDeckLibrary,
   selectDeck
 } from "./deckLibrary";
-import { groupValidationResult, type ValidationGroup } from "./validationGroups";
+import { groupValidationResult } from "./validationGroups";
 import "./styles.css";
 
 declare global {
@@ -104,12 +93,6 @@ function createDeckId(): string {
     : `deck-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function createLocalId(prefix: string): string {
-  return typeof crypto.randomUUID === "function"
-    ? `${prefix}-${crypto.randomUUID()}`
-    : `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
 function createEmptyDeck(name = "Untitled Deck"): Deck {
   const now = new Date().toISOString();
   return {
@@ -128,309 +111,6 @@ function entryCount(entries: DeckCardEntry[]): number {
   return entries.reduce((sum, entry) => sum + entry.count, 0);
 }
 
-function ValidationReport({ groups }: { groups: ValidationGroup[] }) {
-  const issueCount = groups.reduce((sum, group) => sum + group.issues.length, 0);
-  return (
-    <section className="panel validation-report">
-      <div className="panel-title">
-        <h2>Validation</h2>
-        <span className="result-count">{issueCount} {issueCount === 1 ? "result" : "results"}</span>
-      </div>
-      <div className="validation-groups">
-        {groups.map((group) => (
-          <section className="validation-group" key={group.id}>
-            <h3>{group.title}</h3>
-            <div className="issue-list">
-              {group.issues.map((issue, index) => (
-                <article className={`issue ${issue.severity}`} key={`${issue.code}-${index}`}>
-                  <strong>{issue.message}</strong>
-                  {issue.affectedCardLabels.length > 0 && (
-                    <span className="affected-cards">Cards: {issue.affectedCardLabels.join(", ")}</span>
-                  )}
-                  {issue.suggestedFixes?.map((fix) => <span key={fix}>{fix}</span>)}
-                </article>
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function EddyCurvePanel({
-  report,
-  playerOrder,
-  onPlayerOrderChange
-}: {
-  report: EddyCurveReport;
-  playerOrder: "first" | "second";
-  onPlayerOrderChange: (value: "first" | "second") => void;
-}) {
-  const maximumBucket = Math.max(
-    1,
-    ...report.mainDeckDemand.costBuckets.map((bucket) => bucket.cardCount)
-  );
-  const percentSellable = Math.round(report.supply.sellableDensity * 100);
-
-  return (
-    <section className="panel eddy-panel">
-      <div className="panel-title eddy-title">
-        <div>
-          <p className="section-kicker">Deck economy</p>
-          <h2>Eddy Curve</h2>
-        </div>
-        <div className="segmented-control" role="group" aria-label="Play order">
-          <button
-            aria-pressed={playerOrder === "first"}
-            onClick={() => onPlayerOrderChange("first")}
-          >Going first</button>
-          <button
-            aria-pressed={playerOrder === "second"}
-            onClick={() => onPlayerOrderChange("second")}
-          >Going second</button>
-        </div>
-      </div>
-
-      <dl className="eddy-summary">
-        <div>
-          <dt>Sellable</dt>
-          <dd>{report.supply.sellableCardCount} <span>/ {report.mainDeckDemand.cardCount}</span></dd>
-          <small>{percentSellable}% of main deck</small>
-        </div>
-        <div>
-          <dt>Average cost</dt>
-          <dd>{report.mainDeckDemand.averagePrintedCost?.toFixed(1) ?? "-"}</dd>
-          <small>printed main-deck cost</small>
-        </div>
-        <div>
-          <dt>Total demand</dt>
-          <dd>{report.mainDeckDemand.totalPrintedCost}</dd>
-          <small>sum of printed costs</small>
-        </div>
-        <div>
-          <dt>Eddy ceiling</dt>
-          <dd>{report.supply.maximumPersistentEddies}</dd>
-          <small>sellable cards in deck</small>
-        </div>
-      </dl>
-
-      <div className="eddy-analysis-layout">
-        <section className="cost-curve" aria-labelledby="cost-curve-title">
-          <h3 id="cost-curve-title">Printed Cost Distribution</h3>
-          <div className="cost-bars">
-            {report.mainDeckDemand.costBuckets.map((bucket) => (
-              <div className="cost-bar-row" key={bucket.cost}>
-                <span className="cost-label">{bucket.cost}</span>
-                <div className="cost-track" aria-hidden="true">
-                  <span style={{ width: `${bucket.cardCount / maximumBucket * 100}%` }} />
-                </div>
-                <strong>{bucket.cardCount}</strong>
-              </div>
-            ))}
-            {report.mainDeckDemand.costBuckets.length === 0 && (
-              <div className="empty-state">No printed costs available.</div>
-            )}
-          </div>
-        </section>
-
-        <section className="eddy-projection" aria-labelledby="eddy-projection-title">
-          <div className="projection-heading">
-            <h3 id="eddy-projection-title">Expected Supply by Turn</h3>
-            <span>{playerOrder === "first" ? "First player" : "Second player"}</span>
-          </div>
-          <div className="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">Turn</th>
-                  <th scope="col">Seen</th>
-                  <th scope="col">Eddies</th>
-                  <th scope="col">Legends</th>
-                  <th scope="col">Capacity</th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.supply.turnProjections.map((projection) => {
-                  const legendCapacity = playerOrder === "first"
-                    ? projection.firstPlayerLegendCapacity
-                    : projection.secondPlayerLegendCapacity;
-                  const paymentCapacity = playerOrder === "first"
-                    ? projection.expectedFirstPlayerPaymentCapacity
-                    : projection.expectedSecondPlayerPaymentCapacity;
-                  return (
-                    <tr key={projection.turn}>
-                      <th scope="row">{projection.turn}</th>
-                      <td>{projection.cardsSeen}</td>
-                      <td>{projection.expectedPersistentEddies.toFixed(1)}</td>
-                      <td>{legendCapacity}</td>
-                      <td><strong>{paymentCapacity.toFixed(1)}</strong></td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-
-      {report.warnings.length > 0 && (
-        <div className="eddy-warnings">
-          {report.warnings.map((warning) => (
-            <div key={warning.code}>
-              <strong>{warning.message}</strong>
-              {warning.affectedCards.length > 0 && (
-                <span>{warning.affectedCards.map((cardId) => cardById(cardId)?.display_name ?? cardId).join(", ")}</span>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      <details className="eddy-assumptions">
-        <summary>Calculation assumptions</summary>
-        <ul>
-          {report.assumptions.map((assumption) => <li key={assumption}>{assumption}</li>)}
-        </ul>
-      </details>
-    </section>
-  );
-}
-
-function GigSandbox({ deck }: { deck: Deck }) {
-  const [gigs, setGigs] = useState<Gig[]>([]);
-  const boardState = useMemo<BoardState>(() => ({
-    players: [
-      { id: "player", deck, eddies: 0 },
-      { id: "rival", deck, eddies: 0 }
-    ],
-    gigs,
-    activePlayerId: "player",
-    turn: 1
-  }), [deck, gigs]);
-  const playerStreetCred = useMemo(
-    () => calculateStreetCred(boardState, "player", cyberpunkRulesetV1Printable),
-    [boardState]
-  );
-  const rivalStreetCred = useMemo(
-    () => calculateStreetCred(boardState, "rival", cyberpunkRulesetV1Printable),
-    [boardState]
-  );
-  const fixerCount = gigs.filter((gig) => !gig.controllerId).length;
-  const issues = [...playerStreetCred.issues, ...rivalStreetCred.issues];
-
-  function updateGig(gigId: string, update: (gig: Gig) => Gig) {
-    setGigs((current) => current.map((gig) => gig.id === gigId ? update(gig) : gig));
-  }
-
-  function addGig() {
-    setGigs((current) => [
-      ...current,
-      createSandboxGig(createLocalId("gig"), current.length)
-    ]);
-  }
-
-  return (
-    <section className="panel gig-sandbox">
-      <div className="panel-title gig-sandbox-title">
-        <div>
-          <p className="section-kicker">Exact board state</p>
-          <h2>Gig Sandbox</h2>
-        </div>
-        <button className="primary" onClick={addGig}>+ Add Gig</button>
-      </div>
-
-      <dl className="street-cred-summary">
-        <div className="friendly-cred">
-          <dt>Your Street Cred</dt>
-          <dd>{playerStreetCred.total}</dd>
-          <small>{playerStreetCred.contributions.length} controlled Gigs</small>
-        </div>
-        <div className="rival-cred">
-          <dt>Rival Street Cred</dt>
-          <dd>{rivalStreetCred.total}</dd>
-          <small>{rivalStreetCred.contributions.length} controlled Gigs</small>
-        </div>
-        <div>
-          <dt>Fixer Area</dt>
-          <dd>{fixerCount}</dd>
-          <small>uncontrolled Gigs</small>
-        </div>
-      </dl>
-
-      <div className="gig-list">
-        {gigs.map((gig, index) => {
-          const issue = issues.find((candidate) => candidate.affectedGigIds.includes(gig.id));
-          return (
-            <article className={`gig-row${issue ? " invalid" : ""}`} key={gig.id}>
-              <div className="gig-index" aria-hidden="true">{index + 1}</div>
-              <label className="field">
-                <span>Die</span>
-                <select
-                  aria-label={`Die type for Gig ${index + 1}`}
-                  value={gig.dieType}
-                  onChange={(event) => updateGig(
-                    gig.id,
-                    (current) => changeGigDieType(current, event.target.value as DieType)
-                  )}
-                >
-                  {dieTypes.map((dieType) => <option key={dieType}>{dieType}</option>)}
-                </select>
-              </label>
-              <label className="field">
-                <span>Value</span>
-                <input
-                  aria-label={`Value for Gig ${index + 1}`}
-                  type="number"
-                  min="1"
-                  max={dieMaximums[gig.dieType]}
-                  step="1"
-                  value={gig.value}
-                  onChange={(event) => updateGig(
-                    gig.id,
-                    (current) => ({ ...current, value: Number(event.target.value) })
-                  )}
-                />
-              </label>
-              <label className="field gig-controller-field">
-                <span>Control</span>
-                <select
-                  aria-label={`Controller for Gig ${index + 1}`}
-                  value={gigController(gig)}
-                  onChange={(event) => updateGig(
-                    gig.id,
-                    (current) => assignGigController(current, event.target.value as GigController)
-                  )}
-                >
-                  <option value="player">You</option>
-                  <option value="rival">Rival</option>
-                  <option value="fixer">Fixer</option>
-                </select>
-              </label>
-              <button
-                className="icon-button gig-remove"
-                aria-label={`Remove Gig ${index + 1}`}
-                title="Remove Gig"
-                onClick={() => setGigs((current) => current.filter((candidate) => candidate.id !== gig.id))}
-              >×</button>
-              {issue && (
-                <span className="gig-issue">
-                  {issue.code === "invalid-gig-value"
-                    ? `Value must be a whole number from 1 to ${dieMaximums[gig.dieType]} for ${gig.dieType}.`
-                    : issue.message}
-                </span>
-              )}
-            </article>
-          );
-        })}
-        {gigs.length === 0 && (
-          <div className="empty-state">No Gigs in this board state.</div>
-        )}
-      </div>
-    </section>
-  );
-}
-
 function App() {
   const [library, setLibrary] = useState(() =>
     loadDeckLibrary(window.localStorage, createStarterDeck())
@@ -442,16 +122,9 @@ function App() {
   const [ramFilter, setRamFilter] = useState<NumberFilter>("Any");
   const [costFilter, setCostFilter] = useState<NumberFilter>("Any");
   const [eddyPlayerOrder, setEddyPlayerOrder] = useState<"first" | "second">("first");
-  const [importText, setImportText] = useState("");
-  const [importError, setImportError] = useState("");
-  const [transferFormat, setTransferFormat] = useState<"text" | "json">("text");
   const [sharedDocument, setSharedDocument] = useState<DeckDocumentV1>();
   const [sharedDeckError, setSharedDeckError] = useState("");
-  const [shareStatus, setShareStatus] = useState("");
-  const [shareUrl, setShareUrl] = useState("");
   const [detailCardId, setDetailCardId] = useState<string>();
-  const detailDialogRef = useRef<HTMLDialogElement>(null);
-  const detailCloseRef = useRef<HTMLButtonElement>(null);
   const detailTriggerRef = useRef<HTMLButtonElement>();
   const deck = getActiveDeck(library);
   const detailCard = detailCardId ? cardById(detailCardId) : undefined;
@@ -466,11 +139,6 @@ function App() {
     () => analyzeEddyCurve(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable),
     [deck]
   );
-  const exportText = useMemo(
-    () => transferFormat === "json" ? exportDeckJson(deck) : exportDecklist(deck, cyberpunkCardDb),
-    [deck, transferFormat]
-  );
-
   const filteredCards = useMemo(
     () =>
       filterCards(cyberpunkCardDb.cards, {
@@ -482,18 +150,6 @@ function App() {
       }),
     [colorFilter, costFilter, query, ramFilter, typeFilter]
   );
-
-  useEffect(() => {
-    const dialog = detailDialogRef.current;
-    if (!dialog) return;
-
-    if (detailCard && !dialog.open) {
-      dialog.showModal();
-      detailCloseRef.current?.focus();
-    } else if (!detailCard && dialog.open) {
-      dialog.close();
-    }
-  }, [detailCard]);
 
   useEffect(() => {
     function readSharedDeckFromHash() {
@@ -552,7 +208,6 @@ function App() {
 
   function handleSelectDeck(deckId: string) {
     setPendingDelete(false);
-    setImportError("");
     persistLibrary(selectDeck(library, deckId));
   }
 
@@ -584,51 +239,6 @@ function App() {
     persist({ ...deck, legends: adjustDeckEntry(deck.legends, card.id, -1) });
   }
 
-  function handleImport() {
-    if (transferFormat === "json") {
-      const result = importDeckJson(importText);
-      if (!result.document) {
-        setImportError(result.errors.map((error) => `${error.path}: ${error.message}`).join("\n"));
-        return;
-      }
-
-      const importedDeck = result.document.deck;
-      setImportError("");
-      persist({
-        id: deck.id,
-        name: importedDeck.name,
-        legends: importedDeck.legends,
-        main: importedDeck.main,
-        formatId: importedDeck.formatId,
-        rulesetVersion: importedDeck.rulesetVersion,
-        cardDataVersion: importedDeck.cardDataVersion,
-        metadata: {
-          ...deck.metadata,
-          notes: importedDeck.notes
-        }
-      });
-      return;
-    }
-
-    const result = importDecklist(importText, cyberpunkCardDb, {
-      deckName: deck.name,
-      formatId: deck.formatId,
-      rulesetVersion: deck.rulesetVersion
-    });
-    if (!result.deck) {
-      setImportError(result.errors.map((error) => `Line ${error.line}: ${error.message}`).join("\n"));
-      return;
-    }
-    setImportError("");
-    persist({ ...result.deck, id: deck.id, name: deck.name, metadata: deck.metadata });
-  }
-
-  function changeTransferFormat(format: "text" | "json") {
-    setTransferFormat(format);
-    setImportText("");
-    setImportError("");
-  }
-
   function clearSharedDeck() {
     setSharedDocument(undefined);
     setSharedDeckError("");
@@ -657,18 +267,6 @@ function App() {
     };
     persistLibrary(addDeck(library, importedDeck));
     clearSharedDeck();
-  }
-
-  async function copyShareLink() {
-    const url = new URL(window.location.href);
-    url.hash = `deck=${encodeDeckSharePayload(deck)}`;
-    setShareUrl(url.toString());
-    try {
-      await navigator.clipboard.writeText(url.toString());
-      setShareStatus("Link copied");
-    } catch {
-      setShareStatus("Link ready below");
-    }
   }
 
   return (
@@ -706,36 +304,12 @@ function App() {
         </article>
       </section>
 
-      {(sharedDocument || sharedDeckError) && (
-        <section
-          aria-label="Shared deck preview"
-          className={`share-preview ${sharedDeckError ? "invalid" : ""}`}
-        >
-          <div>
-            <p className="section-kicker">Shared deck</p>
-            {sharedDocument ? (
-              <>
-                <h2>{sharedDocument.deck.name}</h2>
-                <p>
-                  {entryCount(sharedDocument.deck.legends)} Legends · {entryCount(sharedDocument.deck.main)} main-deck cards
-                </p>
-                <small>{sharedDocument.deck.rulesetVersion} · {sharedDocument.deck.cardDataVersion}</small>
-              </>
-            ) : (
-              <>
-                <h2>Unable to open shared deck</h2>
-                <p>{sharedDeckError}</p>
-              </>
-            )}
-          </div>
-          <div className="share-preview-actions">
-            <button onClick={clearSharedDeck}>Dismiss</button>
-            {sharedDocument && (
-              <button className="primary" onClick={addSharedDeckToLibrary}>Add to library</button>
-            )}
-          </div>
-        </section>
-      )}
+      <SharedDeckPreview
+        document={sharedDocument}
+        error={sharedDeckError}
+        onDismiss={clearSharedDeck}
+        onAdd={addSharedDeckToLibrary}
+      />
 
       <div className="workspace">
         <section className="panel deck-panel">
@@ -902,6 +476,7 @@ function App() {
       </section>
 
       <EddyCurvePanel
+        cards={cyberpunkCardDb.cards}
         report={eddyCurve}
         playerOrder={eddyPlayerOrder}
         onPlayerOrderChange={setEddyPlayerOrder}
@@ -909,61 +484,7 @@ function App() {
 
       <GigSandbox deck={deck} />
 
-      <section className="io-section">
-        <div className="panel-title io-title">
-          <div>
-            <p className="section-kicker">Portable deck</p>
-            <h2>Import / Export</h2>
-          </div>
-          <div className="io-actions">
-            <div className="segmented-control" role="group" aria-label="Deck transfer format">
-              <button
-                aria-pressed={transferFormat === "text"}
-                onClick={() => changeTransferFormat("text")}
-              >Text</button>
-              <button
-                aria-pressed={transferFormat === "json"}
-                onClick={() => changeTransferFormat("json")}
-              >JSON</button>
-            </div>
-            <button onClick={copyShareLink}>Copy share link</button>
-            <span className="share-status" aria-live="polite">{shareStatus}</span>
-          </div>
-        </div>
-        {shareUrl && (
-          <label className="field share-link-field">
-            <span>Deck share link</span>
-            <input
-              aria-label="Deck share link"
-              readOnly
-              value={shareUrl}
-              onFocus={(event) => event.currentTarget.select()}
-            />
-          </label>
-        )}
-        <div className="workspace io">
-          <section className="panel">
-            <div className="panel-title">
-              <h2>Export</h2>
-              <span className="result-count">{transferFormat === "json" ? "Schema v1" : "Decklist"}</span>
-            </div>
-            <textarea aria-label={`${transferFormat === "json" ? "JSON" : "Text"} deck export`} readOnly value={exportText} />
-          </section>
-          <section className="panel">
-            <h2>Import</h2>
-            <textarea
-              aria-label={`${transferFormat === "json" ? "JSON" : "Text"} deck import`}
-              value={importText}
-              onChange={(event) => setImportText(event.target.value)}
-              placeholder={transferFormat === "json"
-                ? "Paste a gigsmith.deck JSON document"
-                : "Legends:\n1 V — StreetKid\n\nMain:\n3 Swordwise Huscle"}
-            />
-            <button className="primary" onClick={handleImport}>Import {transferFormat === "json" ? "JSON" : "decklist"}</button>
-            {importError && <pre className="import-error">{importError}</pre>}
-          </section>
-        </div>
-      </section>
+      <DeckTransfer deck={deck} onReplace={persist} />
 
       <footer className="source-panel">
         <div>
@@ -997,88 +518,7 @@ function App() {
         </nav>
       </footer>
 
-      <dialog
-        className="card-detail-dialog"
-        ref={detailDialogRef}
-        aria-labelledby="card-detail-title"
-        onCancel={(event) => {
-          event.preventDefault();
-          closeCardDetails();
-        }}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            event.preventDefault();
-            closeCardDetails();
-          }
-        }}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) closeCardDetails();
-        }}
-      >
-        {detailCard && (
-          <div className="card-detail-content">
-            <header className="card-detail-header">
-              <div>
-                <p>{detailCard.color} {detailCard.card_type}</p>
-                <h2 id="card-detail-title">{detailCard.display_name}</h2>
-                <code>{detailCard.external_id}</code>
-              </div>
-              <button
-                className="icon-button"
-                ref={detailCloseRef}
-                aria-label="Close card details"
-                title="Close"
-                onClick={closeCardDetails}
-              >×</button>
-            </header>
-
-            <dl className="card-detail-stats">
-              {cardDetailStats(detailCard).map((stat) => (
-                <div key={stat.label}>
-                  <dt>{stat.label}</dt>
-                  <dd>{stat.value}</dd>
-                </div>
-              ))}
-            </dl>
-
-            <section className="card-detail-section">
-              <h3>Rules</h3>
-              <p className="rules-text">{cardDetailText(detailCard.rules_text, "No rules text.")}</p>
-            </section>
-
-            {detailCard.flavor_text && (
-              <section className="card-detail-section">
-                <h3>Flavor</h3>
-                <p className="flavor-text">{detailCard.flavor_text}</p>
-              </section>
-            )}
-
-            <dl className="card-detail-taxonomy">
-              <div>
-                <dt>Keywords</dt>
-                <dd>{cardDetailTags(detailCard.keywords)}</dd>
-              </div>
-              <div>
-                <dt>Classifications</dt>
-                <dd>{cardDetailTags(detailCard.classifications)}</dd>
-              </div>
-              <div>
-                <dt>Set</dt>
-                <dd>{detailCard.set.name} ({detailCard.set.code})</dd>
-              </div>
-              <div>
-                <dt>Printing</dt>
-                <dd>{detailCard.print_number ?? detailCard.printing_id}</dd>
-              </div>
-            </dl>
-
-            <footer className="card-detail-footer">
-              <span>Card ID: <code>{detailCard.id}</code></span>
-              <a href={cyberpunkCardSnapshot.metadata.sourceUrl} target="_blank" rel="noreferrer">Snapshot source</a>
-            </footer>
-          </div>
-        )}
-      </dialog>
+      <CardDetailDialog card={detailCard} onClose={closeCardDetails} />
     </main>
   );
 }

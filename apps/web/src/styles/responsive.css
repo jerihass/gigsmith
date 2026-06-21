@@ -22,7 +22,6 @@
     max-width: 62vw;
   }
 
-  .grid,
   .analysis-grid,
   .workspace,
   .source-panel,
@@ -30,6 +29,10 @@
   .eddy-analysis-layout,
   .gig-odds-layout {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .filter-grid .search-field {
@@ -144,6 +147,31 @@
 }
 
 @media (max-width: 560px) {
+  .overview {
+    gap: 8px;
+    margin: 16px 0;
+  }
+
+  .metric {
+    min-height: 88px;
+    padding: 11px;
+  }
+
+  .metric span {
+    font-size: 0.76rem;
+  }
+
+  .metric strong {
+    font-size: 1.5rem;
+    margin: 4px 0;
+  }
+
+  .metric small {
+    font-size: 0.66rem;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
   .recovery-page {
     align-items: flex-start;
     padding: 12px;

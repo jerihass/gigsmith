@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { X } from "lucide-react";
 import { cyberpunkCardDb } from "@gigsmith/card-data";
 import type { Deck } from "@gigsmith/data-contracts";
 import { encodeDeckSharePayload, exportDeckJson, exportDecklist, importDeckJson, importDecklist } from "@gigsmith/deck-io";
@@ -7,21 +8,35 @@ export function DeckTransfer({ deck, onReplace }: { deck: Deck; onReplace: (deck
   const [format, setFormat] = useState<"text" | "json">("text");
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
+  const [importToast, setImportToast] = useState<{ kind: "success" | "error"; message: string }>();
   const [shareStatus, setShareStatus] = useState("");
   const [shareUrl, setShareUrl] = useState("");
   const exportText = useMemo(() => format === "json" ? exportDeckJson(deck) : exportDecklist(deck, cyberpunkCardDb), [deck, format]);
+
+  useEffect(() => {
+    if (!importToast) return;
+    const timeout = window.setTimeout(() => setImportToast(undefined), 5000);
+    return () => window.clearTimeout(timeout);
+  }, [importToast]);
 
   function changeFormat(next: "text" | "json") {
     setFormat(next);
     setImportText("");
     setImportError("");
+    setImportToast(undefined);
   }
 
   function handleImport() {
     if (format === "json") {
       const result = importDeckJson(importText);
       if (!result.document) {
-        setImportError(result.errors.map((error) => `${error.path}: ${error.message}`).join("\n"));
+        const errorText = result.errors.map((error) => `${error.path}: ${error.message}`).join("\n");
+        const firstError = result.errors[0]?.message ?? "The JSON deck document is invalid.";
+        setImportError(errorText);
+        setImportToast({
+          kind: "error",
+          message: `Import failed: ${firstError}${result.errors.length > 1 ? ` (+${result.errors.length - 1} more)` : ""}`
+        });
         return;
       }
       const imported = result.document.deck;
@@ -36,6 +51,7 @@ export function DeckTransfer({ deck, onReplace }: { deck: Deck; onReplace: (deck
         cardDataVersion: imported.cardDataVersion,
         metadata: { ...deck.metadata, notes: imported.notes }
       });
+      setImportToast({ kind: "success", message: `Imported ${imported.name} successfully.` });
       return;
     }
 
@@ -45,11 +61,18 @@ export function DeckTransfer({ deck, onReplace }: { deck: Deck; onReplace: (deck
       rulesetVersion: deck.rulesetVersion
     });
     if (!result.deck) {
-      setImportError(result.errors.map((error) => `Line ${error.line}: ${error.message}`).join("\n"));
+      const errorText = result.errors.map((error) => `Line ${error.line}: ${error.message}`).join("\n");
+      const firstError = result.errors[0]?.message ?? "The decklist is invalid.";
+      setImportError(errorText);
+      setImportToast({
+        kind: "error",
+        message: `Import failed: ${firstError}${result.errors.length > 1 ? ` (+${result.errors.length - 1} more)` : ""}`
+      });
       return;
     }
     setImportError("");
     onReplace({ ...result.deck, id: deck.id, name: deck.name, metadata: deck.metadata });
+    setImportToast({ kind: "success", message: `Imported decklist into ${deck.name}.` });
   }
 
   async function copyShareLink() {
@@ -90,6 +113,20 @@ export function DeckTransfer({ deck, onReplace }: { deck: Deck; onReplace: (deck
           {importError && <pre className="import-error">{importError}</pre>}
         </section>
       </div>
+      {importToast && (
+        <div
+          className={`import-toast ${importToast.kind}`}
+          role={importToast.kind === "error" ? "alert" : "status"}
+        >
+          <span>{importToast.message}</span>
+          <button
+            className="icon-button"
+            aria-label="Dismiss import notification"
+            title="Dismiss"
+            onClick={() => setImportToast(undefined)}
+          ><X size={17} aria-hidden="true" /></button>
+        </div>
+      )}
     </section>
   );
 }

@@ -128,11 +128,17 @@ test("upgrades a stale deck baseline only after explicit action", async ({ page 
 test("exports JSON and reports malformed imports", async ({ page }) => {
   await page.getByRole("tab", { name: "Transfer" }).click();
   await page.getByRole("button", { name: "JSON", exact: true }).click();
-  await expect(page.getByLabel("JSON deck export")).toHaveValue(/"schema": "gigsmith\.deck"/);
+  const exportField = page.getByLabel("JSON deck export");
+  await expect(exportField).toHaveValue(/"schema": "gigsmith\.deck"/);
 
   await page.getByLabel("JSON deck import").fill("{}");
   await page.getByRole("button", { name: "Import JSON" }).click();
+  await expect(page.getByRole("alert")).toContainText("Import failed");
   await expect(page.locator(".import-error")).toContainText("schema");
+
+  await page.getByLabel("JSON deck import").fill(await exportField.inputValue());
+  await page.getByRole("button", { name: "Import JSON" }).click();
+  await expect(page.getByRole("status")).toContainText("Imported Starter Legal Shell successfully");
 });
 
 test("repeats a sample hand for the same seed", async ({ page }) => {

@@ -167,10 +167,25 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [sharedDocument, setSharedDocument] = useState<DeckDocumentV1>();
   const [sharedDeckError, setSharedDeckError] = useState("");
   const [detailCardId, setDetailCardId] = useState<string>();
+  const [detailNavigationContext, setDetailNavigationContext] = useState<"database" | "deck">("database");
   const detailTriggerRef = useRef<HTMLButtonElement>();
   const deck = getActiveDeck(library);
   const activeHistory = getDeckHistory(deckHistories, deck.id);
   const detailCard = detailCardId ? cardById(detailCardId) : undefined;
+  const deckDetailCards = useMemo(() => {
+    const seen = new Set<string>();
+    const cards: Card[] = [];
+    for (const entry of [...deck.legends, ...deck.main]) {
+      if (seen.has(entry.cardId)) continue;
+      seen.add(entry.cardId);
+      const card = cardById(entry.cardId);
+      if (card) cards.push(card);
+    }
+    return cards;
+  }, [deck.legends, deck.main]);
+  const deckDetailIndex = detailNavigationContext === "deck"
+    ? deckDetailCards.findIndex((card) => card.id === detailCardId)
+    : -1;
 
   const validation = useMemo(() => validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable), [deck]);
   const validationGroups = useMemo(
@@ -353,14 +368,22 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
     setPendingDelete(false);
   }
 
-  function openCardDetails(card: Card, trigger: HTMLButtonElement) {
+  function openCardDetails(card: Card, trigger: HTMLButtonElement, context: "database" | "deck" = "database") {
     detailTriggerRef.current = trigger;
+    setDetailNavigationContext(context);
     setDetailCardId(card.id);
   }
 
   function closeCardDetails() {
     setDetailCardId(undefined);
+    setDetailNavigationContext("database");
     window.requestAnimationFrame(() => detailTriggerRef.current?.focus());
+  }
+
+  function navigateDeckDetails(offset: -1 | 1) {
+    if (deckDetailCards.length < 2 || deckDetailIndex < 0) return;
+    const nextIndex = (deckDetailIndex + offset + deckDetailCards.length) % deckDetailCards.length;
+    setDetailCardId(deckDetailCards[nextIndex].id);
   }
 
   function addLegend(card: Card) {
@@ -549,7 +572,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
                         className="icon-button"
                         aria-label={`View details for ${card.display_name}`}
                         title="Card details"
-                        onClick={(event) => openCardDetails(card, event.currentTarget)}
+                        onClick={(event) => openCardDetails(card, event.currentTarget, "deck")}
                       ><Info size={17} aria-hidden="true" /></button>
                       <button onClick={() => removeLegend(card)}>Remove</button>
                     </div>
@@ -584,7 +607,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
                         className="icon-button"
                         aria-label={`View details for ${card.display_name}`}
                         title="Card details"
-                        onClick={(event) => openCardDetails(card, event.currentTarget)}
+                        onClick={(event) => openCardDetails(card, event.currentTarget, "deck")}
                       ><Info size={17} aria-hidden="true" /></button>
                       <div className="count-controls">
                         <button
@@ -840,6 +863,14 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         artEnabled={cardArtEnabled}
         artSource={detailCard ? selectExternalCardArtUrl(detailCard, cardArtUrls) : undefined}
         artSourcePending={cardArtSourceStatus === "loading"}
+        navigation={deckDetailIndex >= 0 && deckDetailCards.length > 1 ? {
+          position: deckDetailIndex + 1,
+          total: deckDetailCards.length,
+          previousCardName: deckDetailCards[(deckDetailIndex - 1 + deckDetailCards.length) % deckDetailCards.length].display_name,
+          nextCardName: deckDetailCards[(deckDetailIndex + 1) % deckDetailCards.length].display_name,
+          onPrevious: () => navigateDeckDetails(-1),
+          onNext: () => navigateDeckDetails(1)
+        } : undefined}
         onClose={closeCardDetails}
       />
     </main>

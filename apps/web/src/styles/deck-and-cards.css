@@ -511,6 +511,24 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.card-detail-navigation {
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  padding: 8px 0;
+}
+
+.card-detail-navigation span {
+  color: var(--muted-strong);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 .card-detail-stats,
 .card-detail-taxonomy {
   display: grid;

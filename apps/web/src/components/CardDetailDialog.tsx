@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { cyberpunkCardSnapshot } from "@gigsmith/card-data";
 import type { Card } from "@gigsmith/data-contracts";
 import { cardDetailStats, cardDetailTags, cardDetailText } from "../cardDetails";
@@ -9,12 +10,21 @@ export function CardDetailDialog({
   artEnabled,
   artSource,
   artSourcePending,
+  navigation,
   onClose
 }: {
   card?: Card;
   artEnabled: boolean;
   artSource?: string;
   artSourcePending: boolean;
+  navigation?: {
+    position: number;
+    total: number;
+    previousCardName: string;
+    nextCardName: string;
+    onPrevious: () => void;
+    onNext: () => void;
+  };
   onClose: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -37,7 +47,18 @@ export function CardDetailDialog({
       ref={dialogRef}
       aria-labelledby="card-detail-title"
       onCancel={(event) => { event.preventDefault(); onClose(); }}
-      onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); onClose(); } }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          onClose();
+        } else if (navigation && event.key === "ArrowLeft") {
+          event.preventDefault();
+          navigation.onPrevious();
+        } else if (navigation && event.key === "ArrowRight") {
+          event.preventDefault();
+          navigation.onNext();
+        }
+      }}
       onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}
     >
       {card && (
@@ -48,8 +69,28 @@ export function CardDetailDialog({
               <h2 id="card-detail-title">{card.display_name}</h2>
               <code>{card.external_id}</code>
             </div>
-            <button className="icon-button" ref={closeRef} aria-label="Close card details" title="Close" onClick={onClose}>×</button>
+            <button className="icon-button" ref={closeRef} aria-label="Close card details" title="Close" onClick={onClose}>
+              <X size={18} aria-hidden="true" />
+            </button>
           </header>
+
+          {navigation && (
+            <nav className="card-detail-navigation" aria-label="Deck card details">
+              <button
+                className="icon-button"
+                aria-label={`Previous card: ${navigation.previousCardName}`}
+                title={`Previous: ${navigation.previousCardName}`}
+                onClick={navigation.onPrevious}
+              ><ChevronLeft size={19} aria-hidden="true" /></button>
+              <span>{navigation.position} of {navigation.total} in deck</span>
+              <button
+                className="icon-button"
+                aria-label={`Next card: ${navigation.nextCardName}`}
+                title={`Next: ${navigation.nextCardName}`}
+                onClick={navigation.onNext}
+              ><ChevronRight size={19} aria-hidden="true" /></button>
+            </nav>
+          )}
 
           <CardArt card={card} enabled={artEnabled} source={artSource} sourcePending={artSourcePending} variant="detail" />
           <dl className="card-detail-stats">

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { Info, Redo2, Undo2 } from "lucide-react";
+import { Info, Moon, Redo2, Sun, Undo2 } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, Deck, DeckCardEntry, DeckDocumentV1, ValidationIssue } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload } from "@gigsmith/deck-io";
@@ -62,6 +62,12 @@ import {
   type DeckLibrary
 } from "./deckLibrary";
 import { groupValidationResult } from "./validationGroups";
+import {
+  applyThemePreference,
+  loadThemePreference,
+  saveThemePreference,
+  type AppTheme
+} from "./themePreference";
 import "./styles.css";
 
 declare global {
@@ -158,6 +164,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [membershipFilter, setMembershipFilter] = useState<DeckMembershipFilter>("All");
   const [ramCompatibilityFilter, setRamCompatibilityFilter] = useState<RamCompatibilityFilter>("All");
   const [cardSort, setCardSort] = useState<CardSort>("Snapshot");
+  const [theme, setTheme] = useState<AppTheme>(() => loadThemePreference(window.localStorage));
   const [deckEditNotice, setDeckEditNotice] = useState<ValidationIssue>();
   const [cardArtEnabled, setCardArtEnabled] = useState(() => loadCardArtPreference(window.localStorage));
   const [cardArtUrls, setCardArtUrls] = useState<ReadonlyMap<string, string>>(() => new Map());
@@ -242,6 +249,10 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
     ramFilter,
     typeFilter
   ]);
+
+  useEffect(() => {
+    applyThemePreference(theme);
+  }, [theme]);
 
   useEffect(() => {
     if (!cardArtEnabled) {
@@ -336,6 +347,12 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   function handleCardArtPreference(enabled: boolean) {
     setCardArtEnabled(enabled);
     saveCardArtPreference(window.localStorage, enabled);
+  }
+
+  function handleThemeChange(nextTheme: AppTheme) {
+    setTheme(nextTheme);
+    applyThemePreference(nextTheme);
+    saveThemePreference(window.localStorage, nextTheme);
   }
 
   function handleCreateDeck() {
@@ -455,6 +472,17 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
           <div className={`status ${validation.legal ? "legal" : "illegal"}`}>
             {validation.legal ? "Legal" : `${validation.errors.length} issue${validation.errors.length === 1 ? "" : "s"}`}
           </div>
+          <button
+            className="icon-button theme-toggle"
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+            aria-pressed={theme === "light"}
+            title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+            onClick={() => handleThemeChange(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark"
+              ? <Sun size={18} aria-hidden="true" />
+              : <Moon size={18} aria-hidden="true" />}
+          </button>
         </div>
       </header>
 

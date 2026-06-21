@@ -1,26 +1,26 @@
 .issue {
-  border-left: 3px solid #777;
+  border-left: 3px solid var(--muted);
   border-radius: 4px;
   display: grid;
   gap: 6px;
   padding: 10px;
-  background: #111111;
+  background: var(--surface-control);
 }
 
 .issue.error {
-  border-left-color: #ff705d;
+  border-left-color: var(--danger);
 }
 
 .issue.warning {
-  border-left-color: #f0b35a;
+  border-left-color: var(--accent);
 }
 
 .issue.info {
-  border-left-color: #7ee3aa;
+  border-left-color: var(--success);
 }
 
 .issue span {
-  color: #bbb4a7;
+  color: var(--muted-strong);
 }
 
 .validation-groups {
@@ -29,7 +29,7 @@
 }
 
 .validation-group + .validation-group {
-  border-top: 1px solid #34302a;
+  border-top: 1px solid var(--border);
   padding-top: 18px;
 }
 
@@ -38,9 +38,9 @@
 }
 
 .issue .affected-cards {
-  color: #f0b35a;
+  color: var(--accent);
 }
 
 .ram-row strong {
-  color: #f0b35a;
+  color: var(--accent);
 }

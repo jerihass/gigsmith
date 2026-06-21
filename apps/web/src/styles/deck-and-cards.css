@@ -21,14 +21,14 @@
 }
 
 .deck-section-title span {
-  color: #aaa295;
+  color: var(--muted);
   font-size: 0.76rem;
   font-weight: 700;
 }
 
 .deck-curve-summary {
-  border-bottom: 1px solid #34302a;
-  border-top: 1px solid #34302a;
+  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--border);
   margin-top: 16px;
   padding: 12px 0;
 }
@@ -47,7 +47,7 @@
 }
 
 .deck-curve-heading small {
-  color: #aaa295;
+  color: var(--muted);
 }
 
 .deck-curve-bars {
@@ -70,7 +70,7 @@
 
 .deck-curve-bars > div > span {
   align-self: end;
-  background: #63d2df;
+  background: var(--cyan);
   border-radius: 2px 2px 0 0;
   justify-self: center;
   max-height: 48px;
@@ -83,7 +83,7 @@
 }
 
 .deck-curve-bars small {
-  color: #aaa295;
+  color: var(--muted);
   font-size: 0.68rem;
 }
 
@@ -93,7 +93,7 @@
 }
 
 .field span {
-  color: #aaa295;
+  color: var(--muted);
   font-size: 0.82rem;
 }
 
@@ -113,8 +113,8 @@
 
 .delete-confirmation {
   align-items: center;
-  background: #321817;
-  border: 1px solid #71332e;
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
   border-radius: 6px;
   display: flex;
   gap: 12px;
@@ -131,8 +131,8 @@
 
 .baseline-notice {
   align-items: center;
-  background: #162b2f;
-  border: 1px solid #356570;
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
   border-radius: 6px;
   display: flex;
   gap: 12px;
@@ -146,7 +146,7 @@
 }
 
 .baseline-notice ul {
-  color: #aaa295;
+  color: var(--muted);
   font-size: 0.76rem;
   line-height: 1.45;
   margin: 6px 0 0;
@@ -179,7 +179,7 @@ textarea {
 }
 
 .result-count {
-  color: #aaa295;
+  color: var(--muted);
   font-size: 0.82rem;
 }
 
@@ -338,7 +338,7 @@ textarea {
 }
 
 .card-row .card-copy span {
-  color: #b9c2c4;
+  color: var(--muted-strong);
 }
 
 .card-copy {
@@ -363,7 +363,7 @@ textarea {
 }
 
 .ram-compatibility.incompatible {
-  color: #ff9b73;
+  color: var(--warning-text);
 }
 
 .ram-compatibility.unknown {
@@ -377,14 +377,14 @@ textarea {
 }
 
 .deck-edit-notice.warning {
-  background: #211d0f;
-  color: #f5df7a;
+  background: var(--warning-bg);
+  color: var(--warning-text);
 }
 
 .deck-edit-notice.error {
-  background: #261316;
+  background: var(--danger-bg);
   border-left-color: var(--danger);
-  color: #ffb8bc;
+  color: var(--danger-text);
 }
 
 .card-database-actions {
@@ -403,10 +403,10 @@ textarea {
 .card-art {
   align-items: center;
   aspect-ratio: 5 / 7;
-  background: #24211d;
-  border: 1px solid #3c362f;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
   border-radius: 6px;
-  color: #aaa295;
+  color: var(--muted);
   display: flex;
   flex: 0 0 auto;
   justify-content: center;
@@ -471,7 +471,7 @@ textarea {
   border: 1px solid var(--detail-border);
   border-top: 3px solid var(--detail-accent);
   border-radius: 8px;
-  color: #f3f0e8;
+  color: var(--text);
   box-shadow: inset 0 2px 0 rgb(255 255 255 / 4%);
   max-height: min(760px, calc(100vh - 32px));
   max-width: 680px;
@@ -528,7 +528,7 @@ textarea {
 }
 
 .card-detail-dialog::backdrop {
-  background: rgb(0 0 0 / 72%);
+  background: var(--backdrop);
 }
 
 .card-detail-content {
@@ -559,7 +559,7 @@ textarea {
 
 .card-detail-header code,
 .card-detail-footer code {
-  color: #aaa295;
+  color: var(--muted);
   overflow-wrap: anywhere;
 }
 
@@ -594,15 +594,15 @@ textarea {
 
 .card-detail-stats > div,
 .card-detail-taxonomy > div {
-  background: #111111;
-  border: 1px solid #2b2722;
+  background: var(--surface-control);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 10px;
 }
 
 .card-detail-stats dt,
 .card-detail-taxonomy dt {
-  color: #aaa295;
+  color: var(--muted);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -634,14 +634,14 @@ textarea {
 }
 
 .flavor-text {
-  color: #bbb4a7;
+  color: var(--muted-strong);
   font-style: italic;
 }
 
 .card-detail-footer {
   align-items: center;
-  border-top: 1px solid #34302a;
-  color: #aaa295;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
   display: flex;
   font-size: 0.8rem;
   gap: 14px;
@@ -650,5 +650,5 @@ textarea {
 }
 
 .card-detail-footer a {
-  color: #f0b35a;
+  color: var(--accent);
 }

@@ -32,6 +32,24 @@ test("contains horizontal overflow and keeps deck status visible", async ({ page
   expect(layout.status).toMatch(/Legal|issue/);
 });
 
+test("persists light theme and keeps it accessible", async ({ page }) => {
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content", "#edf3f2");
+
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(page.getByRole("button", { name: "Switch to dark theme" })).toBeVisible();
+
+  for (const view of ["Deck", "Analysis", "Gigs", "Transfer"]) {
+    await page.getByRole("tab", { name: view }).click();
+    const results = await new AxeBuilder({ page }).analyze();
+    const serious = results.violations.filter((violation) => ["serious", "critical"].includes(violation.impact ?? ""));
+    expect(serious, `${view} light: ${serious.map((violation) => violation.id).join(", ")}`).toEqual([]);
+  }
+});
+
 test("reloads offline without losing local deck changes", async ({ page, context }) => {
   test.skip(process.env.PLAYWRIGHT_SKIP_WEBSERVER === "1", "Offline coverage requires the production service worker.");
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });

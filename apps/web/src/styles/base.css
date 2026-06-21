@@ -7,16 +7,78 @@
   --surface: #101416;
   --surface-raised: #151a1d;
   --surface-control: #0b0e10;
+  --surface-hover: #20282c;
   --border: #293236;
   --border-strong: #435057;
   --text: #f2f6f5;
   --muted: #98a5a9;
   --muted-strong: #bdc6c8;
   --accent: #eddc36;
+  --accent-fill: #eddc36;
+  --accent-fill-hover: #fff05b;
   --accent-ink: #111306;
   --cyan: #45d8e8;
+  --cyan-text: #b9f2fb;
   --success: #65e6a6;
+  --success-bg: #163b2b;
+  --success-border: #276443;
+  --success-text: #9ef2c4;
   --danger: #ff6b72;
+  --danger-bg: #4b1b1b;
+  --danger-border: #71332e;
+  --danger-text: #ffb1a6;
+  --warning-bg: #3a301b;
+  --warning-border: #69562d;
+  --warning-text: #f1cf8a;
+  --info-bg: #162b2f;
+  --info-border: #356570;
+  --info-text: #b9f2fb;
+  --selected-bg: #2b464b;
+  --disabled: #777168;
+  --backdrop: rgb(0 0 0 / 72%);
+  --shadow: rgb(0 0 0 / 45%);
+  --selection-ink: #071012;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  background: #edf3f2;
+  color: #0b1618;
+  --page: #edf3f2;
+  --surface: #f8fbfa;
+  --surface-raised: #dfe9e8;
+  --surface-control: #ffffff;
+  --surface-hover: #cfdfde;
+  --border: #a9bcc0;
+  --border-strong: #526b70;
+  --text: #0b1618;
+  --muted: #53666a;
+  --muted-strong: #34494e;
+  --accent: #756600;
+  --accent-fill: #e5cf22;
+  --accent-fill-hover: #f1db31;
+  --accent-ink: #111306;
+  --cyan: #00798a;
+  --cyan-text: #005f6c;
+  --success: #087443;
+  --success-bg: #d8f2e4;
+  --success-border: #4a9a70;
+  --success-text: #075c37;
+  --danger: #b42336;
+  --danger-bg: #f9dfe2;
+  --danger-border: #b95b67;
+  --danger-text: #8d1728;
+  --warning-bg: #f5edbd;
+  --warning-border: #9a8420;
+  --warning-text: #655700;
+  --info-bg: #d9eff1;
+  --info-border: #4b929b;
+  --info-text: #155f68;
+  --selected-bg: #cce9ec;
+  --disabled: #819094;
+  --backdrop: rgb(4 14 16 / 48%);
+  --shadow: rgb(34 61 65 / 24%);
+  --selection-ink: #ffffff;
 }
 
 * {
@@ -48,12 +110,12 @@ button {
 }
 
 button:hover {
-  background: #20282c;
+  background: var(--surface-hover);
   border-color: var(--cyan);
 }
 
 button:disabled {
-  color: #777168;
+  color: var(--disabled);
   cursor: default;
   opacity: 0.7;
 }
@@ -64,21 +126,21 @@ button:disabled:hover {
 }
 
 button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent-fill);
+  border-color: var(--accent-fill);
   color: var(--accent-ink);
   font-weight: 700;
 }
 
 button.primary:hover {
-  background: #fff05b;
-  border-color: #fff05b;
+  background: var(--accent-fill-hover);
+  border-color: var(--accent-fill-hover);
 }
 
 button.danger {
-  background: #551f25;
-  border-color: #a84049;
-  color: #fff1f2;
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
 }
 
 :is(button, input, select, textarea, a):focus-visible {
@@ -88,5 +150,5 @@ button.danger {
 
 ::selection {
   background: var(--cyan);
-  color: #071012;
+  color: var(--selection-ink);
 }

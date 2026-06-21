@@ -5,8 +5,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#111111",
-  "theme_color": "#111111",
+  "background_color": "#080a0b",
+  "theme_color": "#080a0b",
   "icons": [
     {
       "src": "icons/gigsmith-192.png",

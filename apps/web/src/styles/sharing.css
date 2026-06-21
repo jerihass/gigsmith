@@ -1,7 +1,7 @@
 .share-preview {
   align-items: center;
-  background: #162b2f;
-  border: 1px solid #356570;
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
   border-radius: 8px;
   display: flex;
   gap: 18px;
@@ -11,8 +11,8 @@
 }
 
 .share-preview.invalid {
-  background: #321817;
-  border-color: #71332e;
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
 }
 
 .share-preview h2 {
@@ -20,12 +20,12 @@
 }
 
 .share-preview p {
-  color: #d5d0c6;
+  color: var(--muted-strong);
   margin-bottom: 5px;
 }
 
 .share-preview small {
-  color: #aaa295;
+  color: var(--muted);
   overflow-wrap: anywhere;
 }
 

@@ -76,6 +76,22 @@ describe("Gig odds analysis", () => {
     expect(report.nextDieOptions.find((option) => option.dieType === "d20")).toBeUndefined();
   });
 
+  it("scores next-die distinct-value odds from current friendly Gigs", () => {
+    let match = createGigMatch(["player", "rival"], "player", cyberpunkRulesetV1Printable);
+    match = gainGig(match, "player:d4", 4, cyberpunkRulesetV1Printable).state;
+    const report = analyzeGigOdds(
+      deck([["cb-afterparty-at-lizzie-s", 3]]),
+      cyberpunkCardDb,
+      cyberpunkGigRequirements,
+      cyberpunkRulesetV1Printable,
+      match
+    );
+
+    const d6 = report.nextDieOptions.find((option) => option.dieType === "d6");
+    expect(d6?.profile.distinct2Probability).toBeCloseTo(5 / 6, 4);
+    expect(d6?.profile.distinct3Probability).toBe(0);
+  });
+
   it("lists Rival-relative Street Cred cards without scoring them", () => {
     const report = analyzeGigOdds(
       deck([["cb-mt0d12-flathead", 3]]),

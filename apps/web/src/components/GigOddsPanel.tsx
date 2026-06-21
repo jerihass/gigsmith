@@ -25,7 +25,11 @@ function cardNames(cardIds: string[], cards: Map<string, Card>): string {
   return cardIds.map((cardId) => cards.get(cardId)?.display_name ?? cardId).join(", ");
 }
 
-function profileMetric(profile: GigRollProfile, condition: GigConditionId): string {
+function profileMetric(profile: GigRollProfile, condition: GigConditionId, friendlyValues: number[]): string {
+  const distinctFriendlyValues = new Set(friendlyValues).size;
+  if (condition === "distinct-2" && friendlyValues.length === 0) return "Need 1 Gig";
+  if (condition === "distinct-3" && distinctFriendlyValues < 2) return "Need 2 values";
+  if ((condition === "parity-mix" || condition === "value-pair") && friendlyValues.length === 0) return "Need 1 Gig";
   switch (condition) {
     case "high-8": return percent(profile.high8Probability);
     case "maximum": return percent(profile.maximumProbability);
@@ -47,6 +51,7 @@ export function GigOddsPanel({ deck, match }: { deck: Deck; match: GigMatchState
   );
   const cards = useMemo(() => new Map(cyberpunkCardDb.cards.map((card) => [card.id, card])), []);
   const supportedDemands = report.demands.filter((demand) => demand.supported);
+  const friendlyValues = match.gigs.filter((gig) => gig.controllerId === "player").map((gig) => gig.value);
 
   return (
     <section className="panel gig-odds-panel" aria-labelledby="gig-odds-title">
@@ -91,13 +96,16 @@ export function GigOddsPanel({ deck, match }: { deck: Deck; match: GigMatchState
 
       {report.nextDieOptions.length > 0 && supportedDemands.length > 0 && (
         <section className="next-die-analysis" aria-labelledby="next-die-title">
-          <div className="gig-order-heading"><h3 id="next-die-title">Your Next Fixer Die</h3><span>Uses current Gig values</span></div>
+          <div className="gig-order-heading">
+            <h3 id="next-die-title">Your Next Fixer Die</h3>
+            <span>{friendlyValues.length > 0 ? `Your Gig values: ${friendlyValues.join(", ")}` : "No friendly Gigs yet"}</span>
+          </div>
           <div className="next-die-options">
             {report.nextDieOptions.map((option) => (
               <article key={option.dieType}>
                 <strong>{option.dieType}</strong>
                 <span>Deck fit {percent(option.deckFitScore)}</span>
-                <dl>{supportedDemands.slice(0, 3).map((demand) => <div key={demand.condition}><dt>{conditionLabels[demand.condition]}</dt><dd>{profileMetric(option.profile, demand.condition)}</dd></div>)}</dl>
+                <dl>{supportedDemands.slice(0, 3).map((demand) => <div key={demand.condition}><dt>{conditionLabels[demand.condition]}</dt><dd>{profileMetric(option.profile, demand.condition, friendlyValues)}</dd></div>)}</dl>
               </article>
             ))}
           </div>

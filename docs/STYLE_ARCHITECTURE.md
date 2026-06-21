@@ -15,14 +15,15 @@ Gigsmith's CSS entry point is `apps/web/src/styles.css`. It imports files in cas
 9. `styles/transfer-and-sources.css` - import/export, share links, source metadata, and footer links.
 10. `styles/responsive.css` - all breakpoint and structural overrides.
 11. `styles/theme-light.css` - light-theme card and detail color identities; loaded last and limited to color properties.
+12. `styles/theme-neon.css` - Neon-theme glow treatments plus card and detail color identities; loaded after light overrides.
 
 Place a new base declaration in its owning feature file. Place its breakpoint override in `responsive.css` under the appropriate breakpoint. Cross-feature primitives belong in `base.css`, `shell.css`, or `workspace.css`; do not duplicate declarations across feature files.
 
-The extraction deliberately retains a centralized responsive file. Moving breakpoint rules beside feature rules would reorder the cascade and requires a separate, intentional migration. `theme-light.css` follows it only to override color identity variables; do not place dimensions or layout rules in the theme file.
+The extraction deliberately retains a centralized responsive file. Moving breakpoint rules beside feature rules would reorder the cascade and requires a separate, intentional migration. Theme files follow it only to override color identity variables and theme-specific effects; do not place dimensions or layout rules in theme files.
 
 ## Shared Visual Tokens
 
-The Night City workbench themes are defined as custom properties in `styles/base.css`. Dark is the default and light is activated by `data-theme="light"` on the document root. Feature styles should use these properties for shared surfaces, borders, text, and interactive accents; card-color identities are overridden in `theme-light.css`.
+The Night City workbench themes are defined as custom properties in `styles/base.css`. Dark is the default; Light and Neon are activated by the corresponding `data-theme` value on the document root. Feature styles should use these properties for shared surfaces, borders, text, and interactive accents; card-color identities are overridden in the theme files.
 
 | Role | Value |
 | --- | --- |

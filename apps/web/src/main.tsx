@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { Info, Moon, Redo2, Sun, Undo2 } from "lucide-react";
+import { Info, Palette, Redo2, Undo2 } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, Deck, DeckCardEntry, DeckDocumentV1, ValidationIssue } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload } from "@gigsmith/deck-io";
@@ -472,17 +472,18 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
           <div className={`status ${validation.legal ? "legal" : "illegal"}`}>
             {validation.legal ? "Legal" : `${validation.errors.length} issue${validation.errors.length === 1 ? "" : "s"}`}
           </div>
-          <button
-            className="icon-button theme-toggle"
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-            aria-pressed={theme === "light"}
-            title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-            onClick={() => handleThemeChange(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark"
-              ? <Sun size={18} aria-hidden="true" />
-              : <Moon size={18} aria-hidden="true" />}
-          </button>
+          <label className="theme-picker" title="Application theme">
+            <Palette size={17} aria-hidden="true" />
+            <select
+              aria-label="Theme"
+              value={theme}
+              onChange={(event) => handleThemeChange(event.target.value as AppTheme)}
+            >
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+              <option value="neon">Neon</option>
+            </select>
+          </label>
         </div>
       </header>
 

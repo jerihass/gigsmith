@@ -32,22 +32,32 @@ test("contains horizontal overflow and keeps deck status visible", async ({ page
   expect(layout.status).toMatch(/Legal|issue/);
 });
 
-test("persists light theme and keeps it accessible", async ({ page }) => {
+test("persists selectable themes and keeps them accessible", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  const theme = page.getByLabel("Theme");
+  await expect(theme).toHaveValue("dark");
+  await theme.selectOption("light");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content", "#edf3f2");
 
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await expect(page.getByRole("button", { name: "Switch to dark theme" })).toBeVisible();
+  await expect(page.getByLabel("Theme")).toHaveValue("light");
 
-  for (const view of ["Deck", "Analysis", "Gigs", "Transfer"]) {
-    await page.getByRole("tab", { name: view }).click();
-    const results = await new AxeBuilder({ page }).analyze();
-    const serious = results.violations.filter((violation) => ["serious", "critical"].includes(violation.impact ?? ""));
-    expect(serious, `${view} light: ${serious.map((violation) => violation.id).join(", ")}`).toEqual([]);
+  for (const selectedTheme of ["light", "neon"] as const) {
+    await page.getByLabel("Theme").selectOption(selectedTheme);
+    for (const view of ["Deck", "Analysis", "Gigs", "Transfer"]) {
+      await page.getByRole("tab", { name: view }).click();
+      const results = await new AxeBuilder({ page }).analyze();
+      const serious = results.violations.filter((violation) => ["serious", "critical"].includes(violation.impact ?? ""));
+      expect(serious, `${view} ${selectedTheme}: ${serious.map((violation) => violation.id).join(", ")}`).toEqual([]);
+    }
   }
+
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "neon");
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content", "#050008");
+  await page.reload();
+  await expect(page.getByLabel("Theme")).toHaveValue("neon");
 });
 
 test("reloads offline without losing local deck changes", async ({ page, context }) => {

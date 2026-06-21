@@ -108,9 +108,28 @@ main {
   gap: 12px;
 }
 
-.theme-toggle {
+.theme-picker {
+  align-items: center;
   align-self: center;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
   color: var(--cyan);
+  display: flex;
+  gap: 4px;
+  height: 34px;
+  padding: 0 5px;
+}
+
+.theme-picker select {
+  appearance: auto;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  height: 32px;
+  min-width: 58px;
+  padding: 0;
+  width: auto;
 }
 
 .active-deck-context {

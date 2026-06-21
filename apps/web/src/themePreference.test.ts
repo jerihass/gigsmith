@@ -20,14 +20,17 @@ describe("theme preference", () => {
     expect(loadThemePreference(storage())).toBe("dark");
     expect(loadThemePreference(storage("system"))).toBe("dark");
     expect(loadThemePreference(storage("light"))).toBe("light");
+    expect(loadThemePreference(storage("neon"))).toBe("neon");
   });
 
-  it("persists explicit dark and light choices", () => {
+  it("persists explicit theme choices", () => {
     const local = storage();
     saveThemePreference(local, "light");
     expect(local.values.get(themePreferenceStorageKey)).toBe("light");
     saveThemePreference(local, "dark");
     expect(local.values.get(themePreferenceStorageKey)).toBe("dark");
+    saveThemePreference(local, "neon");
+    expect(local.values.get(themePreferenceStorageKey)).toBe("neon");
   });
 
   it("falls back safely when storage is unavailable", () => {

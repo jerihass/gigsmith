@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { cyberpunkCardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, Deck, GigConditionId, GigMatchState, GigRollProfile } from "@gigsmith/data-contracts";
-import { analyzeGigOdds } from "@gigsmith/rules-core";
+import { analyzeGigOdds, availableFixerGigs, gainGig, gigDieMaximum } from "@gigsmith/rules-core";
 
 const conditionLabels: Record<GigConditionId, string> = {
   "high-8": "8+ value",
@@ -44,7 +44,13 @@ function profileMetric(profile: GigRollProfile, condition: GigConditionId, frien
   }
 }
 
-export function GigOddsPanel({ deck, match }: { deck: Deck; match: GigMatchState }) {
+interface GigOddsPanelProps {
+  deck: Deck;
+  match: GigMatchState;
+  onMatchChange: (match: GigMatchState) => void;
+}
+
+export function GigOddsPanel({ deck, match, onMatchChange }: GigOddsPanelProps) {
   const report = useMemo(
     () => analyzeGigOdds(deck, cyberpunkCardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable, match),
     [deck, match]
@@ -52,46 +58,26 @@ export function GigOddsPanel({ deck, match }: { deck: Deck; match: GigMatchState
   const cards = useMemo(() => new Map(cyberpunkCardDb.cards.map((card) => [card.id, card])), []);
   const supportedDemands = report.demands.filter((demand) => demand.supported);
   const friendlyValues = match.gigs.filter((gig) => gig.controllerId === "player").map((gig) => gig.value);
+  const availableGigs = availableFixerGigs(match, cyberpunkRulesetV1Printable);
+  const availableGigIds = new Set(availableGigs.map((gig) => gig.id));
+  const availableDieTypes = new Set(
+    availableGigs
+      .filter((gig) => gig.ownerId === "player")
+      .map((gig) => gig.dieType)
+  );
+
+  function rollAndGain(dieType: string) {
+    const gig = match.gigs.find((candidate) => candidate.ownerId === "player" && candidate.dieType === dieType && !candidate.controllerId);
+    if (!gig || !availableGigIds.has(gig.id) || match.gainedGigThisTurn) return;
+    const value = Math.floor(Math.random() * gigDieMaximum(gig.dieType)) + 1;
+    onMatchChange(gainGig(match, gig.id, value, cyberpunkRulesetV1Printable).state);
+  }
 
   return (
     <section className="panel gig-odds-panel" aria-labelledby="gig-odds-title">
       <div className="panel-title gig-odds-title">
-        <div><p className="section-kicker">Deck-driven exact rolls</p><h2 id="gig-odds-title">Gig Odds &amp; Color Goals</h2></div>
+        <div><p className="section-kicker">Live deck-driven rolls</p><h2 id="gig-odds-title">Gig Odds &amp; Color Goals</h2></div>
         <span className="result-count">{report.registryVersion}</span>
-      </div>
-
-      <div className="gig-odds-layout">
-        <section aria-labelledby="gig-demand-title">
-          <h3 id="gig-demand-title">Deck Demand</h3>
-          <div className="gig-demand-list">
-            {report.demands.map((demand) => (
-              <div className={`gig-demand${demand.supported ? "" : " unsupported"}`} key={demand.condition}>
-                <div><strong>{conditionLabels[demand.condition]}</strong><span>{demand.colors.join("/")} · {demand.copies} {demand.copies === 1 ? "copy" : "copies"}</span></div>
-                <small>{cardNames(demand.cardIds, cards)}</small>
-                {!demand.supported && <em>Rival board state required</em>}
-              </div>
-            ))}
-            {report.demands.length === 0 && <div className="empty-state">No current deck cards have curated Gig-value payoffs.</div>}
-          </div>
-        </section>
-
-        <section aria-labelledby="gig-order-title">
-          <div className="gig-order-heading">
-            <h3 id="gig-order-title">Recommended Natural Order</h3>
-            <span>{supportedDemands.length > 0 ? "Weighted by deck copies" : "No scored demand"}</span>
-          </div>
-          <div className="die-order" aria-label={`Recommended die order: ${report.recommendedOrder.join(", ")}`}>
-            {report.recommendedOrder.map((dieType, index) => <span key={dieType}><small>{index + 1}</small>{dieType}</span>)}
-          </div>
-          <div className="gig-odds-table-scroll" role="region" aria-label="Gig probability by turn" tabIndex={0}>
-            <table className="gig-odds-table">
-              <thead><tr><th scope="col">Turn</th><th scope="col">Die</th><th scope="col">8+</th><th scope="col">Min</th><th scope="col">Even + odd</th><th scope="col">Pair</th><th scope="col">3 values</th><th scope="col">Expected Cred</th></tr></thead>
-              <tbody>{report.turns.map((turn) => (
-                <tr key={turn.turn}><th scope="row">{turn.turn}</th><td>{turn.dieType}</td><td>{percent(turn.profile.high8Probability)}</td><td>{percent(turn.profile.minimumProbability)}</td><td>{percent(turn.profile.parityMixProbability)}</td><td>{percent(turn.profile.valuePairProbability)}</td><td>{percent(turn.profile.distinct3Probability)}</td><td>{turn.profile.expectedStreetCred.toFixed(1)}</td></tr>
-              ))}</tbody>
-            </table>
-          </div>
-        </section>
       </div>
 
       {report.nextDieOptions.length > 0 && supportedDemands.length > 0 && (
@@ -106,11 +92,55 @@ export function GigOddsPanel({ deck, match }: { deck: Deck; match: GigMatchState
                 <strong>{option.dieType}</strong>
                 <span>Deck fit {percent(option.deckFitScore)}</span>
                 <dl>{supportedDemands.slice(0, 3).map((demand) => <div key={demand.condition}><dt>{conditionLabels[demand.condition]}</dt><dd>{profileMetric(option.profile, demand.condition, friendlyValues)}</dd></div>)}</dl>
+                <button
+                  aria-label={`Roll and gain your ${option.dieType}`}
+                  disabled={!availableDieTypes.has(option.dieType) || match.gainedGigThisTurn}
+                  onClick={() => rollAndGain(option.dieType)}
+                >
+                  Roll &amp; gain
+                </button>
               </article>
             ))}
           </div>
         </section>
       )}
+
+      <details className="gig-deep-analysis">
+        <summary>Deck demand and natural-order analysis</summary>
+        <div className="gig-odds-layout">
+          <section aria-labelledby="gig-demand-title">
+            <h3 id="gig-demand-title">Deck Demand</h3>
+            <div className="gig-demand-list">
+              {report.demands.map((demand) => (
+                <div className={`gig-demand${demand.supported ? "" : " unsupported"}`} key={demand.condition}>
+                  <div><strong>{conditionLabels[demand.condition]}</strong><span>{demand.colors.join("/")} · {demand.copies} {demand.copies === 1 ? "copy" : "copies"}</span></div>
+                  <small>{cardNames(demand.cardIds, cards)}</small>
+                  {!demand.supported && <em>Rival board state required</em>}
+                </div>
+              ))}
+              {report.demands.length === 0 && <div className="empty-state">No current deck cards have curated Gig-value payoffs.</div>}
+            </div>
+          </section>
+
+          <section aria-labelledby="gig-order-title">
+            <div className="gig-order-heading">
+              <h3 id="gig-order-title">Recommended Natural Order</h3>
+              <span>{supportedDemands.length > 0 ? "Weighted by deck copies" : "No scored demand"}</span>
+            </div>
+            <div className="die-order" aria-label={`Recommended die order: ${report.recommendedOrder.join(", ")}`}>
+              {report.recommendedOrder.map((dieType, index) => <span key={dieType}><small>{index + 1}</small>{dieType}</span>)}
+            </div>
+            <div className="gig-odds-table-scroll" role="region" aria-label="Gig probability by turn" tabIndex={0}>
+              <table className="gig-odds-table">
+                <thead><tr><th scope="col">Turn</th><th scope="col">Die</th><th scope="col">8+</th><th scope="col">Min</th><th scope="col">Even + odd</th><th scope="col">Pair</th><th scope="col">3 values</th><th scope="col">Expected Cred</th></tr></thead>
+                <tbody>{report.turns.map((turn) => (
+                  <tr key={turn.turn}><th scope="row">{turn.turn}</th><td>{turn.dieType}</td><td>{percent(turn.profile.high8Probability)}</td><td>{percent(turn.profile.minimumProbability)}</td><td>{percent(turn.profile.parityMixProbability)}</td><td>{percent(turn.profile.valuePairProbability)}</td><td>{percent(turn.profile.distinct3Probability)}</td><td>{turn.profile.expectedStreetCred.toFixed(1)}</td></tr>
+                ))}</tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </details>
 
       <details className="eddy-assumptions gig-odds-assumptions">
         <summary>Probability method and limits</summary>

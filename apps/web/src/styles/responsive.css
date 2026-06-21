@@ -187,7 +187,15 @@
   }
 
   .next-die-options {
-    grid-template-columns: 1fr;
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scroll-snap-type: x proximity;
+  }
+
+  .next-die-options article {
+    flex: 0 0 min(78vw, 260px);
+    scroll-snap-align: start;
   }
 
   .mulligan-heading {

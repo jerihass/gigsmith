@@ -539,6 +539,10 @@
   margin-bottom: 16px;
 }
 
+.gig-workspace {
+  display: grid;
+}
+
 .gig-odds-title {
   align-items: start;
   margin-bottom: 18px;
@@ -662,9 +666,7 @@
 }
 
 .next-die-analysis {
-  border-top: 1px solid var(--border);
-  margin-top: 22px;
-  padding-top: 18px;
+  margin-top: 4px;
 }
 
 .next-die-options {
@@ -700,6 +702,11 @@
   margin: 0;
 }
 
+.next-die-options article > button {
+  margin-top: auto;
+  width: 100%;
+}
+
 .next-die-options dl > div {
   display: flex;
   gap: 8px;
@@ -721,4 +728,41 @@
 
 .gig-odds-assumptions {
   margin-top: 20px;
+}
+
+.gig-deep-analysis {
+  border-top: 1px solid var(--border);
+  margin-top: 18px;
+  padding-top: 14px;
+}
+
+.gig-deep-analysis > summary {
+  color: var(--cyan-text);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.gig-deep-analysis[open] > summary {
+  margin-bottom: 20px;
+}
+
+@media (min-width: 1180px) {
+  .gig-workspace {
+    align-items: start;
+    gap: 16px;
+    grid-template-columns: minmax(400px, 0.55fr) minmax(0, 1.45fr);
+  }
+
+  .gig-workspace .gig-odds-panel {
+    margin-bottom: 0;
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+    position: sticky;
+    top: 12px;
+  }
+
+  .gig-workspace .next-die-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

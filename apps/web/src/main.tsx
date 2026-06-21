@@ -809,7 +809,6 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
           onPlayerOrderChange={setEddyPlayerOrder}
         />
         <SampleHandPanel deck={deck} />
-        <GigOddsPanel deck={deck} match={gigMatch} />
       </section>
 
       <section
@@ -819,7 +818,10 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         aria-labelledby="app-tab-gigs"
         hidden={activeView !== "gigs"}
       >
-        <GigSandbox match={gigMatch} onChange={setGigMatch} />
+        <div className="gig-workspace">
+          <GigOddsPanel deck={deck} match={gigMatch} onMatchChange={setGigMatch} />
+          <GigSandbox match={gigMatch} onChange={setGigMatch} />
+        </div>
       </section>
 
       <section

@@ -17,19 +17,16 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ## Next Execution Sequence
 
-Execute the next reliability, UX, and feature work in this order:
+The original `M0`-`M10` plan is complete. Execute the next product work in this order:
 
-1. `GS-902` local-data recovery and application error boundary.
-2. `GS-070` task-focused application navigation.
-3. `GS-071` deck-building sort, filter, and count ergonomics.
-4. `GS-903` browser workflow and accessibility coverage.
-5. `GS-072` deck-edit undo and redo.
-6. `GS-080` deterministic sample-hand analysis.
-7. `GS-081` mulligan comparison and recommendations.
-8. `GS-904` PWA deployment and update hardening.
-9. `GS-905` measured performance budgets.
-10. `GS-073` feature-oriented stylesheet split.
-11. `GS-090` optional external card art.
+1. `GS-110` legality-aware deck-edit guardrails.
+2. `GS-111` named deck-version snapshots and comparison.
+3. `GS-120` local playtest journal and per-version summaries.
+4. `GS-160` hosted static-PWA deployment.
+5. `GS-161` weekly card/rules source-change reporting.
+6. `GS-130` collection-aware deck building.
+7. `GS-140` deeper composition analysis.
+8. `GS-150` shareable and printable deck reports.
 
 Each step should land as a focused commit with tests, typechecking, and a production build.
 
@@ -715,6 +712,224 @@ domain model and tests remain available for future card-aware analysis.
 - Desktop and phone browser coverage for deck demand, six-turn odds, and live match updates.
 
 **Constitution Check:** Exact, explainable analysis remains in rules-core and uses versioned card metadata.
+
+## M11 - Legality-Aware Deck Building And Versions
+
+### GS-110: Add Legality-Aware Deck-Edit Guardrails
+
+**Priority:** P0.
+
+**Status:** Planned.
+
+**Goal:** Prevent accidental rule violations that have no useful deck-building purpose while preserving temporary illegal states needed for exploration, imports, and Legend changes.
+
+**Design Decision:** Enforce the ruleset's per-card copy maximum during direct UI additions. Do not hard-block RAM-incompatible cards, Legend changes, incomplete decks, or temporary deck-size violations. RAM alignment is contextual and a user must be able to change Legends without the editor trapping the deck in an uneditable state.
+
+**Deliverables:**
+- Add a pure rules-core deck-edit evaluation that returns allowed, blocked, and warning outcomes with reasons.
+- Disable add/increment controls at the ruleset's copy maximum and explain why in accessible text.
+- Show RAM compatibility on card-browser rows and provide a compatible-card filter.
+- Warn before or immediately after adding a RAM-incompatible card without preventing the edit.
+- Keep imported or previously saved illegal decks loadable, editable, exportable, and fully explained by validation.
+- Keep Legend and main-deck size changes flexible so users can construct and repair decks incrementally.
+
+**Acceptance Criteria:**
+- A direct UI action cannot raise a non-Legend card above its current ruleset copy limit.
+- Changing the selected Legends never silently deletes cards or prevents the user from repairing the deck.
+- RAM incompatibility is visible before adding a card and remains visible in the deck editor afterward.
+- Unknown, stale, and imported illegal deck data produces reports rather than destructive normalization.
+- Guardrails derive limits from the active ruleset and format instead of duplicating constants in React.
+
+**Tests:**
+- Rules-core tests for copy-cap, RAM warning, unknown card, format restriction, and Legend-transition outcomes.
+- UI tests for disabled copy controls, compatible filtering, adding with a RAM warning, and repairing an imported illegal deck.
+
+**Constitution Check:** Rules remain pure and versioned; reports explain every blocked or warned edit; local deck ownership is preserved.
+
+### GS-111: Add Named Deck-Version Snapshots And Comparison
+
+**Priority:** P1.
+
+**Status:** Planned.
+
+**Goal:** Preserve meaningful deck revisions and connect later playtest results to the exact list that was played.
+
+**Deliverables:**
+- Save immutable, user-named snapshots of a deck with timestamps and rules/card-data baselines.
+- Compare added, removed, and count-changed cards between two versions.
+- Compare legality, RAM, Eddy curve, Gig goals, and composition summaries where available.
+- Restore an older version as a new current edit without deleting later history.
+- Export and import version history explicitly without inflating ordinary deck-share URLs.
+
+**Acceptance Criteria:**
+- Snapshot identity remains stable when the working deck changes.
+- Restoring a version is reversible and never overwrites another saved deck silently.
+- Comparisons use stable card IDs and explain missing cards from older snapshots.
+
+**Tests:**
+- Snapshot immutability, comparison, restoration, migration, and round-trip tests.
+- Browser workflow for naming, modifying, comparing, and restoring a version.
+
+**Constitution Check:** Version history is local-first, explicit, and tied to versioned rules and card data.
+
+## M12 - Local Playtest Journal
+
+### GS-120: Record Playtests And Per-Version Results
+
+**Priority:** P1 after `GS-111`.
+
+**Status:** Planned.
+
+**Goal:** Connect Gigsmith's deck analysis to observed games without presenting small samples as authoritative strategy.
+
+**Deliverables:**
+- Record deck version, opponent colors or archetype, result, first player, turns, final Street Cred, event, date, and notes.
+- Provide fast event-day entry with optional fields and editable records.
+- Summarize record, first-player split, opponent-color split, game length, and recurring user tags per deck version.
+- Display sample sizes and avoid confidence claims unsupported by the data.
+- Export and import journal data separately or with an explicit full backup.
+
+**Acceptance Criteria:**
+- Editing a deck does not rewrite the version attached to an existing playtest.
+- Notes and opponent information stay local unless explicitly exported.
+- Summaries always show their sample count and distinguish missing data from zero.
+
+**Tests:**
+- Journal CRUD, version linkage, aggregation, migration, and import/export tests.
+- Phone browser workflow for recording a result in a few actions.
+
+**Constitution Check:** The journal remains local-first and reports observed data without black-box strategic conclusions.
+
+## M13 - Collection-Aware Building
+
+### GS-130: Track Owned Copies And Collection Constraints
+
+**Priority:** P2.
+
+**Status:** Planned.
+
+**Goal:** Let users distinguish a legal theoretical deck from one they can assemble with their current collection.
+
+**Deliverables:**
+- Store owned counts by stable card ID with explicit unknown/not-tracked state.
+- Add collection filters and owned/missing counts to deck and card-browser views.
+- Report collection shortfalls separately from game-rule legality.
+- Suggest replacements only from owned cards and only when explicit metadata supports the comparison.
+- Include collection data only in explicit full backups, never ordinary shared deck links.
+
+**Acceptance Criteria:**
+- Collection constraints never change the legal/illegal result of the game rules.
+- Duplicate display names remain separate collection records.
+- Users can build theoretical decks without entering a collection.
+
+**Tests:**
+- Owned-count arithmetic, missing-card reports, duplicate-name identity, privacy, and backup round trips.
+
+**Constitution Check:** Collection data is local and private; legality and ownership remain separate structured reports.
+
+## M14 - Composition Analysis
+
+### GS-140: Add Explainable Deck-Composition Analysis
+
+**Priority:** P2 after `GS-130`.
+
+**Status:** Planned.
+
+**Goal:** Expand deck analysis beyond Eddy and Gig odds using explicit, reviewable card metadata.
+
+**Deliverables:**
+- Report card-type, color, faction, cost, power, keyword, and other supported distributions.
+- Add curated versioned tags for economy, interaction, protection, draw, and other strategic roles only when card text supports them.
+- Show counts and source cards behind every category.
+- Compare composition changes between deck versions.
+- Mark unknown or ambiguous card roles instead of inferring them silently from prose.
+
+**Acceptance Criteria:**
+- Every reported category can be traced to card IDs and versioned metadata.
+- Analysis never labels a deck objectively good or bad from arbitrary thresholds.
+- Missing metadata produces visible coverage warnings.
+
+**Tests:**
+- Distribution arithmetic, curated-tag registry integrity, unknown-card handling, and version comparison tests.
+
+**Constitution Check:** Analysis is deterministic, explainable, and based on versioned data rather than hidden heuristics.
+
+## M15 - Shareable Deck Reports
+
+### GS-150: Add Read-Only, Printable Deck Reports
+
+**Priority:** P2 after `GS-140`.
+
+**Status:** Planned.
+
+**Goal:** Make a deck easy to review, print, and transfer without exposing private library, collection, or journal data.
+
+**Deliverables:**
+- Add a read-only report with deck list, legality, RAM, Eddy curve, Gig goals, composition, and optional card details.
+- Add print styles that remain useful without card art.
+- Generate a QR code for the existing share payload with clear payload-size handling.
+- Let recipients import the deck explicitly rather than mutating their library on link open.
+
+**Acceptance Criteria:**
+- Shared reports contain only the selected deck and documented public metadata.
+- Print output is readable in monochrome and when external artwork is unavailable.
+- Oversized QR payloads fail with a useful alternative rather than an unreadable code.
+
+**Tests:**
+- Share-payload privacy, print-layout smoke, QR round trip, and oversized-payload tests.
+
+**Constitution Check:** Sharing stays portable, text-first, and independent of a backend or one hosting provider.
+
+## M16 - Release Operations
+
+### GS-160: Deploy The Static PWA
+
+**Priority:** P1 after `GS-110`.
+
+**Status:** Planned; hosting provider not yet selected.
+
+**Goal:** Make Gigsmith installable on a phone without keeping a development server running.
+
+**Deliverables:**
+- Add a reviewed production deployment for GitHub Pages, Cloudflare Pages, or another static HTTPS host.
+- Use a stable build identity and correct root/subpath configuration for the selected host.
+- Document custom-domain, rollback, backup-before-origin-change, and release procedures.
+- Verify installation, update prompting, offline restart, and local-deck preservation on a physical phone.
+
+**Acceptance Criteria:**
+- Production requires no application server or runtime database.
+- The installed app opens offline after its initial successful load.
+- Deployments do not modify local deck data or silently change storage origin.
+
+**Tests:**
+- Hosted smoke test plus the existing root/subpath PWA and offline suites.
+
+**Constitution Check:** Deployment preserves the static, local-first architecture.
+
+### GS-161: Add Weekly Source-Change Reporting
+
+**Priority:** P1 after `GS-160`.
+
+**Status:** Planned.
+
+**Goal:** Detect new cards or rules revisions without silently changing Gigsmith's reviewed local snapshots.
+
+**Deliverables:**
+- Run a scheduled weekly check of the Netdeck card source and official printable rules URL.
+- Compare card count, stable IDs, relevant field changes, ETag/Last-Modified when available, and content hashes.
+- Produce a readable workflow summary and open or update one tracking issue when changes are detected.
+- Provide the same comparison through a local command.
+- Never commit refreshed snapshots or rules automatically.
+
+**Acceptance Criteria:**
+- An unchanged source produces no repository changes or duplicate issues.
+- A changed source identifies what changed and records retrieval metadata.
+- Updating local card/rules snapshots remains an explicit reviewed commit.
+
+**Tests:**
+- Fixture-based unchanged, added-card, modified-card, rules-hash, and network-failure tests.
+
+**Constitution Check:** Source monitoring is automated; versioned game data changes remain human-reviewed.
 
 ## Cross-Cutting Work
 

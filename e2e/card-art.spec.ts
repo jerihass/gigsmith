@@ -67,6 +67,24 @@ test("keeps card text and actions available when artwork fails", async ({ page }
   await expect(dialog.getByRole("heading", { name: "Rules" })).toBeVisible();
 });
 
+test("keeps responsive card text beside enabled artwork", async ({ page }) => {
+  await routeArtSource(page);
+  await page.route(artHostPattern, (route) => route.fulfill({ status: 200, contentType: "image/png", body: transparentPng }));
+  await page.goto("/");
+  await page.getByLabel("External art").check();
+
+  const firstCard = page.getByRole("article").filter({ hasText: "V — StreetKid" });
+  const art = firstCard.locator(".card-art.thumbnail");
+  const copy = firstCard.locator(".card-copy");
+  await expect(art).toBeVisible();
+
+  const [artBox, copyBox] = await Promise.all([art.boundingBox(), copy.boundingBox()]);
+  expect(artBox).not.toBeNull();
+  expect(copyBox).not.toBeNull();
+  expect(copyBox!.x).toBeGreaterThan(artBox!.x + artBox!.width - 1);
+  expect(copyBox!.y).toBeLessThan(artBox!.y + artBox!.height);
+});
+
 test("keeps text-only card workflows usable offline with art enabled", async ({ page, context }) => {
   test.skip(process.env.PLAYWRIGHT_SKIP_WEBSERVER === "1", "Offline coverage requires the production service worker.");
   await routeArtSource(page);

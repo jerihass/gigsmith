@@ -92,15 +92,34 @@
 
   .card-row {
     align-items: stretch;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .card-row .card-art.thumbnail {
     align-self: flex-start;
+    grid-column: 1;
+    grid-row: 1;
+    width: 64px;
+  }
+
+  .card-row .card-copy {
+    grid-column: 1 / -1;
+  }
+
+  .card-row:has(.card-art.thumbnail) {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .card-row:has(.card-art.thumbnail) .card-copy {
+    align-self: center;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .card-actions {
     display: grid;
+    grid-column: 1 / -1;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

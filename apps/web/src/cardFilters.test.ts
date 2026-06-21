@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb } from "@gigsmith/card-data";
 import budgets from "../performance-budgets.json" with { type: "json" };
-import { browseCards, filterCards, numberFilterOptions } from "./cardFilters";
+import { browseCards, filterCards, filterCardsByRamCompatibility, numberFilterOptions } from "./cardFilters";
 
 const defaultFilters = {
   query: "",
@@ -58,6 +58,22 @@ describe("numberFilterOptions", () => {
 
     expect(numberFilterOptions(cards, "ram")).toEqual(["Any", "2"]);
     expect(numberFilterOptions(cards, "cost")).toEqual(["Any", "9"]);
+  });
+});
+
+describe("filterCardsByRamCompatibility", () => {
+  it("filters explicit compatible and incompatible statuses without treating unknowns or Legends as compatible", () => {
+    const cards = cyberpunkCardDb.cards.slice(0, 4);
+    const statuses = new Map([
+      [cards[0].id, "not-applicable" as const],
+      [cards[1].id, "compatible" as const],
+      [cards[2].id, "incompatible" as const],
+      [cards[3].id, "unknown" as const]
+    ]);
+
+    expect(filterCardsByRamCompatibility(cards, "Compatible", statuses)).toEqual([cards[1]]);
+    expect(filterCardsByRamCompatibility(cards, "Incompatible", statuses)).toEqual([cards[2]]);
+    expect(filterCardsByRamCompatibility(cards, "All", statuses)).toEqual(cards);
   });
 });
 

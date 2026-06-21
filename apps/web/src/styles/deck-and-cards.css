@@ -186,7 +186,7 @@ textarea {
 .filter-grid {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(4, minmax(100px, 1fr));
+  grid-template-columns: repeat(3, minmax(100px, 1fr));
   margin-bottom: 14px;
 }
 
@@ -220,12 +220,14 @@ textarea {
   padding: 10px;
 }
 
-.deck-row > span,
+.deck-card-copy,
 .card-copy {
   min-width: 0;
 }
 
-.deck-row > span {
+.deck-card-copy {
+  display: grid;
+  gap: 4px;
   overflow-wrap: anywhere;
 }
 
@@ -343,6 +345,46 @@ textarea {
   display: grid;
   flex: 1 1 auto;
   gap: 4px;
+}
+
+.ram-compatibility {
+  align-items: center;
+  display: inline-flex;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  justify-self: start;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.ram-compatibility.compatible {
+  color: var(--success);
+}
+
+.ram-compatibility.incompatible {
+  color: #ff9b73;
+}
+
+.ram-compatibility.unknown {
+  color: var(--muted);
+}
+
+.deck-edit-notice {
+  border-left: 3px solid var(--accent);
+  margin: 0 0 12px;
+  padding: 10px 12px;
+}
+
+.deck-edit-notice.warning {
+  background: #211d0f;
+  color: #f5df7a;
+}
+
+.deck-edit-notice.error {
+  background: #261316;
+  border-left-color: var(--danger);
+  color: #ffb8bc;
 }
 
 .card-database-actions {

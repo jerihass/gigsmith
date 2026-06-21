@@ -1,9 +1,10 @@
-import type { Card, CardColor, CardType } from "@gigsmith/data-contracts";
+import type { Card, CardColor, CardType, RamCompatibilityStatus } from "@gigsmith/data-contracts";
 
 export type CardColorFilter = "Any" | CardColor;
 export type CardTypeFilter = "Any" | CardType;
 export type NumberFilter = "Any" | string;
 export type DeckMembershipFilter = "All" | "In Deck" | "Not In Deck";
+export type RamCompatibilityFilter = "All" | "Compatible" | "Incompatible";
 export type CardSort = "Snapshot" | "Name" | "Cost" | "RAM" | "Power" | "Color" | "Type";
 
 export interface CardFilters {
@@ -74,6 +75,16 @@ export function filterCards(cards: Card[], filters: CardFilters): Card[] {
     if (!fieldMatchesNumberFilter(card.cost, filters.cost)) return false;
     return true;
   });
+}
+
+export function filterCardsByRamCompatibility(
+  cards: Card[],
+  filter: RamCompatibilityFilter,
+  compatibilityByCardId: ReadonlyMap<string, RamCompatibilityStatus>
+): Card[] {
+  if (filter === "All") return cards;
+  const expectedStatus: RamCompatibilityStatus = filter === "Compatible" ? "compatible" : "incompatible";
+  return cards.filter((card) => compatibilityByCardId.get(card.id) === expectedStatus);
 }
 
 function compareNullableNumber(left: number | null, right: number | null): number {

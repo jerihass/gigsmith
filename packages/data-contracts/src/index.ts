@@ -222,6 +222,22 @@ export interface CardLegalityReport {
   warnings: ValidationIssue[];
 }
 
+export type RamCompatibilityStatus = "compatible" | "incompatible" | "unknown" | "not-applicable";
+
+export interface RamCompatibilityReport {
+  status: RamCompatibilityStatus;
+  requiredRam: number | null;
+  availableRam: number | null;
+}
+
+export interface DeckEditEvaluation {
+  allowed: boolean;
+  blockers: ValidationIssue[];
+  warnings: ValidationIssue[];
+  currentCopies: number;
+  maxCopies: number | null;
+}
+
 export interface EddyCostBucket {
   cost: number;
   cardCount: number;

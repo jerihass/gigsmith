@@ -2,9 +2,16 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { Info, Redo2, Undo2 } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
-import type { Card, Deck, DeckCardEntry, DeckDocumentV1 } from "@gigsmith/data-contracts";
+import type { Card, Deck, DeckCardEntry, DeckDocumentV1, ValidationIssue } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload } from "@gigsmith/deck-io";
-import { analyzeEddyCurve, calculateRamLimits, createGigMatch, validateDeck } from "@gigsmith/rules-core";
+import {
+  analyzeEddyCurve,
+  calculateRamLimits,
+  createGigMatch,
+  evaluateCardRamCompatibility,
+  evaluateMainDeckAddition,
+  validateDeck
+} from "@gigsmith/rules-core";
 import { loadAppView, saveAppView, type AppView } from "./appViews";
 import {
   browseCards,
@@ -13,7 +20,9 @@ import {
   type CardColorFilter,
   type CardTypeFilter,
   type DeckMembershipFilter,
-  type NumberFilter
+  type NumberFilter,
+  filterCardsByRamCompatibility,
+  type RamCompatibilityFilter
 } from "./cardFilters";
 import { CardDetailDialog } from "./components/CardDetailDialog";
 import { CardArt } from "./components/CardArt";
@@ -147,7 +156,9 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [ramFilter, setRamFilter] = useState<NumberFilter>("Any");
   const [costFilter, setCostFilter] = useState<NumberFilter>("Any");
   const [membershipFilter, setMembershipFilter] = useState<DeckMembershipFilter>("All");
+  const [ramCompatibilityFilter, setRamCompatibilityFilter] = useState<RamCompatibilityFilter>("All");
   const [cardSort, setCardSort] = useState<CardSort>("Snapshot");
+  const [deckEditNotice, setDeckEditNotice] = useState<ValidationIssue>();
   const [cardArtEnabled, setCardArtEnabled] = useState(() => loadCardArtPreference(window.localStorage));
   const [cardArtUrls, setCardArtUrls] = useState<ReadonlyMap<string, string>>(() => new Map());
   const [cardArtSourceStatus, setCardArtSourceStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
@@ -167,6 +178,18 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
     [validation]
   );
   const ram = useMemo(() => calculateRamLimits(deck.legends, cyberpunkCardDb, cyberpunkRulesetV1Printable), [deck.legends]);
+  const ramCompatibilityById = useMemo(
+    () => new Map(cyberpunkCardDb.cards.map((card) => [card.id, evaluateCardRamCompatibility(card, ram)])),
+    [ram]
+  );
+  const additionEvaluationById = useMemo(
+    () => new Map(
+      cyberpunkCardDb.cards
+        .filter((card) => card.card_type !== "Legend")
+        .map((card) => [card.id, evaluateMainDeckAddition(deck, card.id, cyberpunkCardDb, cyberpunkRulesetV1Printable)])
+    ),
+    [deck]
+  );
   const eddyCurve = useMemo(
     () => analyzeEddyCurve(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable),
     [deck]
@@ -179,17 +202,31 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
     return counts;
   }, [deck.legends, deck.main]);
   const deckCardIds = useMemo(() => new Set(deckCountById.keys()), [deckCountById]);
-  const filteredCards = useMemo(
-    () =>
-      browseCards(
+  const filteredCards = useMemo(() => {
+    const browsedCards = browseCards(
         cyberpunkCardDb.cards,
         { query, color: colorFilter, type: typeFilter, ram: ramFilter, cost: costFilter },
         membershipFilter,
         cardSort,
         deckCardIds
-      ),
-    [cardSort, colorFilter, costFilter, deckCardIds, membershipFilter, query, ramFilter, typeFilter]
-  );
+      );
+    return filterCardsByRamCompatibility(
+      browsedCards,
+      ramCompatibilityFilter,
+      new Map([...ramCompatibilityById].map(([cardId, report]) => [cardId, report.status]))
+    );
+  }, [
+    cardSort,
+    colorFilter,
+    costFilter,
+    deckCardIds,
+    membershipFilter,
+    query,
+    ramCompatibilityById,
+    ramCompatibilityFilter,
+    ramFilter,
+    typeFilter
+  ]);
 
   useEffect(() => {
     if (!cardArtEnabled) {
@@ -212,6 +249,10 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
       });
     return () => controller.abort();
   }, [cardArtEnabled]);
+
+  useEffect(() => {
+    setDeckEditNotice(undefined);
+  }, [deck.id]);
 
   useEffect(() => {
     function readSharedDeckFromHash() {
@@ -328,6 +369,16 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   }
 
   function adjustMainCard(card: Card, delta: number) {
+    if (delta > 0) {
+      const evaluation = evaluateMainDeckAddition(deck, card.id, cyberpunkCardDb, cyberpunkRulesetV1Printable);
+      if (!evaluation.allowed) {
+        setDeckEditNotice(evaluation.blockers[0]);
+        return;
+      }
+      setDeckEditNotice(evaluation.warnings[0]);
+    } else {
+      setDeckEditNotice(undefined);
+    }
     persist({ ...deck, main: adjustDeckEntry(deck.main, card.id, delta) });
   }
 
@@ -489,7 +540,9 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
               const card = cardById(entry.cardId);
               return (
                 <div className="deck-row" data-color={card?.color.toLowerCase()} key={entry.cardId}>
-                  <span>{card?.display_name ?? entry.cardId}</span>
+                  <div className="deck-card-copy">
+                    <span>{card?.display_name ?? entry.cardId}</span>
+                  </div>
                   {card && (
                     <div className="deck-row-actions">
                       <button
@@ -510,9 +563,21 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
           <div className="deck-list">
             {deck.main.map((entry) => {
               const card = cardById(entry.cardId);
+              const compatibility = card ? ramCompatibilityById.get(card.id) : undefined;
+              const addition = card ? additionEvaluationById.get(card.id) : undefined;
               return (
                 <div className="deck-row" data-color={card?.color.toLowerCase()} key={entry.cardId}>
-                  <span>{card?.display_name ?? entry.cardId}</span>
+                  <div className="deck-card-copy">
+                    <span>{card?.display_name ?? entry.cardId}</span>
+                    {compatibility?.status === "incompatible" && (
+                      <small className="ram-compatibility incompatible">
+                        Over RAM · needs {compatibility.requiredRam}, has {compatibility.availableRam}
+                      </small>
+                    )}
+                    {compatibility?.status === "unknown" && (
+                      <small className="ram-compatibility unknown">RAM unknown</small>
+                    )}
+                  </div>
                   {card && (
                     <div className="deck-row-actions">
                       <button
@@ -531,8 +596,9 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
                         <strong aria-label={`${entry.count} copies`}>{entry.count}</strong>
                         <button
                           className="icon-button"
-                          aria-label={`Add one ${card.display_name}`}
-                          title="Add one"
+                          aria-label={addition?.blockers[0]?.message ?? `Add one ${card.display_name}`}
+                          title={addition?.blockers[0]?.message ?? "Add one"}
+                          disabled={!addition?.allowed}
                           onClick={() => adjustMainCard(card, 1)}
                         >+</button>
                       </div>
@@ -604,15 +670,35 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
               </select>
             </label>
             <label className="field">
+              <span>RAM fit</span>
+              <select
+                value={ramCompatibilityFilter}
+                onChange={(event) => setRamCompatibilityFilter(event.target.value as RamCompatibilityFilter)}
+              >
+                {(["All", "Compatible", "Incompatible"] as const).map((option) => <option key={option}>{option}</option>)}
+              </select>
+            </label>
+            <label className="field">
               <span>Sort</span>
               <select value={cardSort} onChange={(event) => setCardSort(event.target.value as CardSort)}>
                 {(["Snapshot", "Name", "Cost", "RAM", "Power", "Color", "Type"] as const).map((option) => <option key={option}>{option}</option>)}
               </select>
             </label>
           </div>
+          {deckEditNotice && (
+            <div
+              className={`deck-edit-notice ${deckEditNotice.severity}`}
+              role={deckEditNotice.severity === "error" ? "alert" : "status"}
+            >
+              {deckEditNotice.message}
+            </div>
+          )}
           <div className="card-list">
             {filteredCards.map((card) => {
               const legendSelected = card.card_type === "Legend" && hasDeckEntry(deck.legends, card.id);
+              const compatibility = ramCompatibilityById.get(card.id);
+              const addition = additionEvaluationById.get(card.id);
+              const atCopyLimit = addition?.blockers.some((blocker) => blocker.code === "max-copies") ?? false;
               return (
                 <article className="card-row" data-color={card.color.toLowerCase()} key={card.id}>
                   <CardArt
@@ -628,6 +714,17 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
                       {card.color} {card.card_type} · RAM {card.ram ?? "-"} · Cost {card.cost ?? "-"}
                       {deckCountById.has(card.id) ? ` · ${deckCountById.get(card.id)} in deck` : ""}
                     </span>
+                    {compatibility?.status === "compatible" && (
+                      <small className="ram-compatibility compatible">RAM fit</small>
+                    )}
+                    {compatibility?.status === "incompatible" && (
+                      <small className="ram-compatibility incompatible">
+                        Over RAM · needs {compatibility.requiredRam}, has {compatibility.availableRam}
+                      </small>
+                    )}
+                    {compatibility?.status === "unknown" && (
+                      <small className="ram-compatibility unknown">RAM unknown</small>
+                    )}
                   </div>
                   <div className="card-actions">
                     <button onClick={(event) => openCardDetails(card, event.currentTarget)}>Details</button>
@@ -636,7 +733,11 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
                         {legendSelected ? "Selected" : "Add Legend"}
                       </button>
                     ) : (
-                      <button onClick={() => adjustMainCard(card, 1)}>+ Main</button>
+                      <button
+                        disabled={!addition?.allowed}
+                        title={addition?.blockers[0]?.message}
+                        onClick={() => adjustMainCard(card, 1)}
+                      >{atCopyLimit ? `Max ${addition?.maxCopies}` : "+ Main"}</button>
                     )}
                   </div>
                 </article>

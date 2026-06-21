@@ -15,6 +15,45 @@ test("creates and edits a deck with immediate validation", async ({ page }) => {
   await expect(page.getByText("1 in deck", { exact: false })).toBeVisible();
 });
 
+test("prevents a fourth copy through deck editing controls", async ({ page }) => {
+  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Swordwise Huscle");
+  const card = page.getByRole("article").filter({ hasText: "Swordwise Huscle" });
+  await expect(card.getByRole("button", { name: "Max 3" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Swordwise Huscle already has the maximum 3 copies/ })).toBeDisabled();
+  await expect(page.getByText("40 / 40-50", { exact: true })).toBeVisible();
+});
+
+test("repairs a previously saved over-limit deck without normalizing it on load", async ({ page }) => {
+  await page.evaluate(() => {
+    const key = "gigsmith.deck-library.v1";
+    const library = JSON.parse(localStorage.getItem(key) ?? "{}");
+    const deck = library.decks.find((candidate: { id: string }) => candidate.id === library.activeDeckId);
+    const entry = deck.main.find(
+      (candidate: { cardId: string }) => candidate.cardId === "3c4e7fcb-933d-4712-9ce7-6052a14f8e94"
+    );
+    entry.count = 4;
+    localStorage.setItem(key, JSON.stringify(library));
+  });
+  await page.reload();
+
+  await expect(page.getByRole("button", { name: "Remove one Swordwise Huscle" })).toBeEnabled();
+  await expect(page.getByLabel("4 copies")).toBeVisible();
+  await page.getByRole("button", { name: "Remove one Swordwise Huscle" }).click();
+  await expect(page.getByLabel("3 copies")).toBeVisible();
+});
+
+test("filters by Legend RAM fit and allows a warned incompatible addition", async ({ page }) => {
+  await page.getByLabel("RAM fit", { exact: true }).selectOption("Incompatible");
+  const card = page.getByRole("article").filter({ hasText: "Adam Smasher — Metal Over Meat" });
+  await expect(card.getByText("Over RAM", { exact: false })).toBeVisible();
+  await card.getByRole("button", { name: "+ Main" }).click();
+
+  await expect(page.locator(".deck-edit-notice")).toContainText("requires 6 Yellow RAM");
+  const deckRow = page.locator(".deck-row").filter({ hasText: "Adam Smasher — Metal Over Meat" });
+  await expect(deckRow.getByText("Over RAM", { exact: false })).toBeVisible();
+  await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
+});
+
 test("undoes and redoes an active-deck card edit", async ({ page }) => {
   await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
   await page.getByRole("button", { name: "+ Main", exact: true }).click();

@@ -6,7 +6,9 @@ import type {
   CardLegalityReport,
   Deck,
   DeckCardEntry,
+  DeckEditEvaluation,
   RamLimit,
+  RamCompatibilityReport,
   RamLimitReport,
   Ruleset,
   ValidationIssue,
@@ -134,6 +136,97 @@ export function checkCardLegality(
     legal: errors.length === 0,
     errors,
     warnings
+  };
+}
+
+export function evaluateCardRamCompatibility(
+  card: Card,
+  ramLimits: RamLimitReport
+): RamCompatibilityReport {
+  if (card.card_type === "Legend") {
+    return { status: "not-applicable", requiredRam: card.ram, availableRam: null };
+  }
+
+  if (card.ram == null) {
+    return { status: "unknown", requiredRam: null, availableRam: null };
+  }
+
+  const colorLimit = ramLimits.limits.find((limit) => limit.color === card.color);
+  const availableRam = colorLimit?.limit ?? 0;
+  return {
+    status: card.ram <= availableRam && colorLimit != null ? "compatible" : "incompatible",
+    requiredRam: card.ram,
+    availableRam
+  };
+}
+
+export function evaluateMainDeckAddition(
+  deck: Deck,
+  cardId: CardId,
+  cardDb: CardDatabase,
+  ruleset: Ruleset
+): DeckEditEvaluation {
+  const card = cardMap(cardDb).get(cardId);
+  const currentCopies = deck.main
+    .filter((entry) => entry.cardId === cardId)
+    .reduce((sum, entry) => sum + entry.count, 0);
+
+  if (!card) {
+    return {
+      allowed: false,
+      blockers: [issue("unknown-card", "error", `Unknown card id "${cardId}" cannot be added.`, [cardId])],
+      warnings: [],
+      currentCopies,
+      maxCopies: null
+    };
+  }
+
+  if (card.card_type === "Legend") {
+    return {
+      allowed: false,
+      blockers: [issue("main-section-type", "error", `${card.display_name} is a Legend and cannot be added to the main deck.`, [card.id])],
+      warnings: [],
+      currentCopies,
+      maxCopies: null
+    };
+  }
+
+  const maxCopies = ruleset.maxCopiesByType[card.card_type] ?? 3;
+  const blockers: ValidationIssue[] = [];
+  const warnings: ValidationIssue[] = [];
+
+  if (currentCopies >= maxCopies) {
+    blockers.push(
+      issue(
+        "max-copies",
+        "error",
+        `${card.display_name} already has the maximum ${maxCopies} copies allowed by ${ruleset.version}.`,
+        [card.id]
+      )
+    );
+  }
+
+  const ramLimits = calculateRamLimits(deck.legends, cardDb, ruleset);
+  const legality = checkCardLegality(card, ramLimits, ruleset, deck.formatId);
+  for (const legalityIssue of legality.errors) {
+    if (legalityIssue.code === "ram-limit") {
+      warnings.push({
+        ...legalityIssue,
+        code: "ram-incompatible",
+        severity: "warning"
+      });
+    } else {
+      blockers.push(legalityIssue);
+    }
+  }
+  warnings.push(...legality.warnings);
+
+  return {
+    allowed: blockers.length === 0,
+    blockers,
+    warnings,
+    currentCopies,
+    maxCopies
   };
 }
 

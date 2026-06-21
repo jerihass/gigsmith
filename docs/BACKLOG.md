@@ -719,7 +719,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P0.
 
-**Status:** Planned.
+**Status:** Implemented on June 21, 2026; desktop/phone browser execution pending local browser-runner recovery.
 
 **Goal:** Prevent accidental rule violations that have no useful deck-building purpose while preserving temporary illegal states needed for exploration, imports, and Legend changes.
 
@@ -745,6 +745,13 @@ domain model and tests remain available for future card-aware analysis.
 - UI tests for disabled copy controls, compatible filtering, adding with a RAM warning, and repairing an imported illegal deck.
 
 **Constitution Check:** Rules remain pure and versioned; reports explain every blocked or warned edit; local deck ownership is preserved.
+
+**Implementation Notes:**
+- Direct UI additions now use a structured rules-core evaluation.
+- Copy-cap, unknown-card, wrong-section, and banned-card outcomes block additions.
+- RAM incompatibility and restricted-card outcomes warn without blocking.
+- Card browsing exposes RAM-fit labels and Compatible/Incompatible filtering.
+- Existing imported illegal decks remain editable, decrementable, exportable, and validated without normalization.
 
 ### GS-111: Add Named Deck-Version Snapshots And Comparison
 

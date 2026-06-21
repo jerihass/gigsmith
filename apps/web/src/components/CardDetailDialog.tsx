@@ -44,6 +44,7 @@ export function CardDetailDialog({
   return (
     <dialog
       className="card-detail-dialog"
+      data-color={card?.color.toLowerCase()}
       ref={dialogRef}
       aria-labelledby="card-detail-title"
       onCancel={(event) => { event.preventDefault(); onClose(); }}

@@ -464,15 +464,50 @@ textarea {
 }
 
 .card-detail-dialog {
-  background: #191715;
-  border: 1px solid #4b453d;
+  --detail-accent: #aeb8bc;
+  --detail-border: #566064;
+  --detail-surface: #171a1c;
+  background: var(--detail-surface);
+  border: 1px solid var(--detail-border);
+  border-top: 3px solid var(--detail-accent);
   border-radius: 8px;
   color: #f3f0e8;
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / 4%);
   max-height: min(760px, calc(100vh - 32px));
   max-width: 680px;
   overflow: auto;
   padding: 0;
   width: calc(100% - 32px);
+}
+
+.card-detail-dialog[data-color="red"] {
+  --detail-accent: #ff6670;
+  --detail-border: #6f373d;
+  --detail-surface: #1d1416;
+}
+
+.card-detail-dialog[data-color="blue"] {
+  --detail-accent: #4abcf0;
+  --detail-border: #315f73;
+  --detail-surface: #111a20;
+}
+
+.card-detail-dialog[data-color="green"] {
+  --detail-accent: #52d69a;
+  --detail-border: #35664f;
+  --detail-surface: #121c18;
+}
+
+.card-detail-dialog[data-color="yellow"] {
+  --detail-accent: #e9d743;
+  --detail-border: #6b642f;
+  --detail-surface: #1c1b12;
+}
+
+.card-detail-dialog[data-color="colorless"] {
+  --detail-accent: #aeb8bc;
+  --detail-border: #566064;
+  --detail-surface: #171a1c;
 }
 
 .card-detail-dialog::backdrop {
@@ -493,7 +528,7 @@ textarea {
 }
 
 .card-detail-header p {
-  color: #f0b35a;
+  color: var(--detail-accent);
   font-size: 0.78rem;
   font-weight: 700;
   margin-bottom: 6px;

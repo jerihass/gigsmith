@@ -80,13 +80,17 @@ test("opens card details and restores focus when dismissed", async ({ page }) =>
 test("navigates Legend-first card details from the deck editor", async ({ page }) => {
   const details = page.getByRole("button", { name: "View details for V — StreetKid" });
   await details.click();
+  const dialog = page.getByRole("dialog");
   await expect(page.getByRole("dialog", { name: "V — StreetKid" })).toBeVisible();
+  await expect(dialog).toHaveAttribute("data-color", "red");
   await expect(page.getByText(/1 of \d+ in deck/)).toBeVisible();
 
   await page.getByRole("button", { name: "Next card: Dum Dum — Maelstrom Triggerman" }).click();
   await expect(page.getByRole("dialog", { name: "Dum Dum — Maelstrom Triggerman" })).toBeVisible();
+  await expect(dialog).toHaveAttribute("data-color", "yellow");
   await page.keyboard.press("ArrowRight");
   await expect(page.getByRole("dialog", { name: "Goro Takemura — Vengeful Bodyguard" })).toBeVisible();
+  await expect(dialog).toHaveAttribute("data-color", "green");
   await page.keyboard.press("ArrowRight");
   await expect(page.getByRole("dialog", { name: "Swordwise Huscle" })).toBeVisible();
   await page.keyboard.press("ArrowLeft");

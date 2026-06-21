@@ -477,7 +477,24 @@ textarea {
   max-width: 680px;
   overflow: auto;
   padding: 0;
+  position: fixed;
   width: calc(100% - 32px);
+}
+
+.card-detail-dialog[open] {
+  inset-block-end: max(12px, env(safe-area-inset-bottom));
+  inset-block-start: max(12px, env(safe-area-inset-top));
+  inset-inline: 0;
+  margin: auto;
+}
+
+@supports (height: 100dvh) {
+  .card-detail-dialog {
+    max-height: min(
+      760px,
+      calc(100dvh - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom)))
+    );
+  }
 }
 
 .card-detail-dialog[data-color="red"] {

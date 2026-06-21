@@ -83,6 +83,12 @@ test("navigates Legend-first card details from the deck editor", async ({ page }
   const dialog = page.getByRole("dialog");
   await expect(page.getByRole("dialog", { name: "V — StreetKid" })).toBeVisible();
   await expect(dialog).toHaveAttribute("data-color", "red");
+  const dialogBox = await dialog.boundingBox();
+  const viewport = page.viewportSize();
+  expect(dialogBox).not.toBeNull();
+  expect(viewport).not.toBeNull();
+  expect(dialogBox!.y).toBeGreaterThanOrEqual(8);
+  expect(dialogBox!.y + dialogBox!.height).toBeLessThanOrEqual(viewport!.height - 8);
   await expect(page.getByText(/1 of \d+ in deck/)).toBeVisible();
 
   await page.getByRole("button", { name: "Next card: Dum Dum — Maelstrom Triggerman" }).click();

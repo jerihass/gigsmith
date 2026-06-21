@@ -32,22 +32,6 @@ test("contains horizontal overflow and keeps deck status visible", async ({ page
   expect(layout.status).toMatch(/Legal|issue/);
 });
 
-test("keeps overview metrics compact without hiding information", async ({ page }) => {
-  const metrics = page.locator(".overview .metric");
-  await expect(metrics).toHaveCount(4);
-  const [first, second, overview] = await Promise.all([
-    metrics.nth(0).boundingBox(),
-    metrics.nth(1).boundingBox(),
-    page.locator(".overview").boundingBox()
-  ]);
-
-  expect(first).not.toBeNull();
-  expect(second).not.toBeNull();
-  expect(overview).not.toBeNull();
-  expect(Math.abs(first!.y - second!.y)).toBeLessThan(2);
-  expect(overview!.height).toBeLessThan(240);
-});
-
 test("reloads offline without losing local deck changes", async ({ page, context }) => {
   test.skip(process.env.PLAYWRIGHT_SKIP_WEBSERVER === "1", "Offline coverage requires the production service worker.");
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });

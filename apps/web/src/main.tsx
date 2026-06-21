@@ -474,29 +474,6 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         aria-labelledby="app-tab-deck"
         hidden={activeView !== "deck"}
       >
-        <section className="grid overview">
-        <article className="metric">
-          <span>Card Snapshot</span>
-          <strong>{cyberpunkCardSnapshot.metadata.sourceCardCount}</strong>
-          <small>{cyberpunkCardSnapshot.metadata.cardDataVersion}</small>
-        </article>
-        <article className="metric">
-          <span>Legends</span>
-          <strong>{entryCount(deck.legends)}</strong>
-          <small>exactly 3 unique required</small>
-        </article>
-        <article className="metric">
-          <span>Main Deck</span>
-          <strong>{entryCount(deck.main)}</strong>
-          <small>40-50 non-Legend cards</small>
-        </article>
-        <article className="metric">
-          <span>Ruleset</span>
-          <strong>v1</strong>
-          <small>{cyberpunkRulesetV1Printable.version}</small>
-        </article>
-        </section>
-
         <div className="workspace">
         <section className="panel deck-panel">
           <div className="panel-title">

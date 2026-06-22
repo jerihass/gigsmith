@@ -35,12 +35,20 @@ test("keeps core phone workflows within measured response budgets", async ({ pag
     await expect(capacity).not.toHaveText(firstPlayerCapacity ?? "");
     const analysisRecalculationMs = await pageTime(page) - startedAt;
 
+    await page.getByRole("tab", { name: "Gigs", exact: true }).click();
+    const odds = page.getByRole("region", { name: "Gig Odds & Color Goals" });
+    startedAt = await pageTime(page);
+    await odds.getByRole("button", { name: "Roll and gain your d4" }).click();
+    await expect(odds).toContainText(/Your Gig values: [1-4]/);
+    const gigRollResponseMs = await pageTime(page) - startedAt;
+
     const results = {
       cpuThrottleRate: budgets.interactions.cpuThrottleRate,
       initialRenderMs: Math.round(initialRenderMs),
       filterResponseMs: Math.round(filterResponseMs),
       deckEditResponseMs: Math.round(deckEditResponseMs),
-      analysisRecalculationMs: Math.round(analysisRecalculationMs)
+      analysisRecalculationMs: Math.round(analysisRecalculationMs),
+      gigRollResponseMs: Math.round(gigRollResponseMs)
     };
     console.log(`[performance] ${JSON.stringify(results)}`);
 
@@ -48,6 +56,7 @@ test("keeps core phone workflows within measured response budgets", async ({ pag
     expect(results.filterResponseMs, "card filter response").toBeLessThanOrEqual(budgets.interactions.filterResponseMs);
     expect(results.deckEditResponseMs, "deck edit response").toBeLessThanOrEqual(budgets.interactions.deckEditResponseMs);
     expect(results.analysisRecalculationMs, "analysis recalculation").toBeLessThanOrEqual(budgets.interactions.analysisRecalculationMs);
+    expect(results.gigRollResponseMs, "Gig roll response").toBeLessThanOrEqual(budgets.interactions.gigRollResponseMs);
   } finally {
     await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
   }

@@ -29,6 +29,8 @@ These timings include automation round trips. Deck edits recalculate validation,
 
 The pure card-filter pipeline averaged approximately 0.1 ms over 50 name-sorted runs against 250 synthetic card identities. This measures computation, not DOM rendering.
 
+On June 21, 2026, exact Gig-roll profiling moved from exhaustive outcome enumeration to equivalent combinatorial formulas and bounded dynamic programs. The focused Gig-odds suite dropped from approximately 687 ms to 31-40 ms locally, while preserving exact single- and multi-die regression results. Gig match state also moved below the top-level app so roll/value updates no longer reconcile the deck database and unrelated views.
+
 ## Browser Method
 
 The `performance-chromium` Playwright project uses a Pixel 7 viewport and Chromium's 4x CPU throttling. It performs one deterministic path on the production preview:
@@ -37,6 +39,7 @@ The `performance-chromium` Playwright project uses a Pixel 7 viewport and Chromi
 2. Filter to `Chrome Reverie`.
 3. Add that card and wait for the deck count to update.
 4. Open Analysis, change mulligan player order, and wait for capacity to update.
+5. Open Gigs, roll a d4 from the live odds panel, and wait for the current-value odds to update.
 
 The test logs a JSON result prefixed with `[performance]`. Current generous limits are:
 
@@ -44,6 +47,7 @@ The test logs a JSON result prefixed with `[performance]`. Current generous limi
 - filter response: 1,000 ms
 - deck edit response: 1,000 ms
 - analysis recalculation: 2,500 ms
+- Gig roll and live-odds response: 1,000 ms
 - pure 250-card filter computation: 100 ms
 
 The browser scenario intentionally does not emulate network latency because Gigsmith's installed shell is local-first. Size budgets cover transfer regressions separately.

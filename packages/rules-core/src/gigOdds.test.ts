@@ -36,6 +36,25 @@ describe("Gig odds analysis", () => {
     });
   });
 
+  it("preserves exact probabilities across multiple dice", () => {
+    const report = analyzeGigOdds(deck([]), cyberpunkCardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable);
+    const turn = report.turns.find((candidate) => candidate.turn === 2);
+
+    expect(turn?.dice).toEqual(["d4", "d6"]);
+    expect(turn?.profile).toMatchObject({
+      outcomeCount: 24,
+      expectedStreetCred: 6,
+      high8Probability: 0,
+      maximumProbability: 0.375,
+      minimumProbability: 0.375,
+      parityMixProbability: 0.5,
+      distinct2Probability: 0.8333,
+      distinct3Probability: 0,
+      valuePairProbability: 0.1667,
+      streetCred20Probability: 0
+    });
+  });
+
   it("puts high-value dice first for a Red 8+ package", () => {
     const report = analyzeGigOdds(
       deck([["cb-kerry-eurodyne-the-last-rockerboy", 3], ["cb-carnage-at-the-colosseum", 3]]),

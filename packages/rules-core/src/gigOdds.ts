@@ -41,57 +41,92 @@ interface RollDomain {
 }
 
 function rollProfile(domains: RollDomain[], costCopies: Map<number, number>): GigRollProfile {
-  let outcomeCount = 0;
-  let streetCredTotal = 0;
-  let high8 = 0;
-  let maximum = 0;
-  let minimum = 0;
-  let parityMix = 0;
-  let distinct2 = 0;
-  let distinct3 = 0;
-  let valuePair = 0;
-  let streetCred20 = 0;
-  let costMatchDensityTotal = 0;
+  const outcomeCount = domains.reduce((count, domain) => count * domain.values.length, 1);
   const knownCostCopies = [...costCopies.values()].reduce((sum, count) => sum + count, 0);
+  const valueCounts = (predicate: (value: number) => boolean) =>
+    domains.map((domain) => domain.values.filter(predicate).length);
+  const outcomeProduct = (counts: number[]) => counts.reduce((product, count) => product * count, 1);
+  const possibleValues = [...new Set(domains.flatMap((domain) => domain.values))];
+  const allValueCounts = new Map(
+    possibleValues.map((value) => [value, outcomeProduct(valueCounts((candidate) => candidate === value))])
+  );
+  const allValueCount = (value: number) => allValueCounts.get(value) ?? 0;
 
-  function visit(index: number, values: number[]) {
-    if (index < domains.length) {
-      for (const value of domains[index].values) visit(index + 1, [...values, value]);
-      return;
-    }
-    outcomeCount += 1;
-    const streetCred = values.reduce((sum, value) => sum + value, 0);
-    const distinct = new Set(values);
-    const hasEven = values.some((value) => value % 2 === 0);
-    const hasOdd = values.some((value) => value % 2 === 1);
-    streetCredTotal += streetCred;
-    if (values.some((value) => value >= 8)) high8 += 1;
-    if (values.some((value, valueIndex) => value === gigDieMaximum(domains[valueIndex].dieType))) maximum += 1;
-    if (values.includes(1)) minimum += 1;
-    if (hasEven && hasOdd) parityMix += 1;
-    if (distinct.size >= 2) distinct2 += 1;
-    if (distinct.size >= 3) distinct3 += 1;
-    if (distinct.size < values.length) valuePair += 1;
-    if (streetCred >= 20) streetCred20 += 1;
-    if (knownCostCopies > 0) {
-      costMatchDensityTotal += [...distinct].reduce((sum, value) => sum + (costCopies.get(value) ?? 0), 0) / knownCostCopies;
+  const expectedStreetCred = domains.reduce(
+    (total, domain) => total + domain.values.reduce((sum, value) => sum + value, 0) / domain.values.length,
+    0
+  );
+  const high8 = outcomeCount - outcomeProduct(valueCounts((value) => value < 8));
+  const maximum = outcomeCount - outcomeProduct(
+    domains.map((domain) => domain.values.filter((value) => value !== gigDieMaximum(domain.dieType)).length)
+  );
+  const minimum = outcomeCount - outcomeProduct(valueCounts((value) => value !== 1));
+  const allEven = outcomeProduct(valueCounts((value) => value % 2 === 0));
+  const allOdd = outcomeProduct(valueCounts((value) => value % 2 === 1));
+  const parityMix = outcomeCount - allEven - allOdd;
+  const exactlyOneDistinct = possibleValues.reduce((total, value) => total + allValueCount(value), 0);
+
+  let exactlyTwoDistinct = 0;
+  for (let leftIndex = 0; leftIndex < possibleValues.length; leftIndex += 1) {
+    const left = possibleValues[leftIndex];
+    for (let rightIndex = leftIndex + 1; rightIndex < possibleValues.length; rightIndex += 1) {
+      const right = possibleValues[rightIndex];
+      const usingOnlyPair = outcomeProduct(valueCounts((value) => value === left || value === right));
+      exactlyTwoDistinct += usingOnlyPair - allValueCount(left) - allValueCount(right);
     }
   }
 
-  visit(0, []);
+  let distinctStates = new Map<number, number>([[0, 1]]);
+  for (const domain of domains) {
+    const nextStates = new Map<number, number>();
+    for (const [usedValues, count] of distinctStates) {
+      for (const value of domain.values) {
+        const bit = 1 << (value - 1);
+        if ((usedValues & bit) !== 0) continue;
+        const next = usedValues | bit;
+        nextStates.set(next, (nextStates.get(next) ?? 0) + count);
+      }
+    }
+    distinctStates = nextStates;
+  }
+  const allDistinct = [...distinctStates.values()].reduce((total, count) => total + count, 0);
+
+  let streetCredDistribution = [1];
+  for (const domain of domains) {
+    const nextDistribution = Array.from(
+      { length: streetCredDistribution.length + Math.max(...domain.values) },
+      () => 0
+    );
+    for (let total = 0; total < streetCredDistribution.length; total += 1) {
+      for (const value of domain.values) nextDistribution[total + value] += streetCredDistribution[total];
+    }
+    streetCredDistribution = nextDistribution;
+  }
+  const streetCred20 = streetCredDistribution.reduce(
+    (count, outcomes, total) => count + (total >= 20 ? outcomes : 0),
+    0
+  );
+
+  const expectedCostMatchDensity = knownCostCopies === 0
+    ? null
+    : [...costCopies].reduce((total, [cost, copies]) => {
+      const misses = outcomeProduct(valueCounts((value) => value !== cost));
+      return total + ((outcomeCount - misses) / outcomeCount) * copies;
+    }, 0) / knownCostCopies;
+
   const probability = (count: number) => outcomeCount === 0 ? 0 : round(count / outcomeCount);
   return {
     outcomeCount,
-    expectedStreetCred: outcomeCount === 0 ? 0 : round(streetCredTotal / outcomeCount),
+    expectedStreetCred: round(expectedStreetCred),
     high8Probability: probability(high8),
     maximumProbability: probability(maximum),
     minimumProbability: probability(minimum),
     parityMixProbability: probability(parityMix),
-    distinct2Probability: probability(distinct2),
-    distinct3Probability: probability(distinct3),
-    valuePairProbability: probability(valuePair),
+    distinct2Probability: probability(outcomeCount - exactlyOneDistinct),
+    distinct3Probability: probability(outcomeCount - exactlyOneDistinct - exactlyTwoDistinct),
+    valuePairProbability: probability(outcomeCount - allDistinct),
     streetCred20Probability: probability(streetCred20),
-    expectedCostMatchDensity: knownCostCopies === 0 || outcomeCount === 0 ? null : round(costMatchDensityTotal / outcomeCount)
+    expectedCostMatchDensity: expectedCostMatchDensity == null ? null : round(expectedCostMatchDensity)
   };
 }
 

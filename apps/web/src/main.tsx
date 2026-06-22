@@ -7,7 +7,6 @@ import { decodeDeckSharePayload } from "@gigsmith/deck-io";
 import {
   analyzeEddyCurve,
   calculateRamLimits,
-  createGigMatch,
   evaluateCardRamCompatibility,
   evaluateMainDeckAddition,
   validateDeck
@@ -33,8 +32,7 @@ import { DeckCurveSummary } from "./components/DeckCurveSummary";
 import { DeckRecovery } from "./components/DeckRecovery";
 import { DeckTransfer } from "./components/DeckTransfer";
 import { EddyCurvePanel } from "./components/EddyCurvePanel";
-import { GigSandbox } from "./components/GigSandbox";
-import { GigOddsPanel } from "./components/GigOddsPanel";
+import { GigWorkspace } from "./components/GigWorkspace";
 import { PwaUpdateNotice } from "./components/PwaUpdateNotice";
 import { SampleHandPanel } from "./components/SampleHandPanel";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
@@ -170,7 +168,6 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [cardArtUrls, setCardArtUrls] = useState<ReadonlyMap<string, string>>(() => new Map());
   const [cardArtSourceStatus, setCardArtSourceStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
   const [eddyPlayerOrder, setEddyPlayerOrder] = useState<"first" | "second">("first");
-  const [gigMatch, setGigMatch] = useState(() => createGigMatch(["player", "rival"], "player", cyberpunkRulesetV1Printable));
   const [sharedDocument, setSharedDocument] = useState<DeckDocumentV1>();
   const [sharedDeckError, setSharedDeckError] = useState("");
   const [detailCardId, setDetailCardId] = useState<string>();
@@ -818,10 +815,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         aria-labelledby="app-tab-gigs"
         hidden={activeView !== "gigs"}
       >
-        <div className="gig-workspace">
-          <GigOddsPanel deck={deck} match={gigMatch} onMatchChange={setGigMatch} />
-          <GigSandbox match={gigMatch} onChange={setGigMatch} />
-        </div>
+        <GigWorkspace deck={deck} />
       </section>
 
       <section

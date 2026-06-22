@@ -1,4 +1,5 @@
 import type { Card, CardDatabase, Deck, DeckCardEntry } from "@gigsmith/data-contracts";
+import { deckInputLimits } from "./limits";
 
 export {
   exportDeckJson,
@@ -8,6 +9,7 @@ export {
   type ImportDeckJsonResult
 } from "./deckJson";
 export { decodeDeckSharePayload, encodeDeckSharePayload } from "./sharePayload";
+export { deckInputLimits } from "./limits";
 
 export interface ImportIssue {
   line: number;
@@ -50,13 +52,15 @@ function parseDeckLine(line: string): { count: number; name: string } | undefine
   return { count: Number(match[1]), name: match[2].trim() };
 }
 
-function mergeEntry(entries: DeckCardEntry[], cardId: string, count: number): void {
+function mergeEntry(entries: DeckCardEntry[], cardId: string, count: number): boolean {
   const existing = entries.find((entry) => entry.cardId === cardId);
   if (existing) {
+    if (existing.count + count > deckInputLimits.cardCount) return false;
     existing.count += count;
   } else {
     entries.push({ cardId, count });
   }
+  return true;
 }
 
 export function importDecklist(
@@ -64,6 +68,19 @@ export function importDecklist(
   cardDb: CardDatabase,
   options: ImportDecklistOptions
 ): ImportDecklistResult {
+  if (text.length > deckInputLimits.textCharacters) {
+    return {
+      errors: [{ line: 0, message: `Decklists are limited to ${deckInputLimits.textCharacters} characters.` }],
+      warnings: []
+    };
+  }
+  const lines = text.split(/\r?\n/);
+  if (lines.length > deckInputLimits.decklistLines) {
+    return {
+      errors: [{ line: 0, message: `Decklists are limited to ${deckInputLimits.decklistLines} lines.` }],
+      warnings: []
+    };
+  }
   const lookup = byLookup(cardDb);
   const errors: ImportIssue[] = [];
   const warnings: ImportIssue[] = [];
@@ -71,8 +88,12 @@ export function importDecklist(
   const main: DeckCardEntry[] = [];
   let section: "legends" | "main" = "main";
 
-  text.split(/\r?\n/).forEach((rawLine, index) => {
+  lines.forEach((rawLine, index) => {
     const lineNumber = index + 1;
+    if (rawLine.length > deckInputLimits.decklistLineCharacters) {
+      errors.push({ line: lineNumber, message: `Lines are limited to ${deckInputLimits.decklistLineCharacters} characters.` });
+      return;
+    }
     const line = rawLine.trim();
     if (!line || line.startsWith("#")) return;
 
@@ -91,6 +112,10 @@ export function importDecklist(
       errors.push({ line: lineNumber, message: `Expected a line like "3 Card Name".` });
       return;
     }
+    if (parsed.count < 1 || parsed.count > deckInputLimits.cardCount) {
+      errors.push({ line: lineNumber, message: `Card counts must be from 1 to ${deckInputLimits.cardCount}.` });
+      return;
+    }
 
     const matches = lookup.get(normalizeName(parsed.name)) ?? [];
     if (matches.length === 0) {
@@ -104,9 +129,13 @@ export function importDecklist(
 
     const card = matches[0];
     if (section === "legends") {
-      mergeEntry(legends, card.id, parsed.count);
+      if (!mergeEntry(legends, card.id, parsed.count)) {
+        errors.push({ line: lineNumber, message: `Combined card counts cannot exceed ${deckInputLimits.cardCount}.` });
+      }
     } else {
-      mergeEntry(main, card.id, parsed.count);
+      if (!mergeEntry(main, card.id, parsed.count)) {
+        errors.push({ line: lineNumber, message: `Combined card counts cannot exceed ${deckInputLimits.cardCount}.` });
+      }
     }
   });
 

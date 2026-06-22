@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createValidDeck } from "@gigsmith/test-fixtures";
+import { deckInputLimits } from "./limits";
 import { decodeDeckSharePayload, encodeDeckSharePayload } from "./sharePayload";
 
 describe("deck share payload", () => {
@@ -29,6 +30,13 @@ describe("deck share payload", () => {
         path: "$",
         message: "Shared deck payload is not valid base64url data."
       }]
+    });
+  });
+
+  it("rejects oversized payloads before base64 decoding", () => {
+    expect(decodeDeckSharePayload("A".repeat(deckInputLimits.sharePayloadCharacters + 1)).errors[0]).toMatchObject({
+      code: "invalid-payload",
+      path: "$"
     });
   });
 

@@ -5,6 +5,7 @@ const dist = resolve(process.env.PWA_DIST_DIR ?? "apps/web/dist");
 const requiredFiles = [
   "index.html",
   "manifest.webmanifest",
+  "theme-bootstrap.js",
   "pwa-meta.json",
   "sw.js",
   "icons/gigsmith-192.png",
@@ -20,6 +21,10 @@ const [html, manifestText, metadataText, serviceWorker, assetFiles] = await Prom
   readFile(resolve(dist, "sw.js"), "utf8"),
   readdir(resolve(dist, "assets"))
 ]);
+
+if (!html.includes('http-equiv="Content-Security-Policy"')) throw new Error("Production HTML has no Content Security Policy.");
+if (html.includes("'unsafe-inline'") || html.includes("'unsafe-eval'")) throw new Error("Content Security Policy permits unsafe script execution.");
+if (!html.includes("theme-bootstrap.js")) throw new Error("Production HTML is missing the external theme bootstrap.");
 const manifest = JSON.parse(manifestText);
 const metadata = JSON.parse(metadataText);
 const expectedBasePath = process.env.PWA_BASE_PATH ?? metadata.basePath;

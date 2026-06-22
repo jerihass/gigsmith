@@ -3,7 +3,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { Info, Palette, Redo2, Undo2 } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, Deck, DeckCardEntry, DeckDocumentV1, ValidationIssue } from "@gigsmith/data-contracts";
-import { decodeDeckSharePayload } from "@gigsmith/deck-io";
+import { decodeDeckSharePayload, deckInputLimits } from "@gigsmith/deck-io";
 import {
   analyzeEddyCurve,
   calculateRamLimits,
@@ -275,8 +275,18 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
 
   useEffect(() => {
     function readSharedDeckFromHash() {
-      const payload = new URLSearchParams(window.location.hash.slice(1)).get("deck");
-      if (!payload) return;
+      const hash = window.location.hash.slice(1);
+      if (hash.length > deckInputLimits.sharePayloadCharacters + 16) {
+        setSharedDocument(undefined);
+        setSharedDeckError("Shared deck link exceeds the supported size limit.");
+        return;
+      }
+      const payload = new URLSearchParams(hash).get("deck");
+      if (!payload) {
+        setSharedDocument(undefined);
+        setSharedDeckError("");
+        return;
+      }
 
       const result = decodeDeckSharePayload(payload);
       if (result.document) {

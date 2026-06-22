@@ -5,6 +5,7 @@ import {
   type ExportDeckJsonOptions,
   type ImportDeckJsonResult
 } from "./deckJson";
+import { deckInputLimits } from "./limits";
 
 function bytesToBase64(bytes: Uint8Array): string {
   let binary = "";
@@ -29,6 +30,15 @@ export function encodeDeckSharePayload(
 }
 
 export function decodeDeckSharePayload(payload: string): ImportDeckJsonResult {
+  if (payload.length > deckInputLimits.sharePayloadCharacters) {
+    return {
+      errors: [{
+        code: "invalid-payload",
+        path: "$",
+        message: `Shared deck payloads are limited to ${deckInputLimits.sharePayloadCharacters} characters.`
+      }]
+    };
+  }
   if (!payload || !/^[A-Za-z0-9_-]+$/.test(payload)) {
     return {
       errors: [{

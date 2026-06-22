@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createValidDeck } from "@gigsmith/test-fixtures";
 import { exportDeckJson, importDeckJson } from "./deckJson";
+import { deckInputLimits } from "./limits";
 
 describe("deck JSON import/export", () => {
   it("round-trips all portable deck fields without local metadata", () => {
@@ -82,5 +83,24 @@ describe("deck JSON import/export", () => {
       path: "$.version",
       message: "Deck document version 2 is not supported."
     });
+  });
+
+  it("rejects oversized documents and bounded fields before persistence", () => {
+    expect(importDeckJson("x".repeat(deckInputLimits.textCharacters + 1)).errors[0]).toMatchObject({
+      code: "invalid-payload",
+      path: "$"
+    });
+
+    const value = JSON.parse(exportDeckJson(createValidDeck())) as {
+      deck: { name: string; main: Array<{ cardId: string; count: number }> };
+    };
+    value.deck.name = "x".repeat(deckInputLimits.deckNameCharacters + 1);
+    value.deck.main[0].count = deckInputLimits.cardCount + 1;
+    const errors = importDeckJson(JSON.stringify(value)).errors;
+
+    expect(errors).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: "$.deck.name" }),
+      expect.objectContaining({ path: "$.deck.main[0].count" })
+    ]));
   });
 });

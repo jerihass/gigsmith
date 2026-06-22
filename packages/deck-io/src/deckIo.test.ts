@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import { createValidDeck } from "@gigsmith/test-fixtures";
 import { exportDecklist, importDecklist } from "./index";
+import { deckInputLimits } from "./limits";
 
 describe("deck import/export", () => {
   it("round-trips a text decklist", () => {
@@ -28,5 +29,19 @@ describe("deck import/export", () => {
       line: 2,
       message: "Unknown card \"Not A Real Card\"."
     });
+  });
+
+  it("rejects oversized decklists and excessive counts", () => {
+    const options = {
+      formatId: cyberpunkRulesetV1Printable.defaultFormatId,
+      rulesetVersion: cyberpunkRulesetV1Printable.version
+    };
+    expect(importDecklist("x".repeat(deckInputLimits.textCharacters + 1), cyberpunkCardDb, options).errors[0]?.line)
+      .toBe(0);
+    expect(importDecklist(
+      `Main:\n${deckInputLimits.cardCount + 1} Swordwise Huscle`,
+      cyberpunkCardDb,
+      options
+    ).errors[0]?.message).toContain("Card counts");
   });
 });

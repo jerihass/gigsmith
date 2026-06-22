@@ -13,6 +13,36 @@ import {
 declare const process: { env: Record<string, string | undefined> };
 
 const basePath = normalizeBasePath(process.env.GIGSMITH_BASE_PATH);
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self'",
+  "img-src 'self' data: https://dstcynss47vun.cloudfront.net",
+  "connect-src 'self' https://api.netdeck.gg",
+  "font-src 'self'",
+  "manifest-src 'self'",
+  "worker-src 'self'",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "form-action 'none'"
+].join("; ");
+
+function contentSecurityPolicyPlugin(): Plugin {
+  return {
+    name: "gigsmith-content-security-policy",
+    apply: "build",
+    transformIndexHtml: {
+      order: "post",
+      handler() {
+        return [{
+          tag: "meta",
+          attrs: { "http-equiv": "Content-Security-Policy", content: contentSecurityPolicy },
+          injectTo: "head-prepend"
+        }];
+      }
+    }
+  };
+}
 
 function serviceWorkerPlugin(): Plugin {
   return {
@@ -23,6 +53,7 @@ function serviceWorkerPlugin(): Plugin {
         "",
         "index.html",
         "manifest.webmanifest",
+        "theme-bootstrap.js",
         "pwa-meta.json",
         "icons/gigsmith-192.png",
         "icons/gigsmith-512.png",
@@ -59,7 +90,7 @@ function serviceWorkerPlugin(): Plugin {
 
 export default defineConfig({
   base: basePath,
-  plugins: [react(), serviceWorkerPlugin()],
+  plugins: [react(), contentSecurityPolicyPlugin(), serviceWorkerPlugin()],
   server: {
     host: "127.0.0.1",
     port: 5173

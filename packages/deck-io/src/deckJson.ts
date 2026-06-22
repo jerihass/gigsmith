@@ -4,6 +4,7 @@ import type {
   DeckDocumentV1,
   PortableDeckV1
 } from "@gigsmith/data-contracts";
+import { deckInputLimits } from "./limits";
 
 export interface DeckJsonIssue {
   code: "invalid-json" | "invalid-schema" | "unsupported-version" | "invalid-field" | "invalid-payload";
@@ -27,13 +28,22 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function requiredString(
   value: unknown,
   path: string,
-  errors: DeckJsonIssue[]
+  errors: DeckJsonIssue[],
+  maximumLength: number = deckInputLimits.identifierCharacters
 ): string | undefined {
   if (typeof value !== "string" || value.trim().length === 0) {
     errors.push({
       code: "invalid-field",
       path,
       message: "Expected a non-empty string."
+    });
+    return undefined;
+  }
+  if (value.length > maximumLength) {
+    errors.push({
+      code: "invalid-field",
+      path,
+      message: `Expected at most ${maximumLength} characters.`
     });
     return undefined;
   }
@@ -49,6 +59,14 @@ function parseEntries(
     errors.push({ code: "invalid-field", path, message: "Expected an array." });
     return undefined;
   }
+  if (value.length > deckInputLimits.entriesPerSection) {
+    errors.push({
+      code: "invalid-field",
+      path,
+      message: `Expected at most ${deckInputLimits.entriesPerSection} entries.`
+    });
+    return undefined;
+  }
 
   const entries: DeckCardEntry[] = [];
   value.forEach((candidate, index) => {
@@ -59,15 +77,26 @@ function parseEntries(
     }
 
     const cardId = requiredString(candidate.cardId, `${entryPath}.cardId`, errors);
-    if (typeof candidate.count !== "number" || !Number.isInteger(candidate.count) || candidate.count <= 0) {
+    if (
+      typeof candidate.count !== "number" ||
+      !Number.isInteger(candidate.count) ||
+      candidate.count <= 0 ||
+      candidate.count > deckInputLimits.cardCount
+    ) {
       errors.push({
         code: "invalid-field",
         path: `${entryPath}.count`,
-        message: "Expected a positive integer."
+        message: `Expected an integer from 1 to ${deckInputLimits.cardCount}.`
       });
     }
 
-    if (cardId && typeof candidate.count === "number" && Number.isInteger(candidate.count) && candidate.count > 0) {
+    if (
+      cardId &&
+      typeof candidate.count === "number" &&
+      Number.isInteger(candidate.count) &&
+      candidate.count > 0 &&
+      candidate.count <= deckInputLimits.cardCount
+    ) {
       entries.push({ cardId, count: candidate.count });
     }
   });
@@ -100,6 +129,15 @@ export function exportDeckJson(
 }
 
 export function importDeckJson(text: string): ImportDeckJsonResult {
+  if (text.length > deckInputLimits.textCharacters) {
+    return {
+      errors: [{
+        code: "invalid-payload",
+        path: "$",
+        message: `JSON deck documents are limited to ${deckInputLimits.textCharacters} characters.`
+      }]
+    };
+  }
   let value: unknown;
   try {
     value = JSON.parse(text) as unknown;
@@ -147,7 +185,7 @@ export function importDeckJson(text: string): ImportDeckJsonResult {
     return { errors };
   }
 
-  const name = requiredString(value.deck.name, "$.deck.name", errors);
+  const name = requiredString(value.deck.name, "$.deck.name", errors, deckInputLimits.deckNameCharacters);
   const formatId = requiredString(value.deck.formatId, "$.deck.formatId", errors);
   const rulesetVersion = requiredString(value.deck.rulesetVersion, "$.deck.rulesetVersion", errors);
   const cardDataVersion = requiredString(value.deck.cardDataVersion, "$.deck.cardDataVersion", errors);
@@ -157,6 +195,12 @@ export function importDeckJson(text: string): ImportDeckJsonResult {
   if (value.deck.notes !== undefined) {
     if (typeof value.deck.notes !== "string") {
       errors.push({ code: "invalid-field", path: "$.deck.notes", message: "Expected a string." });
+    } else if (value.deck.notes.length > deckInputLimits.notesCharacters) {
+      errors.push({
+        code: "invalid-field",
+        path: "$.deck.notes",
+        message: `Expected at most ${deckInputLimits.notesCharacters} characters.`
+      });
     } else {
       notes = value.deck.notes;
     }

@@ -8,7 +8,7 @@ import {
   analyzeEddyCurve,
   calculateRamLimits,
   evaluateCardRamCompatibility,
-  evaluateMainDeckAddition,
+  evaluateMainDeckAdditions,
   validateDeck
 } from "@gigsmith/rules-core";
 import { loadAppView, saveAppView, type AppView } from "./appViews";
@@ -202,11 +202,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
     [ram]
   );
   const additionEvaluationById = useMemo(
-    () => new Map(
-      cyberpunkCardDb.cards
-        .filter((card) => card.card_type !== "Legend")
-        .map((card) => [card.id, evaluateMainDeckAddition(deck, card.id, cyberpunkCardDb, cyberpunkRulesetV1Printable)])
-    ),
+    () => evaluateMainDeckAdditions(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable),
     [deck]
   );
   const eddyCurve = useMemo(
@@ -407,7 +403,8 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
 
   function adjustMainCard(card: Card, delta: number) {
     if (delta > 0) {
-      const evaluation = evaluateMainDeckAddition(deck, card.id, cyberpunkCardDb, cyberpunkRulesetV1Printable);
+      const evaluation = additionEvaluationById.get(card.id);
+      if (!evaluation) return;
       if (!evaluation.allowed) {
         setDeckEditNotice(evaluation.blockers[0]);
         return;

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { cyberpunkCardDb, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Deck, MulliganGoal, MulliganPlayerOrder, MulliganRecommendation } from "@gigsmith/data-contracts";
 import { analyzeMulligan } from "@gigsmith/rules-core";
@@ -23,7 +23,7 @@ const goalLabels: Record<MulliganGoal, string> = {
   "eddy-supply": "Eddy supply"
 };
 
-export function SampleHandPanel({ deck }: { deck: Deck }) {
+export const SampleHandPanel = memo(function SampleHandPanel({ deck }: { deck: Deck }) {
   const [seedInput, setSeedInput] = useState(initialSeed);
   const [activeSeed, setActiveSeed] = useState(initialSeed);
   const [goal, setGoal] = useState<MulliganGoal>("balanced");
@@ -174,4 +174,4 @@ export function SampleHandPanel({ deck }: { deck: Deck }) {
       </section>
     </section>
   );
-}
+});

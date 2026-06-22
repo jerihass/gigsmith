@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import { cardBySlug, createFormatRuleset, createValidDeck } from "@gigsmith/test-fixtures";
-import { calculateRamLimits, evaluateCardRamCompatibility, evaluateMainDeckAddition } from "./index";
+import {
+  calculateRamLimits,
+  evaluateCardRamCompatibility,
+  evaluateMainDeckAddition,
+  evaluateMainDeckAdditions
+} from "./index";
 
 describe("evaluateMainDeckAddition", () => {
   it("blocks additions at the ruleset copy maximum", () => {
@@ -57,6 +62,17 @@ describe("evaluateMainDeckAddition", () => {
 
     expect(result.allowed).toBe(false);
     expect(result.blockers.map((blocker) => blocker.code)).toContain("banned-card");
+  });
+
+  it("batch-evaluates cards with the same results as the single-card API", () => {
+    const deck = createValidDeck();
+    const evaluations = evaluateMainDeckAdditions(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable);
+
+    for (const card of cyberpunkCardDb.cards) {
+      expect(evaluations.get(card.id)).toEqual(
+        evaluateMainDeckAddition(deck, card.id, cyberpunkCardDb, cyberpunkRulesetV1Printable)
+      );
+    }
   });
 });
 

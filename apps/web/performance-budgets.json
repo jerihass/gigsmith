@@ -18,6 +18,7 @@
     "deckEditResponseMs": 1000,
     "analysisRecalculationMs": 2500,
     "gigRollResponseMs": 1000,
-    "filterComputationAtTargetMs": 100
+    "filterComputationAtTargetMs": 100,
+    "additionEvaluationAtTargetMs": 100
   }
 }

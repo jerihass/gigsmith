@@ -11,7 +11,7 @@ import type {
   Ruleset,
   SampleHandCard
 } from "@gigsmith/data-contracts";
-import { drawSampleHand } from "./sampleHand";
+import { drawSampleHand, seededShuffle } from "./sampleHand";
 
 export interface MulliganAnalysisOptions {
   seed: string;
@@ -196,7 +196,7 @@ export function analyzeMulligan(
     const requestedSamples = options.simulationSamples ?? defaultSimulationSamples;
     const sampleSize = Number.isFinite(requestedSamples) ? Math.max(100, Math.floor(requestedSamples)) : defaultSimulationSamples;
     for (let index = 0; index < sampleSize; index += 1) {
-      const hand = drawSampleHand(deck, cardDb, ruleset, `${seed}:simulation:${index}`).cards;
+      const hand = seededShuffle(copies, `${seed}:simulation:${index}`).slice(0, handSize);
       outcomeMetrics.push(handMetrics(hand, baseCapacity, ruleset, goal));
     }
   }

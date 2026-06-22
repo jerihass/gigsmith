@@ -300,6 +300,8 @@ textarea {
   --card-surface: #15191b;
   background: var(--card-surface);
   border-left: 4px solid var(--card-accent);
+  contain-intrinsic-block-size: auto 112px;
+  content-visibility: auto;
   transition: background-color 120ms ease, border-color 120ms ease;
 }
 

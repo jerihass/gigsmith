@@ -34,7 +34,7 @@ function seededRandom(seed: string): () => number {
   };
 }
 
-function shuffled<T>(values: T[], seed: string): T[] {
+export function seededShuffle<T>(values: readonly T[], seed: string): T[] {
   const result = [...values];
   const random = seededRandom(seed);
   for (let index = result.length - 1; index > 0; index -= 1) {
@@ -109,7 +109,7 @@ export function drawSampleHand(
     });
   }
 
-  const cards = shuffled(copies, normalizedSeed)
+  const cards = seededShuffle(copies, normalizedSeed)
     .slice(0, safeHandSize)
     .map((copy) => sampleCard(copy, cardsById.get(copy.cardId)));
 

@@ -1,6 +1,7 @@
+import { memo } from "react";
 import type { ValidationGroup } from "../validationGroups";
 
-export function ValidationReport({ groups }: { groups: ValidationGroup[] }) {
+export const ValidationReport = memo(function ValidationReport({ groups }: { groups: ValidationGroup[] }) {
   const issueCount = groups.reduce((sum, group) => sum + group.issues.length, 0);
   return (
     <section className="panel validation-report">
@@ -28,4 +29,4 @@ export function ValidationReport({ groups }: { groups: ValidationGroup[] }) {
       </div>
     </section>
   );
-}
+});

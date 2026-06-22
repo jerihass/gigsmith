@@ -63,7 +63,14 @@ export function calculateRamLimits(
   cardDb: CardDatabase,
   ruleset: Ruleset
 ): RamLimitReport {
-  const cards = cardMap(cardDb);
+  return calculateRamLimitsFromCards(legends, cardMap(cardDb), ruleset);
+}
+
+function calculateRamLimitsFromCards(
+  legends: DeckCardEntry[],
+  cards: Map<CardId, Card>,
+  ruleset: Ruleset
+): RamLimitReport {
   const byColor = new Map<CardColor, RamLimit>();
 
   for (const entry of legends) {
@@ -166,7 +173,8 @@ export function evaluateMainDeckAddition(
   cardDb: CardDatabase,
   ruleset: Ruleset
 ): DeckEditEvaluation {
-  const card = cardMap(cardDb).get(cardId);
+  const cards = cardMap(cardDb);
+  const card = cards.get(cardId);
   const currentCopies = deck.main
     .filter((entry) => entry.cardId === cardId)
     .reduce((sum, entry) => sum + entry.count, 0);
@@ -181,6 +189,22 @@ export function evaluateMainDeckAddition(
     };
   }
 
+  return evaluateKnownMainDeckAddition(
+    deck,
+    card,
+    currentCopies,
+    calculateRamLimitsFromCards(deck.legends, cards, ruleset),
+    ruleset
+  );
+}
+
+function evaluateKnownMainDeckAddition(
+  deck: Deck,
+  card: Card,
+  currentCopies: number,
+  ramLimits: RamLimitReport,
+  ruleset: Ruleset
+): DeckEditEvaluation {
   if (card.card_type === "Legend") {
     return {
       allowed: false,
@@ -206,7 +230,6 @@ export function evaluateMainDeckAddition(
     );
   }
 
-  const ramLimits = calculateRamLimits(deck.legends, cardDb, ruleset);
   const legality = checkCardLegality(card, ramLimits, ruleset, deck.formatId);
   for (const legalityIssue of legality.errors) {
     if (legalityIssue.code === "ram-limit") {
@@ -228,6 +251,24 @@ export function evaluateMainDeckAddition(
     currentCopies,
     maxCopies
   };
+}
+
+export function evaluateMainDeckAdditions(
+  deck: Deck,
+  cardDb: CardDatabase,
+  ruleset: Ruleset
+): Map<CardId, DeckEditEvaluation> {
+  const cards = cardMap(cardDb);
+  const ramLimits = calculateRamLimitsFromCards(deck.legends, cards, ruleset);
+  const copiesByCardId = new Map<CardId, number>();
+  for (const entry of deck.main) {
+    copiesByCardId.set(entry.cardId, (copiesByCardId.get(entry.cardId) ?? 0) + entry.count);
+  }
+
+  return new Map(cardDb.cards.map((card) => [
+    card.id,
+    evaluateKnownMainDeckAddition(deck, card, copiesByCardId.get(card.id) ?? 0, ramLimits, ruleset)
+  ]));
 }
 
 export function validateDeck(deck: Deck, cardDb: CardDatabase, ruleset: Ruleset): ValidationResult {

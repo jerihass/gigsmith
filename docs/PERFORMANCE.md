@@ -31,6 +31,8 @@ The pure card-filter pipeline averaged approximately 0.1 ms over 50 name-sorted 
 
 On June 21, 2026, exact Gig-roll profiling moved from exhaustive outcome enumeration to equivalent combinatorial formulas and bounded dynamic programs. The focused Gig-odds suite dropped from approximately 687 ms to 31-40 ms locally, while preserving exact single- and multi-die regression results. Gig match state also moved below the top-level app so roll/value updates no longer reconcile the deck database and unrelated views.
 
+The same pass removed repeated deck expansion and card indexing from each mulligan sample, batch-evaluated all card-add states from one RAM/index context, memoized unchanged Analysis/Gig subtrees, and enabled paint containment for offscreen card rows. The 250-card batch-add computation has a dedicated 100 ms pure-computation budget alongside card filtering.
+
 ## Browser Method
 
 The `performance-chromium` Playwright project uses a Pixel 7 viewport and Chromium's 4x CPU throttling. It performs one deterministic path on the production preview:
@@ -49,6 +51,7 @@ The test logs a JSON result prefixed with `[performance]`. Current generous limi
 - analysis recalculation: 2,500 ms
 - Gig roll and live-odds response: 1,000 ms
 - pure 250-card filter computation: 100 ms
+- pure 250-card addition evaluation: 100 ms
 
 The browser scenario intentionally does not emulate network latency because Gigsmith's installed shell is local-first. Size budgets cover transfer regressions separately.
 

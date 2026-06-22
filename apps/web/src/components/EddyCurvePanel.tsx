@@ -1,6 +1,7 @@
+import { memo } from "react";
 import type { Card, EddyCurveReport } from "@gigsmith/data-contracts";
 
-export function EddyCurvePanel({
+export const EddyCurvePanel = memo(function EddyCurvePanel({
   cards,
   report,
   playerOrder,
@@ -115,4 +116,4 @@ export function EddyCurvePanel({
       </details>
     </section>
   );
-}
+});

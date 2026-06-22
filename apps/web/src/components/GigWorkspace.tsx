@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Deck } from "@gigsmith/data-contracts";
 import { createGigMatch } from "@gigsmith/rules-core";
 import { GigOddsPanel } from "./GigOddsPanel";
 import { GigSandbox } from "./GigSandbox";
 
-export function GigWorkspace({ deck }: { deck: Deck }) {
+export const GigWorkspace = memo(function GigWorkspace({ deck }: { deck: Deck }) {
   const [match, setMatch] = useState(() =>
     createGigMatch(["player", "rival"], "player", cyberpunkRulesetV1Printable)
   );
@@ -16,4 +16,4 @@ export function GigWorkspace({ deck }: { deck: Deck }) {
       <GigSandbox match={match} onChange={setMatch} />
     </div>
   );
-}
+});

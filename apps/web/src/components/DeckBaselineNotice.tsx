@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { cyberpunkCardDb, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
-import type { Deck } from "@gigsmith/data-contracts";
+import { cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
+import type { CardDatabase, Deck } from "@gigsmith/data-contracts";
 import { previewDeckBaselineUpgrade } from "../deckBaseline";
 
 const fieldLabels = {
@@ -9,10 +9,18 @@ const fieldLabels = {
   formatId: "Format"
 };
 
-export function DeckBaselineNotice({ deck, onUpgrade }: { deck: Deck; onUpgrade: (deck: Deck) => void }) {
+export function DeckBaselineNotice({
+  deck,
+  cardDb,
+  onUpgrade
+}: {
+  deck: Deck;
+  cardDb: CardDatabase;
+  onUpgrade: (deck: Deck) => void;
+}) {
   const preview = useMemo(
-    () => previewDeckBaselineUpgrade(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable),
-    [deck]
+    () => previewDeckBaselineUpgrade(deck, cardDb, cyberpunkRulesetV1Printable),
+    [cardDb, deck]
   );
   if (!preview.needed) return null;
 

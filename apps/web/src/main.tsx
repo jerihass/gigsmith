@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { Info, Palette, Redo2, Undo2 } from "lucide-react";
-import { cyberpunkCardDb, cyberpunkCardSnapshot, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
-import type { Card, Deck, DeckCardEntry, DeckDocumentV1, ValidationIssue } from "@gigsmith/data-contracts";
+import { cyberpunkCardDb, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
+import type { Card, CardDatabase, Deck, DeckCardEntry, DeckDocumentV1, ValidationIssue } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload, deckInputLimits } from "@gigsmith/deck-io";
 import {
   analyzeEddyCurve,
@@ -27,6 +27,7 @@ import { CardDetailDialog } from "./components/CardDetailDialog";
 import { CardArt } from "./components/CardArt";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import { AppNavigation } from "./components/AppNavigation";
+import { CardDatabaseRefresh } from "./components/CardDatabaseRefresh";
 import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
 import { DeckCurveSummary } from "./components/DeckCurveSummary";
 import { DeckRecovery } from "./components/DeckRecovery";
@@ -38,6 +39,7 @@ import { SampleHandPanel } from "./components/SampleHandPanel";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
 import { ValidationReport } from "./components/ValidationReport";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
+import { loadStoredCardDatabase, type CardDatabaseLoadResult } from "./cardDatabase";
 import { loadCardArtPreference, saveCardArtPreference } from "./cardArtPreference";
 import { fetchExternalCardArtUrls, selectExternalCardArtUrl } from "./externalCardArt";
 import {
@@ -76,12 +78,6 @@ declare global {
 
 const colorOptions: CardColorFilter[] = ["Any", "Red", "Yellow", "Green", "Blue"];
 const typeOptions: CardTypeFilter[] = ["Any", "Legend", "Unit", "Program", "Gear"];
-const ramOptions = numberFilterOptions(cyberpunkCardDb.cards, "ram");
-const costOptions = numberFilterOptions(cyberpunkCardDb.cards, "cost");
-
-function cardById(cardId: string): Card | undefined {
-  return cyberpunkCardDb.cards.find((card) => card.id === cardId);
-}
 
 function cardIdBySlug(slug: string): string {
   const card = cyberpunkCardDb.cards.find((candidate) => candidate.slug === slug);
@@ -149,8 +145,9 @@ function entryCount(entries: DeckCardEntry[]): number {
   return entries.reduce((sum, entry) => sum + entry.count, 0);
 }
 
-function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
+function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibrary; initialCardDatabase: CardDatabaseLoadResult }) {
   const [library, setLibrary] = useState(initialLibrary);
+  const [cardDatabaseState, setCardDatabaseState] = useState(initialCardDatabase);
   const [deckHistories, setDeckHistories] = useState<DeckHistories>({});
   const [activeView, setActiveView] = useState(() => loadAppView(window.localStorage));
   const [pendingDelete, setPendingDelete] = useState(false);
@@ -173,41 +170,45 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const [detailCardId, setDetailCardId] = useState<string>();
   const [detailNavigationContext, setDetailNavigationContext] = useState<"database" | "deck">("database");
   const detailTriggerRef = useRef<HTMLButtonElement>();
+  const cardDb = cardDatabaseState.cardDb;
   const deck = getActiveDeck(library);
   const activeHistory = getDeckHistory(deckHistories, deck.id);
-  const detailCard = detailCardId ? cardById(detailCardId) : undefined;
+  const cardsById = useMemo(() => new Map(cardDb.cards.map((card) => [card.id, card])), [cardDb]);
+  const detailCard = detailCardId ? cardsById.get(detailCardId) : undefined;
+  const ramOptions = useMemo(() => numberFilterOptions(cardDb.cards, "ram"), [cardDb]);
+  const costOptions = useMemo(() => numberFilterOptions(cardDb.cards, "cost"), [cardDb]);
   const deckDetailCards = useMemo(() => {
     const seen = new Set<string>();
     const cards: Card[] = [];
     for (const entry of [...deck.legends, ...deck.main]) {
       if (seen.has(entry.cardId)) continue;
       seen.add(entry.cardId);
-      const card = cardById(entry.cardId);
+      const card = cardsById.get(entry.cardId);
       if (card) cards.push(card);
     }
     return cards;
-  }, [deck.legends, deck.main]);
+  }, [cardsById, deck.legends, deck.main]);
   const deckDetailIndex = detailNavigationContext === "deck"
     ? deckDetailCards.findIndex((card) => card.id === detailCardId)
     : -1;
 
-  const validation = useMemo(() => validateDeck(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable), [deck]);
+  const validation = useMemo(() => validateDeck(deck, cardDb, cyberpunkRulesetV1Printable), [cardDb, deck]);
   const validationGroups = useMemo(
-    () => groupValidationResult(validation, cyberpunkCardDb.cards),
-    [validation]
+    () => groupValidationResult(validation, cardDb.cards),
+    [cardDb, validation]
   );
-  const ram = useMemo(() => calculateRamLimits(deck.legends, cyberpunkCardDb, cyberpunkRulesetV1Printable), [deck.legends]);
+  const ram = useMemo(() => calculateRamLimits(deck.legends, cardDb, cyberpunkRulesetV1Printable), [cardDb, deck.legends]);
   const ramCompatibilityById = useMemo(
-    () => new Map(cyberpunkCardDb.cards.map((card) => [card.id, evaluateCardRamCompatibility(card, ram)])),
-    [ram]
+    () => new Map(cardDb.cards.map((card) => [card.id, evaluateCardRamCompatibility(card, ram)])),
+    [cardDb, ram]
   );
   const additionEvaluationById = useMemo(
-    () => evaluateMainDeckAdditions(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable),
-    [deck]
+    () => evaluateMainDeckAdditions(deck, cardDb, cyberpunkRulesetV1Printable),
+    [cardDb, deck]
   );
   const eddyCurve = useMemo(
-    () => analyzeEddyCurve(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable),
-    [deck]
+    () => analyzeEddyCurve(deck, cardDb, cyberpunkRulesetV1Printable),
+    [cardDb, deck]
   );
   const deckCountById = useMemo(() => {
     const counts = new Map<string, number>();
@@ -219,7 +220,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
   const deckCardIds = useMemo(() => new Set(deckCountById.keys()), [deckCountById]);
   const filteredCards = useMemo(() => {
     const browsedCards = browseCards(
-        cyberpunkCardDb.cards,
+        cardDb.cards,
         { query, color: colorFilter, type: typeFilter, ram: ramFilter, cost: costFilter },
         membershipFilter,
         cardSort,
@@ -232,6 +233,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
     );
   }, [
     cardSort,
+    cardDb,
     colorFilter,
     costFilter,
     deckCardIds,
@@ -256,7 +258,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
 
     const controller = new AbortController();
     setCardArtSourceStatus("loading");
-    fetchExternalCardArtUrls(cyberpunkCardSnapshot.metadata.sourceUrl, controller.signal)
+    fetchExternalCardArtUrls(cardDb.metadata.sourceUrl, controller.signal)
       .then((urls) => {
         setCardArtUrls(urls);
         setCardArtSourceStatus("ready");
@@ -267,7 +269,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         setCardArtSourceStatus("unavailable");
       });
     return () => controller.abort();
-  }, [cardArtEnabled]);
+  }, [cardArtEnabled, cardDb.metadata.sourceUrl]);
 
   useEffect(() => {
     setDeckEditNotice(undefined);
@@ -356,6 +358,10 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
     setTheme(nextTheme);
     applyThemePreference(nextTheme);
     saveThemePreference(window.localStorage, nextTheme);
+  }
+
+  function handleCardDatabaseChange(nextCardDb: CardDatabase, usingOverride: boolean) {
+    setCardDatabaseState({ cardDb: nextCardDb, usingOverride });
   }
 
   function handleCreateDeck() {
@@ -559,7 +565,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
               </div>
             </div>
           )}
-          <DeckBaselineNotice deck={deck} onUpgrade={persist} />
+          <DeckBaselineNotice deck={deck} cardDb={cardDb} onUpgrade={persist} />
           <label className="field">
             <span>Deck name</span>
             <input value={deck.name} onChange={(event) => persist({ ...deck, name: event.target.value })} />
@@ -570,7 +576,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
           <div className="deck-section-title"><h3>Legends</h3><span>{entryCount(deck.legends)} / 3</span></div>
           <div className="deck-list">
             {deck.legends.map((entry) => {
-              const card = cardById(entry.cardId);
+              const card = cardsById.get(entry.cardId);
               return (
                 <div className="deck-row" data-color={card?.color.toLowerCase()} key={entry.cardId}>
                   <div className="deck-card-copy">
@@ -595,7 +601,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
           <div className="deck-section-title"><h3>Main</h3><span>{entryCount(deck.main)} / 40-50</span></div>
           <div className="deck-list">
             {deck.main.map((entry) => {
-              const card = cardById(entry.cardId);
+              const card = cardsById.get(entry.cardId);
               const compatibility = card ? ramCompatibilityById.get(card.id) : undefined;
               const addition = card ? additionEvaluationById.get(card.id) : undefined;
               return (
@@ -807,12 +813,12 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         </section>
 
         <EddyCurvePanel
-          cards={cyberpunkCardDb.cards}
+          cards={cardDb.cards}
           report={eddyCurve}
           playerOrder={eddyPlayerOrder}
           onPlayerOrderChange={setEddyPlayerOrder}
         />
-        <SampleHandPanel deck={deck} />
+        <SampleHandPanel deck={deck} cardDb={cardDb} />
       </section>
 
       <section
@@ -822,7 +828,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         aria-labelledby="app-tab-gigs"
         hidden={activeView !== "gigs"}
       >
-        <GigWorkspace deck={deck} />
+        <GigWorkspace deck={deck} cardDb={cardDb} />
       </section>
 
       <section
@@ -832,7 +838,13 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         aria-labelledby="app-tab-transfer"
         hidden={activeView !== "transfer"}
       >
-        <DeckTransfer deck={deck} onReplace={persist} />
+        <CardDatabaseRefresh
+          cardDb={cardDb}
+          usingOverride={cardDatabaseState.usingOverride}
+          initialError={cardDatabaseState.error}
+          onChange={handleCardDatabaseChange}
+        />
+        <DeckTransfer deck={deck} cardDb={cardDb} onReplace={persist} />
       </section>
 
       <footer className="source-panel">
@@ -845,11 +857,11 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         <dl>
           <div>
             <dt>Card data</dt>
-            <dd>{cyberpunkCardSnapshot.metadata.cardDataVersion}</dd>
+            <dd>{cardDb.metadata.cardDataVersion}</dd>
           </div>
           <div>
             <dt>Retrieved</dt>
-            <dd>{cyberpunkCardSnapshot.metadata.sourceRetrievedAt}</dd>
+            <dd>{cardDb.metadata.sourceRetrievedAt}</dd>
           </div>
           <div>
             <dt>Ruleset</dt>
@@ -857,13 +869,13 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
           </div>
           <div>
             <dt>Source count</dt>
-            <dd>{cyberpunkCardSnapshot.metadata.sourceCardCount} cards</dd>
+            <dd>{cardDb.metadata.sourceCardCount} cards</dd>
           </div>
         </dl>
         <nav aria-label="Source links">
           <a href={cyberpunkRulesetV1Printable.sourceUrl} target="_blank" rel="noreferrer">Printable gameplay guide</a>
           <a href="https://netdeck.gg/cards/cyberpunk" target="_blank" rel="noreferrer">Netdeck cards</a>
-          <a href={cyberpunkCardSnapshot.metadata.sourceUrl} target="_blank" rel="noreferrer">Snapshot API</a>
+          <a href={cardDb.metadata.sourceUrl} target="_blank" rel="noreferrer">Snapshot API</a>
         </nav>
       </footer>
 
@@ -872,6 +884,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
         artEnabled={cardArtEnabled}
         artSource={detailCard ? selectExternalCardArtUrl(detailCard, cardArtUrls) : undefined}
         artSourcePending={cardArtSourceStatus === "loading"}
+        sourceUrl={cardDb.metadata.sourceUrl}
         navigation={deckDetailIndex >= 0 && deckDetailCards.length > 1 ? {
           position: deckDetailIndex + 1,
           total: deckDetailCards.length,
@@ -888,6 +901,7 @@ function App({ initialLibrary }: { initialLibrary: DeckLibrary }) {
 
 function GigsmithLoader() {
   const [fallbackDeck] = useState(() => createStarterDeck());
+  const [cardDatabase] = useState(() => loadStoredCardDatabase(window.localStorage));
   const [loadResult, setLoadResult] = useState(() =>
     loadDeckLibraryResult(window.localStorage, fallbackDeck)
   );
@@ -902,7 +916,7 @@ function GigsmithLoader() {
     );
   }
 
-  return <App initialLibrary={loadResult.library} />;
+  return <App initialLibrary={loadResult.library} initialCardDatabase={cardDatabase} />;
 }
 
 const rootElement = document.getElementById("root") as HTMLElement;

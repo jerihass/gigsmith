@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { cyberpunkCardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
-import type { Card, Deck, GigConditionId, GigMatchState, GigRollProfile } from "@gigsmith/data-contracts";
+import { cyberpunkGigRequirements, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
+import type { Card, CardDatabase, Deck, GigConditionId, GigMatchState, GigRollProfile } from "@gigsmith/data-contracts";
 import { analyzeGigOdds, availableFixerGigs, gainGig, gigDieMaximum } from "@gigsmith/rules-core";
 
 const conditionLabels: Record<GigConditionId, string> = {
@@ -46,16 +46,17 @@ function profileMetric(profile: GigRollProfile, condition: GigConditionId, frien
 
 interface GigOddsPanelProps {
   deck: Deck;
+  cardDb: CardDatabase;
   match: GigMatchState;
   onMatchChange: (match: GigMatchState) => void;
 }
 
-export function GigOddsPanel({ deck, match, onMatchChange }: GigOddsPanelProps) {
+export function GigOddsPanel({ deck, cardDb, match, onMatchChange }: GigOddsPanelProps) {
   const report = useMemo(
-    () => analyzeGigOdds(deck, cyberpunkCardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable, match),
-    [deck, match]
+    () => analyzeGigOdds(deck, cardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable, match),
+    [cardDb, deck, match]
   );
-  const cards = useMemo(() => new Map(cyberpunkCardDb.cards.map((card) => [card.id, card])), []);
+  const cards = useMemo(() => new Map(cardDb.cards.map((card) => [card.id, card])), [cardDb]);
   const supportedDemands = report.demands.filter((demand) => demand.supported);
   const friendlyValues = match.gigs.filter((gig) => gig.controllerId === "player").map((gig) => gig.value);
   const availableGigs = availableFixerGigs(match, cyberpunkRulesetV1Printable);

@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { cyberpunkCardSnapshot } from "@gigsmith/card-data";
 import type { Card } from "@gigsmith/data-contracts";
 import { cardDetailStats, cardDetailTags, cardDetailText } from "../cardDetails";
 import { CardArt } from "./CardArt";
@@ -10,6 +9,7 @@ export function CardDetailDialog({
   artEnabled,
   artSource,
   artSourcePending,
+  sourceUrl,
   navigation,
   onClose
 }: {
@@ -17,6 +17,7 @@ export function CardDetailDialog({
   artEnabled: boolean;
   artSource?: string;
   artSourcePending: boolean;
+  sourceUrl: string;
   navigation?: {
     position: number;
     total: number;
@@ -107,7 +108,7 @@ export function CardDetailDialog({
           </dl>
           <footer className="card-detail-footer">
             <span>Card ID: <code>{card.id}</code></span>
-            <a href={cyberpunkCardSnapshot.metadata.sourceUrl} target="_blank" rel="noreferrer">Snapshot source</a>
+            <a href={sourceUrl} target="_blank" rel="noreferrer">Snapshot source</a>
           </footer>
         </div>
       )}

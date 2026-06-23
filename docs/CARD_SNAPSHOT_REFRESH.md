@@ -13,6 +13,9 @@ Do not bundle card art. The snapshot may preserve stable `source_image_url` refe
 
 ## Manual Refresh Steps
 
+These steps update the bundled repository snapshot. Use them when preparing a
+release or checking in a new known-good card baseline.
+
 1. Fetch the current Netdeck payload:
 
    ```sh
@@ -74,3 +77,21 @@ cards[0].card_type: Expected one of: Legend, Unit, Program, Gear.
 ```
 
 Fix the snapshot or update the domain contracts deliberately. Do not work around schema failures in the UI.
+
+## In-App User Refresh
+
+The PWA also supports a user-forced refresh from the Transfer tab. That path:
+
+- fetches `https://api.netdeck.gg/api/cards/cyberpunk?limit=1000` only after the user clicks refresh;
+- normalizes Netdeck `items` into the same `CardSnapshot` shape as the bundled file;
+- strips transient signed `image_url` values and stores only stable metadata;
+- validates the downloaded snapshot before accepting it;
+- stores the accepted override in `localStorage` under `gigsmith.card-database.override.v1`;
+- loads card data in this order: validated user override, then bundled snapshot;
+- exposes a reset action that deletes the override and returns to the bundled snapshot.
+
+The user override is intentionally browser-local. It is not added to the service
+worker precache and is not committed back to `packages/card-data`. A refreshed
+database can change active deck validation; the existing baseline notice should
+surface the card-data version change so the user can opt into the current
+validation baseline.

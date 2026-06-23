@@ -1,6 +1,6 @@
 import { memo, useMemo, useState } from "react";
-import { cyberpunkCardDb, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
-import type { Deck, MulliganGoal, MulliganPlayerOrder, MulliganRecommendation } from "@gigsmith/data-contracts";
+import { cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
+import type { CardDatabase, Deck, MulliganGoal, MulliganPlayerOrder, MulliganRecommendation } from "@gigsmith/data-contracts";
 import { analyzeMulligan } from "@gigsmith/rules-core";
 
 const initialSeed = "night-city-1";
@@ -23,18 +23,18 @@ const goalLabels: Record<MulliganGoal, string> = {
   "eddy-supply": "Eddy supply"
 };
 
-export const SampleHandPanel = memo(function SampleHandPanel({ deck }: { deck: Deck }) {
+export const SampleHandPanel = memo(function SampleHandPanel({ deck, cardDb }: { deck: Deck; cardDb: CardDatabase }) {
   const [seedInput, setSeedInput] = useState(initialSeed);
   const [activeSeed, setActiveSeed] = useState(initialSeed);
   const [goal, setGoal] = useState<MulliganGoal>("balanced");
   const [playerOrder, setPlayerOrder] = useState<MulliganPlayerOrder>("first");
   const report = useMemo(
-    () => analyzeMulligan(deck, cyberpunkCardDb, cyberpunkRulesetV1Printable, {
+    () => analyzeMulligan(deck, cardDb, cyberpunkRulesetV1Printable, {
       seed: activeSeed,
       goal,
       playerOrder
     }),
-    [activeSeed, deck, goal, playerOrder]
+    [activeSeed, cardDb, deck, goal, playerOrder]
   );
   const sample = report.currentHand;
 

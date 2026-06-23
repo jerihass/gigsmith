@@ -1,17 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
-import { cyberpunkCardDb } from "@gigsmith/card-data";
-import type { Deck } from "@gigsmith/data-contracts";
+import type { CardDatabase, Deck } from "@gigsmith/data-contracts";
 import { encodeDeckSharePayload, exportDeckJson, exportDecklist, importDeckJson, importDecklist } from "@gigsmith/deck-io";
 
-export function DeckTransfer({ deck, onReplace }: { deck: Deck; onReplace: (deck: Deck) => void }) {
+export function DeckTransfer({
+  deck,
+  cardDb,
+  onReplace
+}: {
+  deck: Deck;
+  cardDb: CardDatabase;
+  onReplace: (deck: Deck) => void;
+}) {
   const [format, setFormat] = useState<"text" | "json">("text");
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
   const [importToast, setImportToast] = useState<{ kind: "success" | "error"; message: string }>();
   const [shareStatus, setShareStatus] = useState("");
   const [shareUrl, setShareUrl] = useState("");
-  const exportText = useMemo(() => format === "json" ? exportDeckJson(deck) : exportDecklist(deck, cyberpunkCardDb), [deck, format]);
+  const exportText = useMemo(() => format === "json" ? exportDeckJson(deck) : exportDecklist(deck, cardDb), [cardDb, deck, format]);
 
   useEffect(() => {
     if (!importToast) return;
@@ -55,7 +62,7 @@ export function DeckTransfer({ deck, onReplace }: { deck: Deck; onReplace: (deck
       return;
     }
 
-    const result = importDecklist(importText, cyberpunkCardDb, {
+    const result = importDecklist(importText, cardDb, {
       deckName: deck.name,
       formatId: deck.formatId,
       rulesetVersion: deck.rulesetVersion

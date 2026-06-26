@@ -48,7 +48,7 @@ import {
   type CardDatabaseLoadResult
 } from "./cardDatabase";
 import { loadCardArtPreference, saveCardArtPreference } from "./cardArtPreference";
-import { fetchExternalCardArtUrls, selectExternalCardArtUrl } from "./externalCardArt";
+import { loadExternalCardArtUrls, selectExternalCardArtUrl } from "./externalCardArt";
 import {
   dropDeckHistory,
   getDeckHistory,
@@ -271,8 +271,8 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
 
     const controller = new AbortController();
     setCardArtSourceStatus("loading");
-    fetchExternalCardArtUrls(cardDb.metadata.sourceUrl, controller.signal)
-      .then((urls) => {
+    loadExternalCardArtUrls(window.localStorage, cardDb.metadata.sourceUrl, controller.signal)
+      .then(({ urls }) => {
         setCardArtUrls(urls);
         setCardArtSourceStatus("ready");
       })

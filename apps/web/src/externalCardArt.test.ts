@@ -1,8 +1,28 @@
 import { describe, expect, it, vi } from "vitest";
-import { fetchExternalCardArtUrls, selectExternalCardArtUrl } from "./externalCardArt";
+import {
+  externalCardArtCacheStorageKey,
+  fetchExternalCardArtUrls,
+  loadCachedExternalCardArtUrls,
+  loadExternalCardArtUrls,
+  saveCachedExternalCardArtUrls,
+  selectExternalCardArtUrl
+} from "./externalCardArt";
 
 const sourceUrl = "https://api.netdeck.gg/api/cards/cyberpunk";
 const signedUrl = "https://dstcynss47vun.cloudfront.net/card.webp?Expires=123&Signature=test";
+const nowMs = Date.parse("2026-06-26T12:00:00.000Z");
+
+function createStorage(): Storage {
+  const values = new Map<string, string>();
+  return {
+    get length() { return values.size; },
+    clear: () => values.clear(),
+    getItem: (key) => values.get(key) ?? null,
+    key: (index) => [...values.keys()][index] ?? null,
+    removeItem: (key) => { values.delete(key); },
+    setItem: (key, value) => { values.set(key, value); }
+  };
+}
 
 describe("external card art", () => {
   it("loads signed URLs from the opt-in source without persisting them", async () => {
@@ -33,5 +53,72 @@ describe("external card art", () => {
 
     await expect(fetchExternalCardArtUrls(sourceUrl, undefined, unavailable)).rejects.toThrow("503");
     await expect(fetchExternalCardArtUrls(sourceUrl, undefined, malformed)).rejects.toThrow("invalid payload");
+  });
+
+  it("saves and reloads a valid signed URL cache", () => {
+    const storage = createStorage();
+    saveCachedExternalCardArtUrls(storage, sourceUrl, new Map([["card-1", signedUrl]]), nowMs);
+
+    const urls = loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs + 60_000);
+
+    expect(urls?.get("card-1")).toBe(signedUrl);
+    expect(storage.getItem(externalCardArtCacheStorageKey)).toContain("gigsmith.card-art-url-cache");
+  });
+
+  it("ignores expired, mismatched, and malformed URL caches", () => {
+    const storage = createStorage();
+    saveCachedExternalCardArtUrls(storage, sourceUrl, new Map([["card-1", signedUrl]]), nowMs);
+
+    expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs + 13 * 60 * 60 * 1000)).toBeUndefined();
+    expect(loadCachedExternalCardArtUrls(storage, "https://api.netdeck.gg/api/cards/other", nowMs + 60_000)).toBeUndefined();
+
+    storage.setItem(externalCardArtCacheStorageKey, JSON.stringify({
+      schema: "gigsmith.card-art-url-cache",
+      version: 1,
+      sourceUrl,
+      cachedAt: new Date(nowMs).toISOString(),
+      expiresAt: new Date(nowMs + 60_000).toISOString(),
+      urls: [["card-1", "https://images.example/card.webp?Signature=test"]]
+    }));
+    expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs)).toBeUndefined();
+  });
+
+  it("uses a valid cache before fetching and caches network results", async () => {
+    const cachedStorage = createStorage();
+    saveCachedExternalCardArtUrls(cachedStorage, sourceUrl, new Map([["card-1", signedUrl]]), nowMs);
+    const unusedFetch = vi.fn(async () => new Response(null, { status: 500 })) as typeof fetch;
+
+    const cached = await loadExternalCardArtUrls(cachedStorage, sourceUrl, undefined, unusedFetch, nowMs + 60_000);
+
+    expect(cached.source).toBe("cache");
+    expect(cached.urls.get("card-1")).toBe(signedUrl);
+    expect(unusedFetch).not.toHaveBeenCalled();
+
+    const networkStorage = createStorage();
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
+      items: [{ id: "card-2", external_id: "CP-002", image_url: signedUrl }]
+    }), { status: 200 })) as typeof fetch;
+
+    const fetched = await loadExternalCardArtUrls(networkStorage, sourceUrl, undefined, fetchMock, nowMs);
+    const reloaded = loadCachedExternalCardArtUrls(networkStorage, sourceUrl, nowMs + 60_000);
+
+    expect(fetched.source).toBe("network");
+    expect(fetched.urls.get("card-2")).toBe(signedUrl);
+    expect(reloaded?.get("CP-002")).toBe(signedUrl);
+  });
+
+  it("treats unavailable storage as a cache miss without failing network art", async () => {
+    const unavailableStorage = {
+      getItem: () => { throw new Error("blocked"); },
+      setItem: () => { throw new Error("blocked"); }
+    } as unknown as Storage;
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
+      items: [{ id: "card-1", external_id: "CP-001", image_url: signedUrl }]
+    }), { status: 200 })) as typeof fetch;
+
+    const result = await loadExternalCardArtUrls(unavailableStorage, sourceUrl, undefined, fetchMock, nowMs);
+
+    expect(result.source).toBe("network");
+    expect(result.urls.get("card-1")).toBe(signedUrl);
   });
 });

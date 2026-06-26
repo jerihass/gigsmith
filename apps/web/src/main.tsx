@@ -932,7 +932,11 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           cardDb={cardDb}
           usingOverride={cardDatabaseState.usingOverride}
           initialError={cardDatabaseState.error}
+          cardArtEnabled={cardArtEnabled}
+          cardArtUrls={cardArtUrls}
+          cardArtSourcePending={cardArtSourceStatus === "loading"}
           onChange={handleCardDatabaseChange}
+          onViewCard={(card, trigger) => openCardDetails(card, trigger)}
         />
         <PortableBackup
           library={library}

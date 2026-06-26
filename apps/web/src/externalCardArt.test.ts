@@ -13,7 +13,7 @@ describe("external card art", () => {
     const urls = await fetchExternalCardArtUrls(sourceUrl, undefined, fetchMock as unknown as typeof fetch);
 
     expect(fetchMock).toHaveBeenCalledOnce();
-    expect(String(fetchMock.mock.calls[0]?.[0])).toBe(`${sourceUrl}?limit=100`);
+    expect(String(fetchMock.mock.calls[0]?.[0])).toBe(`${sourceUrl}?limit=1000`);
     expect(selectExternalCardArtUrl({ id: "card-1", external_id: "CP-001" }, urls)).toBe(signedUrl);
   });
 

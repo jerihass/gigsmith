@@ -108,6 +108,14 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .new-card-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .new-card-row > button {
+    grid-column: 1 / -1;
+  }
+
   .card-row {
     align-items: stretch;
     display: grid;

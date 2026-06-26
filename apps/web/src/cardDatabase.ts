@@ -4,7 +4,7 @@ import {
   sanitizeCardSnapshot,
   validateCardSnapshot
 } from "@gigsmith/card-data";
-import type { CardDatabase, CardSnapshot } from "@gigsmith/data-contracts";
+import type { Card, CardDatabase, CardSnapshot } from "@gigsmith/data-contracts";
 
 export const cardDatabaseOverrideStorageKey = "gigsmith.card-database.override.v1";
 const defaultFetchLimit = 1000;
@@ -20,6 +20,7 @@ export interface CardDatabaseRefreshResult {
   changed: boolean;
   cardCount: number;
   previousCardCount: number;
+  newCards: Card[];
   message: string;
 }
 
@@ -32,6 +33,10 @@ function snapshotToDatabase(snapshot: CardSnapshot): CardDatabase {
     metadata: snapshot.metadata,
     cards: snapshot.cards
   };
+}
+
+function stableCardKeys(card: Pick<Card, "id" | "external_id" | "slug">): string[] {
+  return [card.id, card.external_id, card.slug].filter((value): value is string => value.length > 0);
 }
 
 function storageSnapshot(value: string | null): CardSnapshot | undefined {
@@ -142,6 +147,8 @@ export async function refreshStoredCardDatabase(
   const snapshot = await fetchCardDatabaseSnapshot(cyberpunkCardSnapshot.metadata.sourceUrl, signal, fetcher);
   storage.setItem(cardDatabaseOverrideStorageKey, JSON.stringify(snapshot));
   const cardDb = snapshotToDatabase(snapshot);
+  const previousKeys = new Set(currentDb.cards.flatMap(stableCardKeys));
+  const newCards = cardDb.cards.filter((card) => stableCardKeys(card).every((key) => !previousKeys.has(key)));
   const changed = currentDb.metadata.sourceCardCount !== cardDb.metadata.sourceCardCount ||
     JSON.stringify(currentDb.cards) !== JSON.stringify(cardDb.cards);
 
@@ -150,8 +157,9 @@ export async function refreshStoredCardDatabase(
     changed,
     cardCount: cardDb.cards.length,
     previousCardCount: currentDb.cards.length,
+    newCards,
     message: changed
-      ? `Card database updated: ${cardDb.cards.length} cards.`
+      ? `Card database updated: ${cardDb.cards.length} cards${newCards.length ? `, ${newCards.length} new` : ""}.`
       : `Card database already current: ${cardDb.cards.length} cards.`
   };
 }

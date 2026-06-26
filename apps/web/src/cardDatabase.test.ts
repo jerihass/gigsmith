@@ -54,6 +54,8 @@ describe("cardDatabase refresh", () => {
 
     expect(result.cardCount).toBe(1);
     expect(result.changed).toBe(true);
+    expect(result.newCards.map((card) => card.id)).toEqual([card.id]);
+    expect(result.message).toContain("1 new");
     expect(loaded.usingOverride).toBe(true);
     expect(loaded.cardDb.cards).toHaveLength(1);
   });
@@ -69,6 +71,7 @@ describe("cardDatabase refresh", () => {
     const result = await refreshStoredCardDatabase(storage, currentDb, undefined, fetcher as unknown as typeof fetch);
 
     expect(result.changed).toBe(false);
+    expect(result.newCards).toEqual([]);
     expect(result.message).toContain("already current");
   });
 

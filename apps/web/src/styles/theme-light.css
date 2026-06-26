@@ -28,7 +28,17 @@
   --card-surface: #f7dde1;
 }
 
+:root[data-theme="light"] .new-card-row[data-color="red"] {
+  --card-accent: #c92f43;
+  --card-surface: #f7dde1;
+}
+
 :root[data-theme="light"] .card-row[data-color="blue"] {
+  --card-accent: #006f96;
+  --card-surface: #d9edf6;
+}
+
+:root[data-theme="light"] .new-card-row[data-color="blue"] {
   --card-accent: #006f96;
   --card-surface: #d9edf6;
 }
@@ -38,12 +48,27 @@
   --card-surface: #d8eee2;
 }
 
+:root[data-theme="light"] .new-card-row[data-color="green"] {
+  --card-accent: #13744b;
+  --card-surface: #d8eee2;
+}
+
 :root[data-theme="light"] .card-row[data-color="yellow"] {
   --card-accent: #756600;
   --card-surface: #f1e8b7;
 }
 
+:root[data-theme="light"] .new-card-row[data-color="yellow"] {
+  --card-accent: #756600;
+  --card-surface: #f1e8b7;
+}
+
 :root[data-theme="light"] .card-row[data-color="colorless"] {
+  --card-accent: #5c686c;
+  --card-surface: #e7ecec;
+}
+
+:root[data-theme="light"] .new-card-row[data-color="colorless"] {
   --card-accent: #5c686c;
   --card-surface: #e7ecec;
 }

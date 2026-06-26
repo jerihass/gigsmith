@@ -26,7 +26,7 @@ export async function fetchExternalCardArtUrls(
   fetcher: typeof fetch = fetch
 ): Promise<ReadonlyMap<string, string>> {
   const endpoint = new URL(sourceUrl);
-  endpoint.searchParams.set("limit", "100");
+  endpoint.searchParams.set("limit", "1000");
   const response = await fetcher(endpoint, {
     credentials: "omit",
     referrerPolicy: "no-referrer",

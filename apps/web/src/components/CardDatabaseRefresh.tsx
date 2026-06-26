@@ -1,25 +1,36 @@
 import { useEffect, useState } from "react";
 import { RefreshCw, RotateCcw, X } from "lucide-react";
-import type { CardDatabase } from "@gigsmith/data-contracts";
+import type { Card, CardDatabase } from "@gigsmith/data-contracts";
 import { refreshStoredCardDatabase, resetStoredCardDatabase } from "../cardDatabase";
+import { selectExternalCardArtUrl } from "../externalCardArt";
+import { CardArt } from "./CardArt";
 
 interface CardDatabaseRefreshProps {
   cardDb: CardDatabase;
   usingOverride: boolean;
   initialError?: string;
+  cardArtEnabled: boolean;
+  cardArtUrls: ReadonlyMap<string, string>;
+  cardArtSourcePending: boolean;
   onChange: (cardDb: CardDatabase, usingOverride: boolean) => void;
+  onViewCard: (card: Card, trigger: HTMLButtonElement) => void;
 }
 
 export function CardDatabaseRefresh({
   cardDb,
   usingOverride,
   initialError,
-  onChange
+  cardArtEnabled,
+  cardArtUrls,
+  cardArtSourcePending,
+  onChange,
+  onViewCard
 }: CardDatabaseRefreshProps) {
   const [status, setStatus] = useState<"idle" | "refreshing">("idle");
   const [toast, setToast] = useState<{ kind: "success" | "error"; message: string } | undefined>(
     initialError ? { kind: "error", message: initialError } : undefined
   );
+  const [newCards, setNewCards] = useState<Card[]>([]);
 
   useEffect(() => {
     if (!toast) return;
@@ -33,6 +44,7 @@ export function CardDatabaseRefresh({
     try {
       const result = await refreshStoredCardDatabase(window.localStorage, cardDb, controller.signal);
       if (result.cardDb) onChange(result.cardDb, true);
+      setNewCards(result.newCards);
       setToast({ kind: "success", message: result.message });
     } catch (error) {
       setToast({
@@ -47,6 +59,7 @@ export function CardDatabaseRefresh({
   function reset() {
     const result = resetStoredCardDatabase(window.localStorage);
     onChange(result.cardDb, false);
+    setNewCards([]);
     setToast({ kind: "success", message: `Reset to bundled card database: ${result.cardDb.cards.length} cards.` });
   }
 
@@ -74,6 +87,35 @@ export function CardDatabaseRefresh({
           Reset bundled
         </button>
       </div>
+      {newCards.length > 0 && (
+        <section className="new-card-results" aria-labelledby="new-card-results-title">
+          <div className="new-card-results-title">
+            <div>
+              <p className="section-kicker">Refresh result</p>
+              <h3 id="new-card-results-title">New Cards</h3>
+            </div>
+            <span className="result-count">{newCards.length} found</span>
+          </div>
+          <div className="new-card-list">
+            {newCards.map((card) => (
+              <article className="new-card-row" data-color={card.color.toLowerCase()} key={card.id}>
+                <CardArt
+                  card={card}
+                  enabled={cardArtEnabled}
+                  source={selectExternalCardArtUrl(card, cardArtUrls)}
+                  sourcePending={cardArtSourcePending}
+                  variant="thumbnail"
+                />
+                <div className="new-card-copy">
+                  <strong>{card.display_name}</strong>
+                  <span>{card.color} {card.card_type} · RAM {card.ram ?? "-"} · Cost {card.cost ?? "-"}</span>
+                </div>
+                <button onClick={(event) => onViewCard(card, event.currentTarget)}>Details</button>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
       {toast && (
         <div
           className={`import-toast ${toast.kind}`}

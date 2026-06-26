@@ -20,6 +20,112 @@ main {
   font-weight: 700;
 }
 
+.pwa-update-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.info-button {
+  align-self: center;
+  color: var(--cyan);
+}
+
+.release-notes-dialog {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-top: 3px solid var(--cyan);
+  border-radius: 8px;
+  color: var(--text);
+  max-height: min(720px, calc(100vh - 32px));
+  max-width: 720px;
+  overflow: auto;
+  padding: 0;
+  position: fixed;
+  width: calc(100% - 32px);
+}
+
+.release-notes-dialog[open] {
+  inset-block-end: max(12px, env(safe-area-inset-bottom));
+  inset-block-start: max(12px, env(safe-area-inset-top));
+  inset-inline: 0;
+  margin: auto;
+}
+
+@supports (height: 100dvh) {
+  .release-notes-dialog {
+    max-height: min(
+      720px,
+      calc(100dvh - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom)))
+    );
+  }
+}
+
+.release-notes-dialog::backdrop {
+  background: var(--backdrop);
+}
+
+.release-notes-content {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+}
+
+.release-notes-header {
+  align-items: start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.release-notes-header p,
+.release-note p {
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.release-notes-header h2 {
+  font-size: 1.55rem;
+  margin-bottom: 4px;
+}
+
+.release-notes-header span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.release-note-list {
+  display: grid;
+  gap: 12px;
+}
+
+.release-note {
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  border-radius: 6px;
+  padding: 14px;
+}
+
+.release-note h3 {
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+}
+
+.release-note ul {
+  color: var(--muted-strong);
+  display: grid;
+  gap: 7px;
+  line-height: 1.45;
+  margin: 0;
+  padding-left: 20px;
+}
+
 .recovery-page {
   align-items: center;
   display: flex;

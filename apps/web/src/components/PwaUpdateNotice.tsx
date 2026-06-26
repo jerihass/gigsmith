@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { registerGigsmithServiceWorker } from "../pwa";
 
-export function PwaUpdateNotice() {
+export function PwaUpdateNotice({ onReleaseNotes }: { onReleaseNotes: (trigger: HTMLButtonElement) => void }) {
   const [activateUpdate, setActivateUpdate] = useState<(() => void) | undefined>();
 
   useEffect(() => {
@@ -17,7 +17,10 @@ export function PwaUpdateNotice() {
   return (
     <aside className="pwa-update" aria-live="polite">
       <span>Gigsmith update ready</span>
-      <button onClick={activateUpdate}>Update now</button>
+      <div className="pwa-update-actions">
+        <button onClick={(event) => onReleaseNotes(event.currentTarget)}>Release notes</button>
+        <button className="primary" onClick={activateUpdate}>Update now</button>
+      </div>
     </aside>
   );
 }

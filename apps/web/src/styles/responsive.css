@@ -79,6 +79,16 @@
     flex-direction: column;
   }
 
+  .pwa-update {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pwa-update-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .share-preview {
     align-items: stretch;
     flex-direction: column;
@@ -155,7 +165,7 @@
   .header-context {
     display: grid;
     gap: 8px;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
   }
 
   .active-deck-context strong {

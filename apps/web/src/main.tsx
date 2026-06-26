@@ -36,6 +36,7 @@ import { EddyCurvePanel } from "./components/EddyCurvePanel";
 import { GigWorkspace } from "./components/GigWorkspace";
 import { PwaUpdateNotice } from "./components/PwaUpdateNotice";
 import { PortableBackup, type RestoreResult } from "./components/PortableBackup";
+import { ReleaseNotesDialog } from "./components/ReleaseNotesDialog";
 import { SampleHandPanel } from "./components/SampleHandPanel";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
 import { ValidationReport } from "./components/ValidationReport";
@@ -179,7 +180,9 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [sharedDeckError, setSharedDeckError] = useState("");
   const [detailCardId, setDetailCardId] = useState<string>();
   const [detailNavigationContext, setDetailNavigationContext] = useState<"database" | "deck">("database");
+  const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
   const detailTriggerRef = useRef<HTMLButtonElement>();
+  const releaseNotesTriggerRef = useRef<HTMLButtonElement>();
   const cardDb = cardDatabaseState.cardDb;
   const deck = getActiveDeck(library);
   const activeHistory = getDeckHistory(deckHistories, deck.id);
@@ -475,6 +478,16 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     window.requestAnimationFrame(() => detailTriggerRef.current?.focus());
   }
 
+  function openReleaseNotes(trigger?: HTMLButtonElement) {
+    releaseNotesTriggerRef.current = trigger;
+    setReleaseNotesOpen(true);
+  }
+
+  function closeReleaseNotes() {
+    setReleaseNotesOpen(false);
+    window.requestAnimationFrame(() => releaseNotesTriggerRef.current?.focus());
+  }
+
   function navigateDeckDetails(offset: -1 | 1) {
     if (deckDetailCards.length < 2 || deckDetailIndex < 0) return;
     const nextIndex = (deckDetailIndex + offset + deckDetailCards.length) % deckDetailCards.length;
@@ -537,7 +550,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
 
   return (
     <main>
-      <PwaUpdateNotice />
+      <PwaUpdateNotice onReleaseNotes={openReleaseNotes} />
       <header className="app-header">
         <div>
           <p className="eyebrow">Unofficial Cyberpunk TCG companion</p>
@@ -563,6 +576,14 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               <option value="neon">Neon</option>
             </select>
           </label>
+          <button
+            className="icon-button info-button"
+            aria-label="View release notes"
+            title="Release notes"
+            onClick={(event) => openReleaseNotes(event.currentTarget)}
+          >
+            <Info size={17} aria-hidden="true" />
+          </button>
         </div>
       </header>
 
@@ -974,6 +995,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         } : undefined}
         onClose={closeCardDetails}
       />
+      <ReleaseNotesDialog open={releaseNotesOpen} onClose={closeReleaseNotes} />
       {backupRestoreToast && (
         <div className="import-toast success" role="status">
           <span>{backupRestoreToast}</span>

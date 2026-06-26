@@ -87,6 +87,49 @@
   gap: 8px;
 }
 
+.portable-backup-panel {
+  margin-bottom: 18px;
+}
+
+.backup-description {
+  color: var(--muted-strong);
+  margin: 0 0 14px;
+  max-width: 72ch;
+}
+
+.backup-restore-confirmation {
+  align-items: start;
+  background: var(--surface-strong);
+  border: 1px solid var(--info-border);
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px;
+}
+
+.backup-restore-confirmation label {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.backup-restore-confirmation > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.visually-hidden {
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .import-error {
   color: var(--danger-text);
   white-space: pre-wrap;

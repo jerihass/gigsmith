@@ -43,3 +43,16 @@ https://example.app/#deck=BASE64URL_PAYLOAD
 ```
 
 URL fragments are decoded locally and are not sent to the hosting server. Gigsmith validates and previews the document before adding it to the local deck library.
+
+## Full Device Backup
+
+The Transfer tab also provides **Backup & Restore** for moving Gigsmith between browsers or devices. A `gigsmith-backup-YYYY-MM-DD.json` file is plain, versioned JSON with this application-owned data:
+
+- every local deck and the active deck selection;
+- theme, external-art preference, and active tool tab;
+- a locally refreshed card-data snapshot, when one exists; and
+- the current Gig Sandbox state.
+
+The backup is intentionally not encrypted: it contains TCG deck and preference data, not credentials or account information. Store it in Files, iCloud Drive, or another normal backup location before wiping a device.
+
+Restoring validates the whole document before presenting any action. **Replace this device** restores all backed-up data. **Add backup decks only** appends decks while preserving the current device's preferences, card database, and Gig Sandbox state; duplicate local deck IDs are regenerated safely.

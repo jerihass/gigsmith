@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { Info, Palette, Redo2, Undo2 } from "lucide-react";
+import { Info, Palette, Redo2, Undo2, X } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
-import type { Card, CardDatabase, Deck, DeckCardEntry, DeckDocumentV1, ValidationIssue } from "@gigsmith/data-contracts";
+import type { Card, CardDatabase, Deck, DeckCardEntry, DeckDocumentV1, GigMatchState, ValidationIssue } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload, deckInputLimits } from "@gigsmith/deck-io";
 import {
   analyzeEddyCurve,
@@ -35,11 +35,17 @@ import { DeckTransfer } from "./components/DeckTransfer";
 import { EddyCurvePanel } from "./components/EddyCurvePanel";
 import { GigWorkspace } from "./components/GigWorkspace";
 import { PwaUpdateNotice } from "./components/PwaUpdateNotice";
+import { PortableBackup, type RestoreResult } from "./components/PortableBackup";
 import { SampleHandPanel } from "./components/SampleHandPanel";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
 import { ValidationReport } from "./components/ValidationReport";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
-import { loadStoredCardDatabase, type CardDatabaseLoadResult } from "./cardDatabase";
+import {
+  loadStoredCardDatabase,
+  resetStoredCardDatabase,
+  saveStoredCardDatabase,
+  type CardDatabaseLoadResult
+} from "./cardDatabase";
 import { loadCardArtPreference, saveCardArtPreference } from "./cardArtPreference";
 import { fetchExternalCardArtUrls, selectExternalCardArtUrl } from "./externalCardArt";
 import {
@@ -61,6 +67,8 @@ import {
   selectDeck,
   type DeckLibrary
 } from "./deckLibrary";
+import { createDefaultGigMatch, loadGigMatch, saveGigMatch } from "./gigMatchStorage";
+import { mergeBackupDeckLibrary, type PortableBackupV1 } from "./portableBackup";
 import { groupValidationResult } from "./validationGroups";
 import {
   applyThemePreference,
@@ -151,6 +159,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [deckHistories, setDeckHistories] = useState<DeckHistories>({});
   const [activeView, setActiveView] = useState(() => loadAppView(window.localStorage));
   const [pendingDelete, setPendingDelete] = useState(false);
+  const [backupRestoreToast, setBackupRestoreToast] = useState<string>();
   const [query, setQuery] = useState("");
   const [colorFilter, setColorFilter] = useState<CardColorFilter>("Any");
   const [typeFilter, setTypeFilter] = useState<CardTypeFilter>("Any");
@@ -164,6 +173,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [cardArtEnabled, setCardArtEnabled] = useState(() => loadCardArtPreference(window.localStorage));
   const [cardArtUrls, setCardArtUrls] = useState<ReadonlyMap<string, string>>(() => new Map());
   const [cardArtSourceStatus, setCardArtSourceStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
+  const [gigMatch, setGigMatch] = useState<GigMatchState>(() => loadGigMatch(window.localStorage));
   const [eddyPlayerOrder, setEddyPlayerOrder] = useState<"first" | "second">("first");
   const [sharedDocument, setSharedDocument] = useState<DeckDocumentV1>();
   const [sharedDeckError, setSharedDeckError] = useState("");
@@ -276,6 +286,12 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   }, [deck.id]);
 
   useEffect(() => {
+    if (!backupRestoreToast) return;
+    const timeout = window.setTimeout(() => setBackupRestoreToast(undefined), 6000);
+    return () => window.clearTimeout(timeout);
+  }, [backupRestoreToast]);
+
+  useEffect(() => {
     function readSharedDeckFromHash() {
       const hash = window.location.hash.slice(1);
       if (hash.length > deckInputLimits.sharePayloadCharacters + 16) {
@@ -362,6 +378,59 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
 
   function handleCardDatabaseChange(nextCardDb: CardDatabase, usingOverride: boolean) {
     setCardDatabaseState({ cardDb: nextCardDb, usingOverride });
+  }
+
+  function handleGigMatchChange(nextMatch: GigMatchState) {
+    setGigMatch(nextMatch);
+    saveGigMatch(window.localStorage, nextMatch);
+  }
+
+  function handleBackupRestore(backup: PortableBackupV1, mode: "replace" | "merge"): RestoreResult {
+    try {
+      if (mode === "merge") {
+        const merged = mergeBackupDeckLibrary(library, backup.library, createDeckId);
+        persistLibrary(merged.library);
+        const result = {
+          kind: "success",
+          message: `Added ${merged.addedDeckCount} backup deck${merged.addedDeckCount === 1 ? "" : "s"}; current preferences and sandbox were kept.`
+        } satisfies RestoreResult;
+        setBackupRestoreToast(result.message);
+        return result;
+      }
+
+      saveDeckLibrary(window.localStorage, backup.library);
+      setLibrary(backup.library);
+      setDeckHistories({});
+      setPendingDelete(false);
+
+      setTheme(backup.preferences.theme);
+      applyThemePreference(backup.preferences.theme);
+      saveThemePreference(window.localStorage, backup.preferences.theme);
+      setCardArtEnabled(backup.preferences.cardArtEnabled);
+      saveCardArtPreference(window.localStorage, backup.preferences.cardArtEnabled);
+      setActiveView(backup.preferences.activeView);
+      saveAppView(window.localStorage, backup.preferences.activeView);
+
+      const restoredCardDatabase = backup.cardDatabaseOverride
+        ? saveStoredCardDatabase(window.localStorage, backup.cardDatabaseOverride)
+        : resetStoredCardDatabase(window.localStorage);
+      setCardDatabaseState(restoredCardDatabase);
+
+      const restoredMatch = backup.gigMatch ?? createDefaultGigMatch();
+      setGigMatch(restoredMatch);
+      saveGigMatch(window.localStorage, restoredMatch);
+      const result = {
+        kind: "success",
+        message: `Restored ${backup.library.decks.length} deck${backup.library.decks.length === 1 ? "" : "s"}, preferences, card data, and Gig Sandbox state.`
+      } satisfies RestoreResult;
+      setBackupRestoreToast(result.message);
+      return result;
+    } catch (error) {
+      return {
+        kind: "error",
+        message: error instanceof Error ? `Restore failed: ${error.message}` : "Restore failed; retry after freeing browser storage."
+      };
+    }
   }
 
   function handleCreateDeck() {
@@ -828,7 +897,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         aria-labelledby="app-tab-gigs"
         hidden={activeView !== "gigs"}
       >
-        <GigWorkspace deck={deck} cardDb={cardDb} />
+        <GigWorkspace deck={deck} cardDb={cardDb} match={gigMatch} onMatchChange={handleGigMatchChange} />
       </section>
 
       <section
@@ -843,6 +912,16 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           usingOverride={cardDatabaseState.usingOverride}
           initialError={cardDatabaseState.error}
           onChange={handleCardDatabaseChange}
+        />
+        <PortableBackup
+          library={library}
+          theme={theme}
+          cardArtEnabled={cardArtEnabled}
+          activeView={activeView}
+          cardDb={cardDb}
+          usingCardDatabaseOverride={cardDatabaseState.usingOverride}
+          gigMatch={gigMatch}
+          onRestore={handleBackupRestore}
         />
         <DeckTransfer deck={deck} cardDb={cardDb} onReplace={persist} />
       </section>
@@ -895,6 +974,12 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         } : undefined}
         onClose={closeCardDetails}
       />
+      {backupRestoreToast && (
+        <div className="import-toast success" role="status">
+          <span>{backupRestoreToast}</span>
+          <button className="icon-button" aria-label="Dismiss backup notification" title="Dismiss" onClick={() => setBackupRestoreToast(undefined)}><X size={17} aria-hidden="true" /></button>
+        </div>
+      )}
     </main>
   );
 }

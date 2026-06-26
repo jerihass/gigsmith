@@ -64,7 +64,7 @@ function parseStoredValue(value: string): { value?: unknown; validJson: boolean 
   }
 }
 
-function isDeckLibrary(value: unknown): value is DeckLibrary {
+export function isDeckLibrary(value: unknown): value is DeckLibrary {
   if (!isRecord(value) || value.version !== 1 || typeof value.activeDeckId !== "string") return false;
   if (!Array.isArray(value.decks) || value.decks.length === 0 || !value.decks.every(isDeck)) return false;
   return value.decks.some((deck) => deck.id === value.activeDeckId);

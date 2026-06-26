@@ -6,7 +6,7 @@ import {
 } from "@gigsmith/card-data";
 import type { CardDatabase, CardSnapshot } from "@gigsmith/data-contracts";
 
-const storageKey = "gigsmith.card-database.override.v1";
+export const cardDatabaseOverrideStorageKey = "gigsmith.card-database.override.v1";
 const defaultFetchLimit = 1000;
 
 export interface CardDatabaseLoadResult {
@@ -46,10 +46,10 @@ function storageSnapshot(value: string | null): CardSnapshot | undefined {
 }
 
 export function loadStoredCardDatabase(storage: Storage): CardDatabaseLoadResult {
-  const stored = storageSnapshot(storage.getItem(storageKey));
+  const stored = storageSnapshot(storage.getItem(cardDatabaseOverrideStorageKey));
   if (!stored) {
-    if (storage.getItem(storageKey)) {
-      storage.removeItem(storageKey);
+    if (storage.getItem(cardDatabaseOverrideStorageKey)) {
+      storage.removeItem(cardDatabaseOverrideStorageKey);
       return {
         cardDb: cyberpunkCardDb,
         usingOverride: false,
@@ -63,8 +63,15 @@ export function loadStoredCardDatabase(storage: Storage): CardDatabaseLoadResult
 }
 
 export function resetStoredCardDatabase(storage: Storage): CardDatabaseLoadResult {
-  storage.removeItem(storageKey);
+  storage.removeItem(cardDatabaseOverrideStorageKey);
   return { cardDb: cyberpunkCardDb, usingOverride: false };
+}
+
+export function saveStoredCardDatabase(storage: Storage, snapshot: CardSnapshot): CardDatabaseLoadResult {
+  const validation = validateCardSnapshot(snapshot);
+  if (!validation.valid) throw new Error("Card database snapshot is invalid.");
+  storage.setItem(cardDatabaseOverrideStorageKey, JSON.stringify(snapshot));
+  return { cardDb: snapshotToDatabase(snapshot), usingOverride: true };
 }
 
 function normalizeFetchedSnapshot(payload: unknown, sourceUrl: string, etag: string | null): unknown {
@@ -133,7 +140,7 @@ export async function refreshStoredCardDatabase(
   fetcher: typeof fetch = fetch
 ): Promise<CardDatabaseRefreshResult> {
   const snapshot = await fetchCardDatabaseSnapshot(cyberpunkCardSnapshot.metadata.sourceUrl, signal, fetcher);
-  storage.setItem(storageKey, JSON.stringify(snapshot));
+  storage.setItem(cardDatabaseOverrideStorageKey, JSON.stringify(snapshot));
   const cardDb = snapshotToDatabase(snapshot);
   const changed = currentDb.metadata.sourceCardCount !== cardDb.metadata.sourceCardCount ||
     JSON.stringify(currentDb.cards) !== JSON.stringify(cardDb.cards);

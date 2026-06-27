@@ -434,14 +434,14 @@ textarea {
   align-items: center;
   background: color-mix(in srgb, var(--success) 7%, transparent);
   border: 1px solid color-mix(in srgb, var(--success) 24%, var(--border));
-  border-radius: 2px 5px 5px 2px;
+  border-radius: 5px 2px 2px 5px;
   color: color-mix(in srgb, var(--success-text) 82%, var(--text));
   display: inline-flex;
   font-size: 0.66rem;
   font-weight: 800;
   line-height: 1;
   min-height: 1.45em;
-  padding: 0.12em 0.42em 0.12em 0.82em;
+  padding: 0.12em 0.82em 0.12em 0.42em;
   position: relative;
   white-space: nowrap;
 }
@@ -452,8 +452,8 @@ textarea {
   border-radius: 50%;
   content: "";
   height: 0.36em;
-  left: 0.22em;
   position: absolute;
+  right: 0.22em;
   top: 50%;
   transform: translateY(-50%);
   width: 0.36em;

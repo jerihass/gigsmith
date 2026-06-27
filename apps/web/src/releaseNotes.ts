@@ -7,6 +7,16 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.2",
+    date: "2026-06-27",
+    title: "Sharper Card Readability",
+    changes: [
+      "Compacted the analysis status panels so deck feedback takes less vertical space.",
+      "Added eddies and power values directly to card previews.",
+      "Switched card power presentation to a sword icon for faster visual scanning."
+    ]
+  },
+  {
     version: "0.1.1",
     date: "2026-06-27",
     title: "Refresh and Artwork Polish",

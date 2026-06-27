@@ -431,14 +431,16 @@ textarea {
 }
 
 .sellable-badge {
+  align-items: center;
   border: 1px solid color-mix(in srgb, var(--success) 34%, var(--border));
   border-radius: 999px;
   color: var(--success-text);
-  font-size: 0.68rem;
+  display: inline-flex;
+  font-size: 0.7rem;
   font-weight: 800;
   line-height: 1;
-  padding: 0.16em 0.45em;
-  text-transform: uppercase;
+  min-height: 1.35em;
+  padding: 0.12em 0.42em;
   white-space: nowrap;
 }
 

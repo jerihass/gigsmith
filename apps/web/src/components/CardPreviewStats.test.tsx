@@ -51,7 +51,9 @@ describe("CardPreviewStats", () => {
     expect(markup).toContain("Power");
     expect(markup).toContain("lucide-memory-stick");
     expect(markup).toContain("lucide-swords");
-    expect(markup).toContain("Sellable");
+    expect(markup).toContain("class=\"sellable-badge\"");
+    expect(markup).toContain("title=\"Sellable\"");
+    expect(markup).toContain("class=\"visually-hidden\">Sellable</span>");
     expect(markup).toContain(">5</span>");
   });
 

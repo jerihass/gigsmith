@@ -17,6 +17,8 @@ export function CardPreviewIdentity({ card }: { card: Card }) {
 }
 
 export function CardPreviewStats({ card }: { card: Card }) {
+  const sellable = isSellableCard(card);
+
   return (
     <span className="card-preview-stats" aria-label={`RAM ${displayPreviewNumber(card.ram)}, Eddies ${displayPreviewNumber(card.cost)}, Power ${displayPreviewNumber(card.power)}`}>
       <span className="card-preview-ram" title="RAM">
@@ -28,7 +30,12 @@ export function CardPreviewStats({ card }: { card: Card }) {
         <Swords size={14} strokeWidth={2.4} aria-hidden="true" />
         {displayPreviewNumber(card.power)}
       </span>
-      {isSellableCard(card) && <span className="sellable-badge">Sellable</span>}
+      {sellable && (
+        <span className="sellable-badge" title="Sellable">
+          <span aria-hidden="true">{eddieSymbol}</span>
+          <span className="visually-hidden">Sellable</span>
+        </span>
+      )}
     </span>
   );
 }

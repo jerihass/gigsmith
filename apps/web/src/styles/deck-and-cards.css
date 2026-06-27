@@ -563,19 +563,37 @@ textarea {
 }
 
 .card-actions {
+  align-items: center;
   display: flex;
   flex: 0 0 auto;
-  gap: 6px;
+  gap: 7px;
+}
+
+.card-details-action {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--border-strong) 55%, transparent);
+  color: var(--muted-strong);
+}
+
+.card-details-action:hover {
+  background: color-mix(in srgb, var(--surface-hover) 48%, transparent);
+  color: var(--text);
 }
 
 .card-action-group {
   display: grid;
-  gap: 6px;
-  grid-template-columns: 34px minmax(86px, auto);
+  gap: 5px;
+  grid-template-columns: 32px minmax(78px, auto);
 }
 
 .card-action-group button {
   min-width: 0;
+  padding-left: 0.55rem;
+  padding-right: 0.55rem;
+}
+
+.card-remove-copy-action {
+  color: var(--muted-strong);
 }
 
 .card-detail-dialog {

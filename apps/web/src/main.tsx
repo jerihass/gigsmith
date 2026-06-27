@@ -867,7 +867,10 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                     )}
                   </div>
                   <div className="card-actions">
-                    <button onClick={(event) => openCardDetails(card, event.currentTarget)}>Details</button>
+                    <button
+                      className="card-details-action"
+                      onClick={(event) => openCardDetails(card, event.currentTarget)}
+                    >Details</button>
                     {card.card_type === "Legend" ? (
                       legendSelected ? (
                         <button onClick={() => removeLegend(card)}>Remove</button>
@@ -881,6 +884,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                           aria-label={`Remove one ${card.display_name}`}
                           title={deckCopies > 0 ? "Remove one" : "Not in deck"}
                           onClick={() => adjustMainCard(card, -1)}
+                          className="card-remove-copy-action"
                         >−</button>
                         <button
                           disabled={!addition?.allowed}

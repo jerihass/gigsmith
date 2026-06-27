@@ -376,6 +376,23 @@ textarea {
   flex: 0 0 auto;
 }
 
+.deck-membership-badge {
+  align-items: center;
+  background: var(--selected-bg);
+  border: 1px solid color-mix(in srgb, var(--cyan) 38%, var(--border));
+  border-radius: 999px;
+  color: var(--cyan-text);
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-left: 0.55em;
+  min-height: 1.45em;
+  padding: 0.18em 0.5em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .card-copy {
   display: grid;
   flex: 1 1 auto;

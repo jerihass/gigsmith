@@ -826,6 +826,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           <div className="card-list">
             {filteredCards.map((card) => {
               const legendSelected = card.card_type === "Legend" && hasDeckEntry(deck.legends, card.id);
+              const deckCopies = deckCountById.get(card.id) ?? 0;
               const compatibility = ramCompatibilityById.get(card.id);
               const addition = additionEvaluationById.get(card.id);
               const atCopyLimit = addition?.blockers.some((blocker) => blocker.code === "max-copies") ?? false;
@@ -842,7 +843,14 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                     <strong>{card.display_name}</strong>
                     <span>
                       {card.color} {card.card_type} · <CardPreviewStats card={card} />
-                      {deckCountById.has(card.id) ? ` · ${deckCountById.get(card.id)} in deck` : ""}
+                      {legendSelected && (
+                        <span className="deck-membership-badge" aria-label="Legend selected in deck">Selected</span>
+                      )}
+                      {!legendSelected && deckCopies > 0 && (
+                        <span className="deck-membership-badge" aria-label={`${deckCopies} ${deckCopies === 1 ? "copy" : "copies"} in deck`}>
+                          x{deckCopies}
+                        </span>
+                      )}
                     </span>
                     {compatibility?.status === "compatible" && (
                       <small className="ram-compatibility compatible">RAM fit</small>

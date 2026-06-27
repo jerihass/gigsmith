@@ -7,6 +7,17 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.1",
+    date: "2026-06-27",
+    title: "Refresh and Artwork Polish",
+    changes: [
+      "Added in-app release notes so recent changes are visible from the application header.",
+      "Improved manual card database refresh so newly added cards appear immediately after an update.",
+      "Cached external card art URLs locally to reduce repeated lookup work.",
+      "Refined install icon artwork for a cleaner home-screen presentation."
+    ]
+  },
+  {
     version: "0.1.0",
     date: "2026-06-26",
     title: "Portable Local Companion",

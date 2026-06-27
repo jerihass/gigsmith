@@ -432,16 +432,27 @@ textarea {
 
 .sellable-badge {
   align-items: center;
-  border: 1px solid color-mix(in srgb, var(--success) 34%, var(--border));
-  border-radius: 999px;
-  color: var(--success-text);
+  background: color-mix(in srgb, var(--success) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--success) 24%, var(--border));
+  border-radius: 4px;
+  color: color-mix(in srgb, var(--success-text) 82%, var(--text));
   display: inline-flex;
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   font-weight: 800;
+  gap: 0.25em;
   line-height: 1;
-  min-height: 1.35em;
-  padding: 0.12em 0.42em;
+  min-height: 1.45em;
+  padding: 0.12em 0.36em;
   white-space: nowrap;
+}
+
+.sellable-badge::before {
+  background: currentColor;
+  border-radius: 999px;
+  content: "";
+  height: 0.3em;
+  opacity: 0.72;
+  width: 0.3em;
 }
 
 .deck-membership-badge {

@@ -344,6 +344,7 @@ textarea {
 }
 
 .card-preview-stats,
+.card-preview-ram,
 .card-preview-power {
   align-items: center;
   display: inline-flex;
@@ -359,11 +360,17 @@ textarea {
   margin-right: 0.45em;
 }
 
+.card-preview-ram {
+  gap: 0.25em;
+  white-space: nowrap;
+}
+
 .card-preview-power {
   gap: 0.25em;
   white-space: nowrap;
 }
 
+.card-preview-ram svg,
 .card-preview-power svg {
   color: var(--muted-strong);
   flex: 0 0 auto;

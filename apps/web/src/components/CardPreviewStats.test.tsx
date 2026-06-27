@@ -34,12 +34,13 @@ function card(overrides: Partial<Card> = {}): Card {
 }
 
 describe("CardPreviewStats", () => {
-  it("renders compact card stats with a sword icon for power", () => {
+  it("renders compact card stats with icons for RAM and power", () => {
     const markup = renderToStaticMarkup(<CardPreviewStats card={card({ cost: 2, power: 5, ram: 1 })} />);
 
     expect(markup).toContain("RAM 1");
     expect(markup).toContain("€$ 2");
     expect(markup).toContain("Power");
+    expect(markup).toContain("lucide-memory-stick");
     expect(markup).toContain("lucide-swords");
     expect(markup).toContain(">5</span>");
   });

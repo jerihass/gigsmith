@@ -7,6 +7,17 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.4",
+    date: "2026-06-27",
+    title: "Better Card Database Controls",
+    changes: [
+      "Added sellable card filtering to the card database.",
+      "Added sellable trait badges with the eddies symbol for quicker scanning.",
+      "Added remove controls directly to card database rows.",
+      "Lightened card database row actions so controls are easier to read."
+    ]
+  },
+  {
     version: "0.1.3",
     date: "2026-06-27",
     title: "Cleaner Card Previews",

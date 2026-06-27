@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Card } from "@gigsmith/data-contracts";
-import { cardDetailStats, cardDetailTags, cardDetailText } from "./cardDetails";
+import { cardDetailStats, cardDetailTags, cardDetailText, cardPreviewStats } from "./cardDetails";
 
 function card(overrides: Partial<Card> = {}): Card {
   return {
@@ -35,12 +35,17 @@ function card(overrides: Partial<Card> = {}): Card {
 describe("card detail formatting", () => {
   it("formats numeric stats and missing values", () => {
     expect(cardDetailStats(card({ cost: 2, power: 5, ram: 1, rarity: "Rare" }))).toEqual([
-      { label: "Cost", value: "2" },
+      { label: "€$", value: "2" },
       { label: "Power", value: "5" },
       { label: "RAM", value: "1" },
       { label: "Rarity", value: "Rare" }
     ]);
     expect(cardDetailStats(card()).map((stat) => stat.value)).toEqual(["—", "—", "—", "Unknown"]);
+  });
+
+  it("formats compact preview stats", () => {
+    expect(cardPreviewStats(card({ cost: 2, power: 5, ram: 1 }))).toBe("RAM 1 · €$ 2 · PWR 5");
+    expect(cardPreviewStats(card())).toBe("RAM - · €$ - · PWR -");
   });
 
   it("provides readable text and tag fallbacks", () => {

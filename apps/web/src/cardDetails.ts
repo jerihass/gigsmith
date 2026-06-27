@@ -5,17 +5,31 @@ export interface CardDetailStat {
   value: string;
 }
 
+export const eddieSymbol = "€$";
+
 function displayNumber(value: number | null): string {
   return value === null ? "—" : String(value);
 }
 
+function displayPreviewNumber(value: number | null): string {
+  return value === null ? "-" : String(value);
+}
+
 export function cardDetailStats(card: Card): CardDetailStat[] {
   return [
-    { label: "Cost", value: displayNumber(card.cost) },
+    { label: eddieSymbol, value: displayNumber(card.cost) },
     { label: "Power", value: displayNumber(card.power) },
     { label: "RAM", value: displayNumber(card.ram) },
     { label: "Rarity", value: card.rarity ?? "Unknown" }
   ];
+}
+
+export function cardPreviewStats(card: Card): string {
+  return [
+    `RAM ${displayPreviewNumber(card.ram)}`,
+    `${eddieSymbol} ${displayPreviewNumber(card.cost)}`,
+    `PWR ${displayPreviewNumber(card.power)}`
+  ].join(" · ");
 }
 
 export function cardDetailText(value: string | null, fallback: string): string {

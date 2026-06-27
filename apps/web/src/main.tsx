@@ -23,6 +23,7 @@ import {
   filterCardsByRamCompatibility,
   type RamCompatibilityFilter
 } from "./cardFilters";
+import { cardPreviewStats } from "./cardDetails";
 import { CardDetailDialog } from "./components/CardDetailDialog";
 import { CardArt } from "./components/CardArt";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
@@ -840,7 +841,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                   <div className="card-copy">
                     <strong>{card.display_name}</strong>
                     <span>
-                      {card.color} {card.card_type} · RAM {card.ram ?? "-"} · Cost {card.cost ?? "-"}
+                      {card.color} {card.card_type} · {cardPreviewStats(card)}
                       {deckCountById.has(card.id) ? ` · ${deckCountById.get(card.id)} in deck` : ""}
                     </span>
                     {compatibility?.status === "compatible" && (

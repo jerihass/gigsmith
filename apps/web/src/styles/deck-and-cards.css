@@ -343,6 +343,32 @@ textarea {
   color: var(--muted-strong);
 }
 
+.card-preview-stats,
+.card-preview-power {
+  align-items: center;
+  display: inline-flex;
+}
+
+.card-preview-stats {
+  gap: 0.45em;
+}
+
+.card-preview-stats > span + span::before {
+  color: var(--muted);
+  content: "·";
+  margin-right: 0.45em;
+}
+
+.card-preview-power {
+  gap: 0.25em;
+  white-space: nowrap;
+}
+
+.card-preview-power svg {
+  color: var(--muted-strong);
+  flex: 0 0 auto;
+}
+
 .card-copy {
   display: grid;
   flex: 1 1 auto;

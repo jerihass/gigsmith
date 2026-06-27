@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { RefreshCw, RotateCcw, X } from "lucide-react";
 import type { Card, CardDatabase } from "@gigsmith/data-contracts";
 import { refreshStoredCardDatabase, resetStoredCardDatabase } from "../cardDatabase";
-import { cardPreviewStats } from "../cardDetails";
 import { selectExternalCardArtUrl } from "../externalCardArt";
 import { CardArt } from "./CardArt";
+import { CardPreviewStats } from "./CardPreviewStats";
 
 interface CardDatabaseRefreshProps {
   cardDb: CardDatabase;
@@ -109,7 +109,7 @@ export function CardDatabaseRefresh({
                 />
                 <div className="new-card-copy">
                   <strong>{card.display_name}</strong>
-                  <span>{card.color} {card.card_type} · {cardPreviewStats(card)}</span>
+                  <span>{card.color} {card.card_type} · <CardPreviewStats card={card} /></span>
                 </div>
                 <button onClick={(event) => onViewCard(card, event.currentTarget)}>Details</button>
               </article>

@@ -11,7 +11,7 @@ function displayNumber(value: number | null): string {
   return value === null ? "—" : String(value);
 }
 
-function displayPreviewNumber(value: number | null): string {
+export function displayPreviewNumber(value: number | null): string {
   return value === null ? "-" : String(value);
 }
 
@@ -22,14 +22,6 @@ export function cardDetailStats(card: Card): CardDetailStat[] {
     { label: "RAM", value: displayNumber(card.ram) },
     { label: "Rarity", value: card.rarity ?? "Unknown" }
   ];
-}
-
-export function cardPreviewStats(card: Card): string {
-  return [
-    `RAM ${displayPreviewNumber(card.ram)}`,
-    `${eddieSymbol} ${displayPreviewNumber(card.cost)}`,
-    `PWR ${displayPreviewNumber(card.power)}`
-  ].join(" · ");
 }
 
 export function cardDetailText(value: string | null, fallback: string): string {

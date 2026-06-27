@@ -434,25 +434,16 @@ textarea {
   align-items: center;
   background: color-mix(in srgb, var(--success) 7%, transparent);
   border: 1px solid color-mix(in srgb, var(--success) 24%, var(--border));
-  border-radius: 4px;
+  border-radius: 3px 5px 5px 3px;
+  clip-path: polygon(0 50%, 0.45em 0, 100% 0, 100% 100%, 0.45em 100%);
   color: color-mix(in srgb, var(--success-text) 82%, var(--text));
   display: inline-flex;
   font-size: 0.66rem;
   font-weight: 800;
-  gap: 0.25em;
   line-height: 1;
   min-height: 1.45em;
-  padding: 0.12em 0.36em;
+  padding: 0.12em 0.42em 0.12em 0.68em;
   white-space: nowrap;
-}
-
-.sellable-badge::before {
-  background: currentColor;
-  border-radius: 999px;
-  content: "";
-  height: 0.3em;
-  opacity: 0.72;
-  width: 0.3em;
 }
 
 .deck-membership-badge {

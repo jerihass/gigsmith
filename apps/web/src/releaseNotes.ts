@@ -7,6 +7,17 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.3",
+    date: "2026-06-27",
+    title: "Cleaner Card Previews",
+    changes: [
+      "Moved deck membership status to the front of card previews for faster deck-building feedback.",
+      "Compacted card deck membership badges and aligned preview metadata.",
+      "Refined color and type preview text while quieting secondary identity details.",
+      "Switched RAM presentation to a memory icon for consistency with the other card stats."
+    ]
+  },
+  {
     version: "0.1.2",
     date: "2026-06-27",
     title: "Sharper Card Readability",

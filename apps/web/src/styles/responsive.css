@@ -149,6 +149,10 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .card-action-group {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
   .card-detail-content {
     gap: 16px;
     padding: 16px;

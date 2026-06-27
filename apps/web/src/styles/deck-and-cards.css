@@ -568,6 +568,16 @@ textarea {
   gap: 6px;
 }
 
+.card-action-group {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: 34px minmax(86px, auto);
+}
+
+.card-action-group button {
+  min-width: 0;
+}
+
 .card-detail-dialog {
   --detail-accent: #aeb8bc;
   --detail-border: #566064;

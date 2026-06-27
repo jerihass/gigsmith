@@ -869,15 +869,25 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                   <div className="card-actions">
                     <button onClick={(event) => openCardDetails(card, event.currentTarget)}>Details</button>
                     {card.card_type === "Legend" ? (
-                      <button disabled={legendSelected} onClick={() => addLegend(card)}>
-                        {legendSelected ? "Selected" : "Add Legend"}
-                      </button>
+                      legendSelected ? (
+                        <button onClick={() => removeLegend(card)}>Remove</button>
+                      ) : (
+                        <button onClick={() => addLegend(card)}>Add Legend</button>
+                      )
                     ) : (
-                      <button
-                        disabled={!addition?.allowed}
-                        title={addition?.blockers[0]?.message}
-                        onClick={() => adjustMainCard(card, 1)}
-                      >{atCopyLimit ? `Max ${addition?.maxCopies}` : "+ Main"}</button>
+                      <div className="card-action-group">
+                        <button
+                          disabled={deckCopies === 0}
+                          aria-label={`Remove one ${card.display_name}`}
+                          title={deckCopies > 0 ? "Remove one" : "Not in deck"}
+                          onClick={() => adjustMainCard(card, -1)}
+                        >−</button>
+                        <button
+                          disabled={!addition?.allowed}
+                          title={addition?.blockers[0]?.message}
+                          onClick={() => adjustMainCard(card, 1)}
+                        >{atCopyLimit ? `Max ${addition?.maxCopies}` : "+ Main"}</button>
+                      </div>
                     )}
                   </div>
                 </article>

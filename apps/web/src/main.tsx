@@ -840,9 +840,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                     variant="thumbnail"
                   />
                   <div className="card-copy">
-                    <strong>{card.display_name}</strong>
-                    <span>
-                      <CardPreviewIdentity card={card} /> · <CardPreviewStats card={card} />
+                    <strong className="card-title-line">
                       {legendSelected && (
                         <span className="deck-membership-badge" aria-label="Legend selected in deck">Selected</span>
                       )}
@@ -851,6 +849,10 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                           x{deckCopies}
                         </span>
                       )}
+                      <span>{card.display_name}</span>
+                    </strong>
+                    <span>
+                      <CardPreviewIdentity card={card} /> · <CardPreviewStats card={card} />
                     </span>
                     {compatibility?.status === "compatible" && (
                       <small className="ram-compatibility compatible">RAM fit</small>

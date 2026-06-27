@@ -339,6 +339,18 @@ textarea {
   color: var(--text);
 }
 
+.card-title-line {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45em;
+}
+
+.card-title-line > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .card-row .card-copy span {
   color: var(--muted-strong);
 }
@@ -373,15 +385,9 @@ textarea {
 }
 
 .card-preview-type {
-  background: color-mix(in srgb, var(--surface-control) 72%, var(--card-accent));
-  border: 1px solid color-mix(in srgb, var(--card-accent) 34%, var(--border));
-  border-radius: 999px;
   color: var(--muted-strong);
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   font-weight: 800;
-  line-height: 1;
-  min-height: 1.45em;
-  padding: 0.18em 0.5em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -422,7 +428,6 @@ textarea {
   font-size: 0.72rem;
   font-weight: 800;
   line-height: 1;
-  margin-left: 0.55em;
   min-height: 1.45em;
   padding: 0.18em 0.5em;
   text-transform: uppercase;

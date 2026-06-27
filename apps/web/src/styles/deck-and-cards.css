@@ -361,15 +361,18 @@ textarea {
 .card-preview-stats,
 .card-preview-ram,
 .card-preview-power {
-  align-items: center;
   display: inline-flex;
+  line-height: 1;
+  vertical-align: middle;
 }
 
 .card-preview-identity {
+  align-items: baseline;
   gap: 0.35em;
 }
 
 .card-preview-color {
+  align-items: baseline;
   color: var(--muted-strong);
   gap: 0.25em;
   white-space: nowrap;
@@ -381,10 +384,12 @@ textarea {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--card-accent) 60%, var(--surface-control));
   display: inline-block;
   height: 0.68em;
+  align-self: center;
   width: 0.68em;
 }
 
 .card-preview-type {
+  align-self: baseline;
   color: var(--muted-strong);
   font-size: 0.76rem;
   font-weight: 800;
@@ -393,6 +398,7 @@ textarea {
 }
 
 .card-preview-stats {
+  align-items: center;
   gap: 0.45em;
 }
 
@@ -403,11 +409,13 @@ textarea {
 }
 
 .card-preview-ram {
+  align-items: center;
   gap: 0.25em;
   white-space: nowrap;
 }
 
 .card-preview-power {
+  align-items: center;
   gap: 0.25em;
   white-space: nowrap;
 }

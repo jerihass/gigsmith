@@ -9,6 +9,7 @@ export function CardPreviewIdentity({ card }: { card: Card }) {
         <span aria-hidden="true" />
         {card.color}
       </span>
+      <span className="card-preview-separator" aria-hidden="true">·</span>
       <span className="card-preview-type">{card.card_type}</span>
     </span>
   );

@@ -357,6 +357,7 @@ textarea {
 
 .card-preview-identity,
 .card-preview-color,
+.card-preview-separator,
 .card-preview-type,
 .card-preview-stats,
 .card-preview-ram,
@@ -368,7 +369,7 @@ textarea {
 
 .card-preview-identity {
   align-items: baseline;
-  gap: 0.35em;
+  gap: 0.32em;
 }
 
 .card-preview-color {
@@ -391,10 +392,13 @@ textarea {
 .card-preview-type {
   align-self: baseline;
   color: var(--muted-strong);
-  font-size: 0.76rem;
-  font-weight: 800;
-  text-transform: uppercase;
+  font-size: inherit;
+  font-weight: 500;
   white-space: nowrap;
+}
+
+.card-preview-separator {
+  color: var(--muted);
 }
 
 .card-preview-stats {

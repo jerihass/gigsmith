@@ -39,6 +39,7 @@ describe("CardPreviewStats", () => {
 
     expect(markup).toContain("Blue Program");
     expect(markup).toContain("data-color=\"blue\"");
+    expect(markup).toContain("aria-hidden=\"true\">·</span>");
     expect(markup).toContain("Program");
   });
 

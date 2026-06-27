@@ -406,7 +406,7 @@ textarea {
   gap: 0.45em;
 }
 
-.card-preview-stats > span + span::before {
+.card-preview-stats > span + span:not(.sellable-badge)::before {
   color: var(--muted);
   content: "·";
   margin-right: 0.45em;
@@ -434,16 +434,29 @@ textarea {
   align-items: center;
   background: color-mix(in srgb, var(--success) 7%, transparent);
   border: 1px solid color-mix(in srgb, var(--success) 24%, var(--border));
-  border-radius: 3px 5px 5px 3px;
-  clip-path: polygon(0 50%, 0.45em 0, 100% 0, 100% 100%, 0.45em 100%);
+  border-radius: 2px 5px 5px 2px;
   color: color-mix(in srgb, var(--success-text) 82%, var(--text));
   display: inline-flex;
   font-size: 0.66rem;
   font-weight: 800;
   line-height: 1;
   min-height: 1.45em;
-  padding: 0.12em 0.42em 0.12em 0.68em;
+  padding: 0.12em 0.42em 0.12em 0.82em;
+  position: relative;
   white-space: nowrap;
+}
+
+.sellable-badge::before {
+  background: var(--app-bg);
+  border: 1px solid color-mix(in srgb, var(--success) 22%, var(--border));
+  border-radius: 50%;
+  content: "";
+  height: 0.36em;
+  left: 0.22em;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.36em;
 }
 
 .deck-membership-badge {

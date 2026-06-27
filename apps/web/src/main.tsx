@@ -888,11 +888,14 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         hidden={activeView !== "analysis"}
       >
         <section className="analysis-grid">
-          <section className="panel">
-            <h2>RAM Planner</h2>
-            <div className="ram-list">
+          <section className="panel ram-planner-panel">
+            <div className="compact-panel-title">
+              <h2>RAM Planner</h2>
+              <span className="result-count">Legend limits</span>
+            </div>
+            <div className="ram-chip-list">
               {ram.limits.map((limit) => (
-                <div className="ram-row" key={limit.color}>
+                <div className="ram-chip" key={limit.color}>
                   <span>{limit.color}</span>
                   <strong>{limit.limit}</strong>
                 </div>

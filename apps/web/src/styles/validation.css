@@ -1,3 +1,16 @@
+.validation-report {
+  padding: 12px;
+}
+
+.validation-report .panel-title {
+  margin-bottom: 10px;
+}
+
+.validation-report .panel-title h2 {
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
 .issue {
   border-left: 3px solid var(--muted);
   border-radius: 4px;
@@ -25,16 +38,34 @@
 
 .validation-groups {
   display: grid;
-  gap: 18px;
+  gap: 10px;
 }
 
 .validation-group + .validation-group {
   border-top: 1px solid var(--border);
-  padding-top: 18px;
+  padding-top: 10px;
 }
 
 .validation-group h3 {
-  margin-top: 0;
+  font-size: 0.74rem;
+  margin: 0 0 6px;
+}
+
+.validation-report .issue-list {
+  gap: 6px;
+}
+
+.validation-report .issue {
+  gap: 3px;
+  padding: 7px 9px;
+}
+
+.validation-report .issue strong {
+  font-size: 0.85rem;
+}
+
+.validation-report .issue span {
+  font-size: 0.78rem;
 }
 
 .issue .affected-cards {

@@ -367,5 +367,6 @@ h3 {
 .analysis-grid {
   display: grid;
   gap: 16px;
-  grid-template-columns: minmax(220px, 0.55fr) minmax(0, 1.45fr);
+  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.2fr);
+  margin-bottom: 14px;
 }

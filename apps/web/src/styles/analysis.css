@@ -3,6 +3,53 @@
   margin-bottom: 16px;
 }
 
+.compact-panel-title {
+  align-items: baseline;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.compact-panel-title h2 {
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
+.ram-planner-panel {
+  padding: 12px;
+}
+
+.ram-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.ram-chip {
+  align-items: baseline;
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  border-radius: 3px;
+  display: inline-flex;
+  gap: 8px;
+  min-height: 32px;
+  padding: 5px 8px;
+}
+
+.ram-chip span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.ram-chip strong {
+  color: var(--accent);
+  font-size: 1rem;
+}
+
 .eddy-title {
   align-items: start;
   margin-bottom: 18px;

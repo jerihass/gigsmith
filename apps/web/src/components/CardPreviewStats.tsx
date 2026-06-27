@@ -1,5 +1,6 @@
 import { MemoryStick, Swords } from "lucide-react";
 import type { Card } from "@gigsmith/data-contracts";
+import { isSellableCard } from "@gigsmith/data-contracts";
 import { displayPreviewNumber, eddieSymbol } from "../cardDetails";
 
 export function CardPreviewIdentity({ card }: { card: Card }) {
@@ -27,6 +28,7 @@ export function CardPreviewStats({ card }: { card: Card }) {
         <Swords size={14} strokeWidth={2.4} aria-hidden="true" />
         {displayPreviewNumber(card.power)}
       </span>
+      {isSellableCard(card) && <span className="sellable-badge">Sellable</span>}
     </span>
   );
 }

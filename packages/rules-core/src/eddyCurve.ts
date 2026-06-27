@@ -11,6 +11,7 @@ import type {
   EddyTurnProjection,
   Ruleset
 } from "@gigsmith/data-contracts";
+import { isSellableCard } from "@gigsmith/data-contracts";
 
 const projectionTurnCount = 7;
 
@@ -105,7 +106,8 @@ export function analyzeEddyCurve(
   const legendDemand = summarizeDemand(deck.legends, cards);
   const warnings: EddyCurveWarning[] = [];
   const sellableCardCount = deck.main.reduce((total, entry) => {
-    return total + (cards.get(entry.cardId)?.is_eddiable ? entry.count : 0);
+    const card = cards.get(entry.cardId);
+    return total + (card && isSellableCard(card) ? entry.count : 0);
   }, 0);
   const nonSellableCardCount = mainDeckDemand.cardCount - sellableCardCount;
   const sellableDensity = mainDeckDemand.cardCount === 0 ? 0 : sellableCardCount / mainDeckDemand.cardCount;

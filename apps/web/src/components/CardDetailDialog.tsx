@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Card } from "@gigsmith/data-contracts";
+import { isSellableCard } from "@gigsmith/data-contracts";
 import { cardDetailStats, cardDetailTags, cardDetailText } from "../cardDetails";
 import { CardArt } from "./CardArt";
 
@@ -102,6 +103,7 @@ export function CardDetailDialog({
           {card.flavor_text && <section className="card-detail-section"><h3>Flavor</h3><p className="flavor-text">{card.flavor_text}</p></section>}
           <dl className="card-detail-taxonomy">
             <div><dt>Keywords</dt><dd>{cardDetailTags(card.keywords)}</dd></div>
+            <div><dt>Economy</dt><dd>{isSellableCard(card) ? "Sellable" : "Not sellable"}</dd></div>
             <div><dt>Classifications</dt><dd>{cardDetailTags(card.classifications)}</dd></div>
             <div><dt>Set</dt><dd>{card.set.name} ({card.set.code})</dd></div>
             <div><dt>Printing</dt><dd>{card.print_number ?? card.printing_id}</dd></div>

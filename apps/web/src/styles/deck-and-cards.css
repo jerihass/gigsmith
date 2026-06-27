@@ -430,6 +430,18 @@ textarea {
   flex: 0 0 auto;
 }
 
+.sellable-badge {
+  border: 1px solid color-mix(in srgb, var(--success) 34%, var(--border));
+  border-radius: 999px;
+  color: var(--success-text);
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0.16em 0.45em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .deck-membership-badge {
   align-items: center;
   background: var(--selected-bg);

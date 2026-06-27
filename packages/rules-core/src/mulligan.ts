@@ -11,6 +11,7 @@ import type {
   Ruleset,
   SampleHandCard
 } from "@gigsmith/data-contracts";
+import { isSellableCard } from "@gigsmith/data-contracts";
 import { drawSampleHand, seededShuffle } from "./sampleHand";
 
 export interface MulliganAnalysisOptions {
@@ -157,7 +158,7 @@ function expandedDeck(deck: Deck, cardsById: Map<CardId, Card>): SampleHandCard[
       known: Boolean(card),
       displayName: card?.display_name,
       cost: card?.cost,
-      isSellable: card?.is_eddiable,
+      isSellable: card ? isSellableCard(card) : undefined,
       classifications: card ? [...card.classifications] : []
     }));
   });

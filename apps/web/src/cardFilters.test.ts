@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb } from "@gigsmith/card-data";
+import { isSellableCard } from "@gigsmith/data-contracts";
 import budgets from "../performance-budgets.json" with { type: "json" };
 import { browseCards, filterCards, filterCardsByRamCompatibility, numberFilterOptions } from "./cardFilters";
 
@@ -8,7 +9,8 @@ const defaultFilters = {
   color: "Any" as const,
   type: "Any" as const,
   ram: "Any",
-  cost: "Any"
+  cost: "Any",
+  sellable: "Any" as const
 };
 
 describe("filterCards", () => {
@@ -40,6 +42,22 @@ describe("filterCards", () => {
     });
 
     expect(cards.every((card) => card.ram === 2 && card.cost === 1)).toBe(true);
+  });
+
+  it("filters by sellable status", () => {
+    const sellable = filterCards(cyberpunkCardDb.cards, {
+      ...defaultFilters,
+      sellable: "Sellable"
+    });
+    const notSellable = filterCards(cyberpunkCardDb.cards, {
+      ...defaultFilters,
+      sellable: "Not Sellable"
+    });
+
+    expect(sellable.length).toBeGreaterThan(0);
+    expect(notSellable.length).toBeGreaterThan(0);
+    expect(sellable.every(isSellableCard)).toBe(true);
+    expect(notSellable.every((card) => !isSellableCard(card))).toBe(true);
   });
 });
 

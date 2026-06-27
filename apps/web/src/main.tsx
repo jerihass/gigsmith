@@ -21,7 +21,8 @@ import {
   type DeckMembershipFilter,
   type NumberFilter,
   filterCardsByRamCompatibility,
-  type RamCompatibilityFilter
+  type RamCompatibilityFilter,
+  type SellableFilter
 } from "./cardFilters";
 import { CardDetailDialog } from "./components/CardDetailDialog";
 import { CardArt } from "./components/CardArt";
@@ -167,6 +168,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [typeFilter, setTypeFilter] = useState<CardTypeFilter>("Any");
   const [ramFilter, setRamFilter] = useState<NumberFilter>("Any");
   const [costFilter, setCostFilter] = useState<NumberFilter>("Any");
+  const [sellableFilter, setSellableFilter] = useState<SellableFilter>("Any");
   const [membershipFilter, setMembershipFilter] = useState<DeckMembershipFilter>("All");
   const [ramCompatibilityFilter, setRamCompatibilityFilter] = useState<RamCompatibilityFilter>("All");
   const [cardSort, setCardSort] = useState<CardSort>("Snapshot");
@@ -235,7 +237,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const filteredCards = useMemo(() => {
     const browsedCards = browseCards(
         cardDb.cards,
-        { query, color: colorFilter, type: typeFilter, ram: ramFilter, cost: costFilter },
+        { query, color: colorFilter, type: typeFilter, ram: ramFilter, cost: costFilter, sellable: sellableFilter },
         membershipFilter,
         cardSort,
         deckCardIds
@@ -256,6 +258,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     ramCompatibilityById,
     ramCompatibilityFilter,
     ramFilter,
+    sellableFilter,
     typeFilter
   ]);
 
@@ -797,6 +800,12 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               <span>Deck</span>
               <select value={membershipFilter} onChange={(event) => setMembershipFilter(event.target.value as DeckMembershipFilter)}>
                 {(["All", "In Deck", "Not In Deck"] as const).map((option) => <option key={option}>{option}</option>)}
+              </select>
+            </label>
+            <label className="field">
+              <span>Sellable</span>
+              <select value={sellableFilter} onChange={(event) => setSellableFilter(event.target.value as SellableFilter)}>
+                {(["Any", "Sellable", "Not Sellable"] as const).map((option) => <option key={option}>{option}</option>)}
               </select>
             </label>
             <label className="field">

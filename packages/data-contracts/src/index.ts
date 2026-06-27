@@ -48,6 +48,10 @@ export interface Card {
   legality: "legal" | "banned" | "restricted" | string;
 }
 
+export function isSellableCard(card: Pick<Card, "card_type" | "is_eddiable">): boolean {
+  return card.card_type !== "Legend" && card.is_eddiable === true;
+}
+
 export interface Legend extends Card {
   card_type: "Legend";
   ram: number;

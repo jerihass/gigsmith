@@ -8,6 +8,7 @@ import type {
   SampleHandIssue,
   SampleHandReport
 } from "@gigsmith/data-contracts";
+import { isSellableCard } from "@gigsmith/data-contracts";
 
 interface DeckCopy {
   cardId: CardId;
@@ -59,7 +60,7 @@ function sampleCard(copy: DeckCopy, card: Card | undefined): SampleHandCard {
     known: true,
     displayName: card.display_name,
     cost: card.cost,
-    isSellable: card.is_eddiable,
+    isSellable: isSellableCard(card),
     classifications: [...card.classifications]
   };
 }

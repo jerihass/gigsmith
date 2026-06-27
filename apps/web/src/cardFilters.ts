@@ -1,8 +1,10 @@
 import type { Card, CardColor, CardType, RamCompatibilityStatus } from "@gigsmith/data-contracts";
+import { isSellableCard } from "@gigsmith/data-contracts";
 
 export type CardColorFilter = "Any" | CardColor;
 export type CardTypeFilter = "Any" | CardType;
 export type NumberFilter = "Any" | string;
+export type SellableFilter = "Any" | "Sellable" | "Not Sellable";
 export type DeckMembershipFilter = "All" | "In Deck" | "Not In Deck";
 export type RamCompatibilityFilter = "All" | "Compatible" | "Incompatible";
 export type CardSort = "Snapshot" | "Name" | "Cost" | "RAM" | "Power" | "Color" | "Type";
@@ -13,6 +15,7 @@ export interface CardFilters {
   type: CardTypeFilter;
   ram: NumberFilter;
   cost: NumberFilter;
+  sellable: SellableFilter;
 }
 
 export function numberFilterOptions(
@@ -73,6 +76,8 @@ export function filterCards(cards: Card[], filters: CardFilters): Card[] {
     if (filters.type !== "Any" && card.card_type !== filters.type) return false;
     if (!fieldMatchesNumberFilter(card.ram, filters.ram)) return false;
     if (!fieldMatchesNumberFilter(card.cost, filters.cost)) return false;
+    if (filters.sellable === "Sellable" && !isSellableCard(card)) return false;
+    if (filters.sellable === "Not Sellable" && isSellableCard(card)) return false;
     return true;
   });
 }

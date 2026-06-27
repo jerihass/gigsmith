@@ -343,11 +343,47 @@ textarea {
   color: var(--muted-strong);
 }
 
+.card-preview-identity,
+.card-preview-color,
+.card-preview-type,
 .card-preview-stats,
 .card-preview-ram,
 .card-preview-power {
   align-items: center;
   display: inline-flex;
+}
+
+.card-preview-identity {
+  gap: 0.35em;
+}
+
+.card-preview-color {
+  color: var(--muted-strong);
+  gap: 0.25em;
+  white-space: nowrap;
+}
+
+.card-preview-color > span {
+  background: var(--card-accent);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--card-accent) 60%, var(--surface-control));
+  display: inline-block;
+  height: 0.68em;
+  width: 0.68em;
+}
+
+.card-preview-type {
+  background: color-mix(in srgb, var(--surface-control) 72%, var(--card-accent));
+  border: 1px solid color-mix(in srgb, var(--card-accent) 34%, var(--border));
+  border-radius: 999px;
+  color: var(--muted-strong);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  min-height: 1.45em;
+  padding: 0.18em 0.5em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .card-preview-stats {

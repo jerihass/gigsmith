@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Card } from "@gigsmith/data-contracts";
-import { CardPreviewStats } from "./CardPreviewStats";
+import { CardPreviewIdentity, CardPreviewStats } from "./CardPreviewStats";
 
 function card(overrides: Partial<Card> = {}): Card {
   return {
@@ -34,6 +34,14 @@ function card(overrides: Partial<Card> = {}): Card {
 }
 
 describe("CardPreviewStats", () => {
+  it("renders compact color and type identity", () => {
+    const markup = renderToStaticMarkup(<CardPreviewIdentity card={card({ color: "Blue", card_type: "Program" })} />);
+
+    expect(markup).toContain("Blue Program");
+    expect(markup).toContain("data-color=\"blue\"");
+    expect(markup).toContain("Program");
+  });
+
   it("renders compact card stats with icons for RAM and power", () => {
     const markup = renderToStaticMarkup(<CardPreviewStats card={card({ cost: 2, power: 5, ram: 1 })} />);
 

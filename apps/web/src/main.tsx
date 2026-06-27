@@ -27,7 +27,7 @@ import { CardDetailDialog } from "./components/CardDetailDialog";
 import { CardArt } from "./components/CardArt";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import { AppNavigation } from "./components/AppNavigation";
-import { CardPreviewStats } from "./components/CardPreviewStats";
+import { CardPreviewIdentity, CardPreviewStats } from "./components/CardPreviewStats";
 import { CardDatabaseRefresh } from "./components/CardDatabaseRefresh";
 import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
 import { DeckCurveSummary } from "./components/DeckCurveSummary";
@@ -842,7 +842,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                   <div className="card-copy">
                     <strong>{card.display_name}</strong>
                     <span>
-                      {card.color} {card.card_type} · <CardPreviewStats card={card} />
+                      <CardPreviewIdentity card={card} /> · <CardPreviewStats card={card} />
                       {legendSelected && (
                         <span className="deck-membership-badge" aria-label="Legend selected in deck">Selected</span>
                       )}

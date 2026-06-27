@@ -4,7 +4,7 @@ import type { Card, CardDatabase } from "@gigsmith/data-contracts";
 import { refreshStoredCardDatabase, resetStoredCardDatabase } from "../cardDatabase";
 import { selectExternalCardArtUrl } from "../externalCardArt";
 import { CardArt } from "./CardArt";
-import { CardPreviewStats } from "./CardPreviewStats";
+import { CardPreviewIdentity, CardPreviewStats } from "./CardPreviewStats";
 
 interface CardDatabaseRefreshProps {
   cardDb: CardDatabase;
@@ -109,7 +109,7 @@ export function CardDatabaseRefresh({
                 />
                 <div className="new-card-copy">
                   <strong>{card.display_name}</strong>
-                  <span>{card.color} {card.card_type} · <CardPreviewStats card={card} /></span>
+                  <span><CardPreviewIdentity card={card} /> · <CardPreviewStats card={card} /></span>
                 </div>
                 <button onClick={(event) => onViewCard(card, event.currentTarget)}>Details</button>
               </article>

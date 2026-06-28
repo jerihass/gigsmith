@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Deck } from "@gigsmith/data-contracts";
-import { createGigMatch, gainGig } from "./gigMatch";
+import { advanceGigMatchTurn, createGigMatch, gainGig } from "./gigMatch";
 import { analyzeGigOdds } from "./gigOdds";
 
 function cardId(externalId: string): string {
@@ -109,6 +109,25 @@ describe("Gig odds analysis", () => {
     const d6 = report.nextDieOptions.find((option) => option.dieType === "d6");
     expect(d6?.profile.distinct2Probability).toBeCloseTo(5 / 6, 4);
     expect(d6?.profile.distinct3Probability).toBe(0);
+  });
+
+  it("does not count opponent-controlled Gig values for the active player's next die", () => {
+    let match = createGigMatch(["player", "rival"], "player", cyberpunkRulesetV1Printable);
+    match = gainGig(match, "player:d12", 8, cyberpunkRulesetV1Printable).state;
+    match = advanceGigMatchTurn(match, cyberpunkRulesetV1Printable).state;
+
+    const report = analyzeGigOdds(
+      deck([["cb-carnage-at-the-colosseum", 3], ["cb-peace-offering", 3]]),
+      cyberpunkCardDb,
+      cyberpunkGigRequirements,
+      cyberpunkRulesetV1Printable,
+      match,
+      "rival"
+    );
+
+    const d4 = report.nextDieOptions.find((option) => option.dieType === "d4");
+    expect(d4?.profile.high8Probability).toBe(0);
+    expect(d4?.profile.valuePairProbability).toBe(0);
   });
 
   it("lists Rival-relative Street Cred cards without scoring them", () => {

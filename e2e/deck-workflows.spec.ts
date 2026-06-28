@@ -247,4 +247,11 @@ test("connects deck Gig goals with exact roll and current-board odds", async ({ 
     })
   );
   expect(gigRowsFitPools).toBe(true);
+
+  await page.getByRole("button", { name: "End turn" }).click();
+  await expect(odds.getByRole("heading", { name: "Rival Next Fixer Die" })).toBeVisible();
+  await expect(odds).toContainText("No rival Gigs yet");
+  await expect(odds).not.toContainText(/Rival Gig values: [1-4]/);
+  await odds.getByRole("button", { name: "Roll and gain rival d4" }).click();
+  await expect(odds).toContainText(/Rival Gig values: [1-4]/);
 });

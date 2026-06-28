@@ -230,6 +230,8 @@ test("connects deck Gig goals with exact roll and current-board odds", async ({ 
   await odds.getByRole("button", { name: "Roll and gain your d4" }).click();
   await expect(odds.locator(".next-die-options article")).toHaveCount(4);
   await expect(odds).toContainText(/Your Gig values: [1-4]/);
+  await expect(page.getByRole("button", { name: "Rival", exact: true })).toBeDisabled();
+  await expect(page.getByText(/[1-4] Street Cred · 5 in Fixer/)).toBeVisible();
 
   const gigRowsFitPools = await page.locator(".match-gig").evaluateAll((rows) =>
     rows.every((row) => {

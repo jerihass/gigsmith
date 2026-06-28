@@ -32,6 +32,7 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
   const report = useMemo(() => reportGigMatch(match, cyberpunkRulesetV1Printable), [match]);
   const activeLabel = playerLabel(report.activePlayerId);
   const mustGainGig = !match.gainedGigThisTurn && report.availableGigIds.length > 0;
+  const matchStarted = match.gigs.some((gig) => Boolean(gig.controllerId));
 
   function apply(transition: GigMatchTransition) {
     onChange(transition.state);
@@ -101,7 +102,13 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
           <span className="control-label">First player</span>
           <div className="segmented-control" role="group" aria-label="First player">
             {playerIds.map((playerId) => (
-              <button key={playerId} aria-pressed={match.firstPlayerId === playerId} onClick={() => reset(playerId)}>{playerLabel(playerId)}</button>
+              <button
+                key={playerId}
+                aria-pressed={match.firstPlayerId === playerId}
+                disabled={matchStarted}
+                title={matchStarted ? "Reset the match to change the first player." : undefined}
+                onClick={() => reset(playerId)}
+              >{playerLabel(playerId)}</button>
             ))}
           </div>
         </div>

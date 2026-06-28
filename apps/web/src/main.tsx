@@ -616,7 +616,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               onChange={(event) => handleThemeChange(event.target.value as AppTheme)}
             >
               <option value="dark">Dark</option>
-              <option value="light">Light Cyberpunk</option>
+              <option value="light">Light</option>
               <option value="neon">Neon</option>
             </select>
           </label>

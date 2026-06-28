@@ -28,6 +28,6 @@ export function applyThemePreference(theme: AppTheme): void {
   document.documentElement.dataset.theme = theme;
   document.querySelector('meta[name="theme-color"]')?.setAttribute(
     "content",
-    theme === "light" ? "#f2fbff" : theme === "neon" ? "#050008" : "#080a0b"
+    theme === "light" ? "#edf3f2" : theme === "neon" ? "#050008" : "#080a0b"
   );
 }

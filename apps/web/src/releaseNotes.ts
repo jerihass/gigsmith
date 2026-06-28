@@ -7,6 +7,15 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.8",
+    date: "2026-06-28",
+    title: "Gig Sandbox Stability",
+    changes: [
+      "Prevented Gig dice pools from visually overlapping.",
+      "Locked the first-player setting after a Gig match starts so active match state stays consistent."
+    ]
+  },
+  {
     version: "0.1.7",
     date: "2026-06-28",
     title: "Deck Version Snapshots",

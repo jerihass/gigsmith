@@ -7,9 +7,13 @@ describe("ReleaseNotesDialog", () => {
     const markup = renderToStaticMarkup(<ReleaseNotesDialog open onClose={() => undefined} />);
 
     expect(markup).toContain("Release Notes");
+    expect(markup).toContain("0.1.8");
+    expect(markup).toContain("Gig Sandbox Stability");
+    expect(markup).toContain("first-player setting");
+    expect(markup).toContain("0.1.7");
+    expect(markup).toContain("Deck Version Snapshots");
     expect(markup).toContain("0.1.6");
     expect(markup).toContain("Faster Card Filtering");
-    expect(markup).toContain("card taxonomy filters");
     expect(markup).toContain("0.1.5");
     expect(markup).toContain("Sellable Tag Polish");
     expect(markup).toContain("0.1.4");

@@ -7,6 +7,16 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.5",
+    date: "2026-06-27",
+    title: "Sellable Tag Polish",
+    changes: [
+      "Changed sellable badges to use a tag shape.",
+      "Refined sellable tag spacing, height, rounded trailing edge, and right-side hole orientation.",
+      "Centered and fine-tuned the tag hole alignment so the badge reads cleanly at small sizes."
+    ]
+  },
+  {
     version: "0.1.4",
     date: "2026-06-27",
     title: "Better Card Database Controls",

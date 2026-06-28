@@ -7,6 +7,14 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.10",
+    date: "2026-06-28",
+    title: "Deck Warning Cleanup",
+    changes: [
+      "Cleared stale deck RAM warnings after deck state changes so validation feedback matches the current deck."
+    ]
+  },
+  {
     version: "0.1.9",
     date: "2026-06-28",
     title: "Gig Odds Scope Fixes",

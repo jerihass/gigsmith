@@ -132,7 +132,7 @@
 .gig-pools {
   display: grid;
   gap: 18px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
 }
 
 .gig-pool {

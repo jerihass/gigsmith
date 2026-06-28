@@ -230,4 +230,19 @@ test("connects deck Gig goals with exact roll and current-board odds", async ({ 
   await odds.getByRole("button", { name: "Roll and gain your d4" }).click();
   await expect(odds.locator(".next-die-options article")).toHaveCount(4);
   await expect(odds).toContainText(/Your Gig values: [1-4]/);
+
+  const gigRowsFitPools = await page.locator(".match-gig").evaluateAll((rows) =>
+    rows.every((row) => {
+      const pool = row.closest(".gig-pool");
+      if (!pool) return false;
+      const rowBox = row.getBoundingClientRect();
+      const poolBox = pool.getBoundingClientRect();
+      return (
+        rowBox.left >= poolBox.left - 0.5 &&
+        rowBox.right <= poolBox.right + 0.5 &&
+        row.scrollWidth <= row.clientWidth
+      );
+    })
+  );
+  expect(gigRowsFitPools).toBe(true);
 });

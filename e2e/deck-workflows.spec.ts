@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
 function cardResult(page: Page, name: string) {
-  return page.getByRole("list", { name: "Card database results" }).getByRole("article", { name });
+  return page.getByRole("region", { name: "Card database results" }).getByRole("article", { name });
 }
 
 function mainDeckCard(page: Page, name: string) {

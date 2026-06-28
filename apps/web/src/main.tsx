@@ -922,7 +922,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               {deckEditNotice.message}
             </div>
           )}
-          <div aria-label="Card database results" className="card-list" role="list">
+          <section aria-label="Card database results" className="card-list">
             {filteredCards.map((card) => {
               const legendSelected = card.card_type === "Legend" && hasDeckEntry(deck.legends, card.id);
               const deckCopies = deckCountById.get(card.id) ?? 0;
@@ -999,7 +999,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
             {filteredCards.length === 0 && (
               <div className="empty-state">No cards match the current filters.</div>
             )}
-          </div>
+          </section>
         </section>
         </div>
       </section>

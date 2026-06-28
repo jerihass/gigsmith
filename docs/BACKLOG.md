@@ -21,13 +21,12 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 The original `M0`-`M10` plan is complete. Execute the next product work in this order:
 
-1. `GS-110` legality-aware deck-edit guardrails.
-2. `GS-111` named deck-version snapshots and comparison.
-3. `GS-120` local playtest journal and per-version summaries.
-4. `GS-161` weekly card/rules source-change reporting automation.
-5. `GS-130` collection-aware deck building.
-6. `GS-140` deeper composition analysis.
-7. `GS-150` shareable and printable deck reports.
+1. `GS-111` named deck-version snapshots and comparison.
+2. `GS-120` local playtest journal and per-version summaries.
+3. `GS-161` weekly card/rules source-change reporting automation.
+4. `GS-130` collection-aware deck building.
+5. `GS-140` deeper composition analysis.
+6. `GS-150` shareable and printable deck reports.
 
 Each step should land as a focused commit with tests, typechecking, and a production build.
 
@@ -720,7 +719,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P0.
 
-**Status:** Implemented on June 21, 2026; desktop/phone browser execution pending local browser-runner recovery.
+**Status:** Done.
 
 **Goal:** Prevent accidental rule violations that have no useful deck-building purpose while preserving temporary illegal states needed for exploration, imports, and Legend changes.
 
@@ -753,6 +752,7 @@ domain model and tests remain available for future card-aware analysis.
 - RAM incompatibility and restricted-card outcomes warn without blocking.
 - Card browsing exposes RAM-fit labels and Compatible/Incompatible filtering.
 - Existing imported illegal decks remain editable, decrementable, exportable, and validated without normalization.
+- Verified on June 28, 2026 with focused rules/filter unit tests, production build, and desktop/phone deck workflow browser tests.
 
 ### GS-111: Add Named Deck-Version Snapshots And Comparison
 

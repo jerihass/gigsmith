@@ -81,6 +81,29 @@ test("undoes and redoes an active-deck card edit", async ({ page }) => {
   await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
 });
 
+test("saves, compares, restores, and exports deck versions explicitly", async ({ page }) => {
+  await page.getByRole("textbox", { name: "Version name" }).fill("Before Chrome");
+  await page.getByRole("button", { name: "Save version" }).click();
+  await expect(page.getByRole("combobox", { name: "Saved deck version" })).toContainText("Before Chrome");
+
+  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
+  await page.getByRole("button", { name: "+ Main", exact: true }).click();
+
+  await expect(page.getByLabel("Version comparison summary")).toContainText("40");
+  await expect(page.getByLabel("Version comparison summary")).toContainText("41");
+  await expect(page.getByText("Chrome Reverie 0 -> 1")).toBeVisible();
+
+  await page.getByRole("button", { name: "Restore as current edit" }).click();
+  await expect(page.getByText("40 / 40-50", { exact: true })).toBeVisible();
+  await expect(page.getByText("No card-count changes from this saved version.")).toBeVisible();
+
+  await page.getByRole("tab", { name: "Transfer" }).click();
+  await page.getByRole("button", { name: "JSON" }).click();
+  await page.getByLabel("Include versions").check();
+  await expect(page.getByLabel("JSON deck export")).toContainText("\"versions\"");
+  await expect(page.getByLabel("JSON deck export")).toContainText("Before Chrome");
+});
+
 test("opens card details and restores focus when dismissed", async ({ page }) => {
   await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
   const card = page.getByRole("article").filter({ hasText: "Chrome Reverie" });

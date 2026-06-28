@@ -36,6 +36,7 @@ import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
 import { DeckCurveSummary } from "./components/DeckCurveSummary";
 import { DeckRecovery } from "./components/DeckRecovery";
 import { DeckTransfer } from "./components/DeckTransfer";
+import { DeckVersionsPanel } from "./components/DeckVersionsPanel";
 import { EddyCurvePanel } from "./components/EddyCurvePanel";
 import { GigWorkspace } from "./components/GigWorkspace";
 import { PwaUpdateNotice } from "./components/PwaUpdateNotice";
@@ -704,6 +705,13 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
             <span>Deck name</span>
             <input value={deck.name} onChange={(event) => persist({ ...deck, name: event.target.value })} />
           </label>
+
+          <DeckVersionsPanel
+            deck={deck}
+            cardDb={cardDb}
+            ruleset={cyberpunkRulesetV1Printable}
+            onChange={persist}
+          />
 
           <DeckCurveSummary demand={eddyCurve.mainDeckDemand} />
 

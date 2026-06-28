@@ -18,7 +18,13 @@ export function DeckTransfer({
   const [importToast, setImportToast] = useState<{ kind: "success" | "error"; message: string }>();
   const [shareStatus, setShareStatus] = useState("");
   const [shareUrl, setShareUrl] = useState("");
-  const exportText = useMemo(() => format === "json" ? exportDeckJson(deck) : exportDecklist(deck, cardDb), [cardDb, deck, format]);
+  const [includeVersionHistory, setIncludeVersionHistory] = useState(false);
+  const exportText = useMemo(
+    () => format === "json"
+      ? exportDeckJson(deck, { includeVersionHistory })
+      : exportDecklist(deck, cardDb),
+    [cardDb, deck, format, includeVersionHistory]
+  );
 
   useEffect(() => {
     if (!importToast) return;
@@ -56,9 +62,13 @@ export function DeckTransfer({
         formatId: imported.formatId,
         rulesetVersion: imported.rulesetVersion,
         cardDataVersion: imported.cardDataVersion,
-        metadata: { ...deck.metadata, notes: imported.notes }
+        metadata: { ...deck.metadata, notes: imported.notes },
+        versions: imported.versions
       });
-      setImportToast({ kind: "success", message: `Imported ${imported.name} successfully.` });
+      setImportToast({
+        kind: "success",
+        message: `Imported ${imported.name} successfully${imported.versions?.length ? ` with ${imported.versions.length} saved version${imported.versions.length === 1 ? "" : "s"}` : ""}.`
+      });
       return;
     }
 
@@ -103,6 +113,16 @@ export function DeckTransfer({
             <button aria-pressed={format === "text"} onClick={() => changeFormat("text")}>Text</button>
             <button aria-pressed={format === "json"} onClick={() => changeFormat("json")}>JSON</button>
           </div>
+          {format === "json" && (
+            <label className="binary-field">
+              <input
+                type="checkbox"
+                checked={includeVersionHistory}
+                onChange={(event) => setIncludeVersionHistory(event.target.checked)}
+              />
+              <span>Include versions</span>
+            </label>
+          )}
           <button onClick={copyShareLink}>Copy share link</button>
           <span className="share-status" aria-live="polite">{shareStatus}</span>
         </div>

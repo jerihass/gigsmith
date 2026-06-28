@@ -21,12 +21,11 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 The original `M0`-`M10` plan is complete. Execute the next product work in this order:
 
-1. `GS-111` named deck-version snapshots and comparison.
-2. `GS-120` local playtest journal and per-version summaries.
-3. `GS-161` weekly card/rules source-change reporting automation.
-4. `GS-130` collection-aware deck building.
-5. `GS-140` deeper composition analysis.
-6. `GS-150` shareable and printable deck reports.
+1. `GS-120` local playtest journal and per-version summaries.
+2. `GS-161` weekly card/rules source-change reporting automation.
+3. `GS-130` collection-aware deck building.
+4. `GS-140` deeper composition analysis.
+5. `GS-150` shareable and printable deck reports.
 
 Each step should land as a focused commit with tests, typechecking, and a production build.
 
@@ -758,7 +757,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P1.
 
-**Status:** Planned.
+**Status:** Done.
 
 **Goal:** Preserve meaningful deck revisions and connect later playtest results to the exact list that was played.
 
@@ -777,6 +776,13 @@ domain model and tests remain available for future card-aware analysis.
 **Tests:**
 - Snapshot immutability, comparison, restoration, migration, and round-trip tests.
 - Browser workflow for naming, modifying, comparing, and restoring a version.
+
+**Implementation Notes:**
+- Decks now carry optional immutable named version snapshots with timestamps, deck metadata, card-data version, ruleset version, and format ID.
+- The deck editor can save a named version, compare the selected version to the current edit, and restore that version as the current edit while preserving history.
+- Version comparison reports card-count deltas by stable card ID/name, missing card IDs, baseline changes, legality, RAM totals, and Eddy curve summaries.
+- Gig odds are not shown in deck-version comparison because they depend on current board-state dice; the existing Gigs workspace remains the board-aware analysis surface.
+- Portable backups include version history automatically; ordinary share links omit it, and JSON deck import/export includes it only when explicitly selected.
 
 **Constitution Check:** Version history is local-first, explicit, and tied to versioned rules and card data.
 

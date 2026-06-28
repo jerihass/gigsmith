@@ -7,6 +7,17 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.7",
+    date: "2026-06-28",
+    title: "Deck Version Snapshots",
+    changes: [
+      "Added named deck versions that preserve card lists, notes, and rules/card-data baselines.",
+      "Added version comparison with card-count deltas, legality, RAM, and Eddy curve summaries.",
+      "Added restore-as-current-edit for saved versions without deleting version history.",
+      "Added explicit JSON import/export support for deck version history."
+    ]
+  },
+  {
     version: "0.1.6",
     date: "2026-06-27",
     title: "Faster Card Filtering",

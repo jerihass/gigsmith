@@ -440,8 +440,8 @@ textarea {
   font-size: 0.66rem;
   font-weight: 800;
   line-height: 1;
-  min-height: 1.45em;
-  padding: 0.12em 0.82em 0.12em 0.42em;
+  min-height: 1.32em;
+  padding: 0.06em 0.82em 0.06em 0.42em;
   position: relative;
   white-space: nowrap;
 }

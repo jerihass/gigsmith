@@ -194,6 +194,22 @@ textarea {
   grid-column: span 2;
 }
 
+.filter-toggle {
+  min-height: 100%;
+}
+
+.filter-toggle {
+  display: none;
+}
+
+.filter-secondary {
+  display: contents;
+}
+
+.filter-clear {
+  align-self: end;
+}
+
 .deck-list,
 .card-list,
 .issue-list,

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { Info, Palette, Redo2, Undo2, X } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
@@ -172,6 +172,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [membershipFilter, setMembershipFilter] = useState<DeckMembershipFilter>("All");
   const [ramCompatibilityFilter, setRamCompatibilityFilter] = useState<RamCompatibilityFilter>("All");
   const [cardSort, setCardSort] = useState<CardSort>("Snapshot");
+  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
   const [theme, setTheme] = useState<AppTheme>(() => loadThemePreference(window.localStorage));
   const [deckEditNotice, setDeckEditNotice] = useState<ValidationIssue>();
   const [cardArtEnabled, setCardArtEnabled] = useState(() => loadCardArtPreference(window.localStorage));
@@ -186,6 +187,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
   const detailTriggerRef = useRef<HTMLButtonElement>();
   const releaseNotesTriggerRef = useRef<HTMLButtonElement>();
+  const advancedFiltersId = useId();
   const cardDb = cardDatabaseState.cardDb;
   const deck = getActiveDeck(library);
   const activeHistory = getDeckHistory(deckHistories, deck.id);
@@ -193,6 +195,22 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const detailCard = detailCardId ? cardsById.get(detailCardId) : undefined;
   const ramOptions = useMemo(() => numberFilterOptions(cardDb.cards, "ram"), [cardDb]);
   const costOptions = useMemo(() => numberFilterOptions(cardDb.cards, "cost"), [cardDb]);
+  const activeAdvancedFilterCount = [
+    colorFilter !== "Any",
+    typeFilter !== "Any",
+    ramFilter !== "Any",
+    costFilter !== "Any",
+    sellableFilter !== "Any",
+    ramCompatibilityFilter !== "All"
+  ].filter(Boolean).length;
+  const clearAdvancedFilters = () => {
+    setColorFilter("Any");
+    setTypeFilter("Any");
+    setRamFilter("Any");
+    setCostFilter("Any");
+    setSellableFilter("Any");
+    setRamCompatibilityFilter("All");
+  };
   const deckDetailCards = useMemo(() => {
     const seen = new Set<string>();
     const cards: Card[] = [];
@@ -769,31 +787,9 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               <input placeholder="Name, text, faction..." value={query} onChange={(event) => setQuery(event.target.value)} />
             </label>
             <label className="field">
-              <span>Color</span>
-              <select value={colorFilter} onChange={(event) => setColorFilter(event.target.value as CardColorFilter)}>
-                {colorOptions.map((option) => <option key={option}>{option}</option>)}
-              </select>
-            </label>
-            <label className="field">
-              <span>Type</span>
-              <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as CardTypeFilter)}>
-                {typeOptions.map((option) => <option key={option}>{option}</option>)}
-              </select>
-            </label>
-            <label className="field">
-              <span>RAM</span>
-              <select value={ramFilter} onChange={(event) => setRamFilter(event.target.value as NumberFilter)}>
-                {ramOptions.map((option) => (
-                  <option key={option} value={option}>{option === "none" ? "None" : option}</option>
-                ))}
-              </select>
-            </label>
-            <label className="field">
-              <span>Cost</span>
-              <select value={costFilter} onChange={(event) => setCostFilter(event.target.value as NumberFilter)}>
-                {costOptions.map((option) => (
-                  <option key={option} value={option}>{option === "none" ? "None" : option}</option>
-                ))}
+              <span>Sort</span>
+              <select value={cardSort} onChange={(event) => setCardSort(event.target.value as CardSort)}>
+                {(["Snapshot", "Name", "Cost", "RAM", "Power", "Color", "Type"] as const).map((option) => <option key={option}>{option}</option>)}
               </select>
             </label>
             <label className="field">
@@ -802,27 +798,63 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                 {(["All", "In Deck", "Not In Deck"] as const).map((option) => <option key={option}>{option}</option>)}
               </select>
             </label>
-            <label className="field">
-              <span>Sellable</span>
-              <select value={sellableFilter} onChange={(event) => setSellableFilter(event.target.value as SellableFilter)}>
-                {(["Any", "Sellable", "Not Sellable"] as const).map((option) => <option key={option}>{option}</option>)}
-              </select>
-            </label>
-            <label className="field">
-              <span>RAM fit</span>
-              <select
-                value={ramCompatibilityFilter}
-                onChange={(event) => setRamCompatibilityFilter(event.target.value as RamCompatibilityFilter)}
-              >
-                {(["All", "Compatible", "Incompatible"] as const).map((option) => <option key={option}>{option}</option>)}
-              </select>
-            </label>
-            <label className="field">
-              <span>Sort</span>
-              <select value={cardSort} onChange={(event) => setCardSort(event.target.value as CardSort)}>
-                {(["Snapshot", "Name", "Cost", "RAM", "Power", "Color", "Type"] as const).map((option) => <option key={option}>{option}</option>)}
-              </select>
-            </label>
+            <button
+              aria-controls={advancedFiltersId}
+              aria-expanded={advancedFiltersOpen}
+              className="filter-toggle"
+              onClick={() => setAdvancedFiltersOpen((open) => !open)}
+              type="button"
+            >
+              Filters{activeAdvancedFilterCount > 0 ? ` ${activeAdvancedFilterCount}` : ""}
+            </button>
+            <div className="filter-secondary" data-expanded={advancedFiltersOpen ? "true" : "false"} id={advancedFiltersId}>
+              <label className="field">
+                <span>Color</span>
+                <select value={colorFilter} onChange={(event) => setColorFilter(event.target.value as CardColorFilter)}>
+                  {colorOptions.map((option) => <option key={option}>{option}</option>)}
+                </select>
+              </label>
+              <label className="field">
+                <span>Type</span>
+                <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as CardTypeFilter)}>
+                  {typeOptions.map((option) => <option key={option}>{option}</option>)}
+                </select>
+              </label>
+              <label className="field">
+                <span>RAM</span>
+                <select value={ramFilter} onChange={(event) => setRamFilter(event.target.value as NumberFilter)}>
+                  {ramOptions.map((option) => (
+                    <option key={option} value={option}>{option === "none" ? "None" : option}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span>Cost</span>
+                <select value={costFilter} onChange={(event) => setCostFilter(event.target.value as NumberFilter)}>
+                  {costOptions.map((option) => (
+                    <option key={option} value={option}>{option === "none" ? "None" : option}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span>Sellable</span>
+                <select value={sellableFilter} onChange={(event) => setSellableFilter(event.target.value as SellableFilter)}>
+                  {(["Any", "Sellable", "Not Sellable"] as const).map((option) => <option key={option}>{option}</option>)}
+                </select>
+              </label>
+              <label className="field">
+                <span>RAM fit</span>
+                <select
+                  value={ramCompatibilityFilter}
+                  onChange={(event) => setRamCompatibilityFilter(event.target.value as RamCompatibilityFilter)}
+                >
+                  {(["All", "Compatible", "Incompatible"] as const).map((option) => <option key={option}>{option}</option>)}
+                </select>
+              </label>
+              <button className="filter-clear" disabled={activeAdvancedFilterCount === 0} onClick={clearAdvancedFilters} type="button">
+                Clear filters
+              </button>
+            </div>
           </div>
           {deckEditNotice && (
             <div

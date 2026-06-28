@@ -434,7 +434,7 @@ textarea {
   align-items: center;
   background: color-mix(in srgb, var(--success) 7%, transparent);
   border: 1px solid color-mix(in srgb, var(--success) 24%, var(--border));
-  border-radius: 5px 2px 2px 5px;
+  border-radius: 2px 5px 5px 2px;
   color: color-mix(in srgb, var(--success-text) 82%, var(--text));
   display: inline-flex;
   font-size: 0.66rem;

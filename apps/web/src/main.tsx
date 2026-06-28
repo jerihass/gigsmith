@@ -15,11 +15,13 @@ import { loadAppView, saveAppView, type AppView } from "./appViews";
 import {
   browseCards,
   numberFilterOptions,
+  textListFilterOptions,
   type CardSort,
   type CardColorFilter,
   type CardTypeFilter,
   type DeckMembershipFilter,
   type NumberFilter,
+  type TextListFilter,
   filterCardsByRamCompatibility,
   type RamCompatibilityFilter,
   type SellableFilter
@@ -168,6 +170,8 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [typeFilter, setTypeFilter] = useState<CardTypeFilter>("Any");
   const [ramFilter, setRamFilter] = useState<NumberFilter>("Any");
   const [costFilter, setCostFilter] = useState<NumberFilter>("Any");
+  const [classificationFilter, setClassificationFilter] = useState<TextListFilter>("Any");
+  const [keywordFilter, setKeywordFilter] = useState<TextListFilter>("Any");
   const [sellableFilter, setSellableFilter] = useState<SellableFilter>("Any");
   const [membershipFilter, setMembershipFilter] = useState<DeckMembershipFilter>("All");
   const [ramCompatibilityFilter, setRamCompatibilityFilter] = useState<RamCompatibilityFilter>("All");
@@ -195,19 +199,26 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const detailCard = detailCardId ? cardsById.get(detailCardId) : undefined;
   const ramOptions = useMemo(() => numberFilterOptions(cardDb.cards, "ram"), [cardDb]);
   const costOptions = useMemo(() => numberFilterOptions(cardDb.cards, "cost"), [cardDb]);
-  const activeAdvancedFilterCount = [
-    colorFilter !== "Any",
-    typeFilter !== "Any",
-    ramFilter !== "Any",
-    costFilter !== "Any",
-    sellableFilter !== "Any",
-    ramCompatibilityFilter !== "All"
-  ].filter(Boolean).length;
+  const classificationOptions = useMemo(() => textListFilterOptions(cardDb.cards, "classifications"), [cardDb]);
+  const keywordOptions = useMemo(() => textListFilterOptions(cardDb.cards, "keywords"), [cardDb]);
+  const activeAdvancedFilterChips = [
+    colorFilter !== "Any" ? { key: "color", label: colorFilter, clear: () => setColorFilter("Any") } : undefined,
+    typeFilter !== "Any" ? { key: "type", label: typeFilter, clear: () => setTypeFilter("Any") } : undefined,
+    ramFilter !== "Any" ? { key: "ram", label: `RAM ${ramFilter === "none" ? "None" : ramFilter}`, clear: () => setRamFilter("Any") } : undefined,
+    costFilter !== "Any" ? { key: "cost", label: `Cost ${costFilter === "none" ? "None" : costFilter}`, clear: () => setCostFilter("Any") } : undefined,
+    classificationFilter !== "Any" ? { key: "classification", label: classificationFilter, clear: () => setClassificationFilter("Any") } : undefined,
+    keywordFilter !== "Any" ? { key: "keyword", label: keywordFilter, clear: () => setKeywordFilter("Any") } : undefined,
+    sellableFilter !== "Any" ? { key: "sellable", label: sellableFilter, clear: () => setSellableFilter("Any") } : undefined,
+    ramCompatibilityFilter !== "All" ? { key: "ram-fit", label: ramCompatibilityFilter === "Compatible" ? "RAM fit" : "Over RAM", clear: () => setRamCompatibilityFilter("All") } : undefined
+  ].filter((chip): chip is { key: string; label: string; clear: () => void } => Boolean(chip));
+  const activeAdvancedFilterCount = activeAdvancedFilterChips.length;
   const clearAdvancedFilters = () => {
     setColorFilter("Any");
     setTypeFilter("Any");
     setRamFilter("Any");
     setCostFilter("Any");
+    setClassificationFilter("Any");
+    setKeywordFilter("Any");
     setSellableFilter("Any");
     setRamCompatibilityFilter("All");
   };
@@ -255,7 +266,16 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const filteredCards = useMemo(() => {
     const browsedCards = browseCards(
         cardDb.cards,
-        { query, color: colorFilter, type: typeFilter, ram: ramFilter, cost: costFilter, sellable: sellableFilter },
+        {
+          query,
+          color: colorFilter,
+          type: typeFilter,
+          ram: ramFilter,
+          cost: costFilter,
+          classification: classificationFilter,
+          keyword: keywordFilter,
+          sellable: sellableFilter
+        },
         membershipFilter,
         cardSort,
         deckCardIds
@@ -268,9 +288,11 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   }, [
     cardSort,
     cardDb,
+    classificationFilter,
     colorFilter,
     costFilter,
     deckCardIds,
+    keywordFilter,
     membershipFilter,
     query,
     ramCompatibilityById,
@@ -807,6 +829,16 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
             >
               Filters{activeAdvancedFilterCount > 0 ? ` ${activeAdvancedFilterCount}` : ""}
             </button>
+            {activeAdvancedFilterChips.length > 0 && (
+              <div className="filter-chips" aria-label="Active card filters">
+                {activeAdvancedFilterChips.map((chip) => (
+                  <button aria-label={`Clear ${chip.label} filter`} key={chip.key} onClick={chip.clear} type="button">
+                    {chip.label}
+                    <span aria-hidden="true">x</span>
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="filter-secondary" data-expanded={advancedFiltersOpen ? "true" : "false"} id={advancedFiltersId}>
               <label className="field">
                 <span>Color</span>
@@ -836,6 +868,20 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                   ))}
                 </select>
               </label>
+              <label className="field">
+                <span>Classification</span>
+                <select value={classificationFilter} onChange={(event) => setClassificationFilter(event.target.value as TextListFilter)}>
+                  {classificationOptions.map((option) => <option key={option}>{option}</option>)}
+                </select>
+              </label>
+              {keywordOptions.length > 1 && (
+                <label className="field">
+                  <span>Keyword</span>
+                  <select value={keywordFilter} onChange={(event) => setKeywordFilter(event.target.value as TextListFilter)}>
+                    {keywordOptions.map((option) => <option key={option}>{option}</option>)}
+                  </select>
+                </label>
+              )}
               <label className="field">
                 <span>Sellable</span>
                 <select value={sellableFilter} onChange={(event) => setSellableFilter(event.target.value as SellableFilter)}>

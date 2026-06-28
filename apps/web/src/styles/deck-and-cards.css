@@ -206,6 +206,10 @@ textarea {
   display: contents;
 }
 
+.filter-chips {
+  display: none;
+}
+
 .filter-clear {
   align-self: end;
 }

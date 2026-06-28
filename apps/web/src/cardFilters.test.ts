@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb } from "@gigsmith/card-data";
 import { isSellableCard } from "@gigsmith/data-contracts";
 import budgets from "../performance-budgets.json" with { type: "json" };
-import { browseCards, filterCards, filterCardsByRamCompatibility, numberFilterOptions } from "./cardFilters";
+import { browseCards, filterCards, filterCardsByRamCompatibility, numberFilterOptions, textListFilterOptions } from "./cardFilters";
 
 const defaultFilters = {
   query: "",
@@ -10,6 +10,8 @@ const defaultFilters = {
   type: "Any" as const,
   ram: "Any",
   cost: "Any",
+  classification: "Any",
+  keyword: "Any",
   sellable: "Any" as const
 };
 
@@ -59,6 +61,25 @@ describe("filterCards", () => {
     expect(sellable.every(isSellableCard)).toBe(true);
     expect(notSellable.every((card) => !isSellableCard(card))).toBe(true);
   });
+
+  it("filters by classification and keyword", () => {
+    const classifiedCards = filterCards(cyberpunkCardDb.cards, {
+      ...defaultFilters,
+      classification: "Netrunner"
+    });
+    const keywordCards = filterCards([
+      { ...cyberpunkCardDb.cards[0], keywords: ["Quick"] },
+      { ...cyberpunkCardDb.cards[1], keywords: [] }
+    ], {
+      ...defaultFilters,
+      keyword: "Quick"
+    });
+
+    expect(classifiedCards.length).toBeGreaterThan(0);
+    expect(classifiedCards.every((card) => card.classifications.includes("Netrunner"))).toBe(true);
+    expect(keywordCards).toHaveLength(1);
+    expect(keywordCards[0].keywords).toContain("Quick");
+  });
 });
 
 describe("numberFilterOptions", () => {
@@ -76,6 +97,16 @@ describe("numberFilterOptions", () => {
 
     expect(numberFilterOptions(cards, "ram")).toEqual(["Any", "2"]);
     expect(numberFilterOptions(cards, "cost")).toEqual(["Any", "9"]);
+  });
+});
+
+describe("textListFilterOptions", () => {
+  it("derives sorted classifications and keywords from card data", () => {
+    expect(textListFilterOptions(cyberpunkCardDb.cards, "classifications")).toContain("Netrunner");
+    expect(textListFilterOptions([
+      { ...cyberpunkCardDb.cards[0], keywords: ["Quick"] },
+      { ...cyberpunkCardDb.cards[1], keywords: ["Adrenaline"] }
+    ], "keywords")).toEqual(["Any", "Adrenaline", "Quick"]);
   });
 });
 

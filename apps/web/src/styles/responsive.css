@@ -44,6 +44,32 @@
     grid-column: 1 / -1;
   }
 
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    grid-column: 1 / -1;
+  }
+
+  .filter-chips button {
+    align-items: center;
+    border-color: color-mix(in srgb, var(--cyan) 34%, var(--border));
+    border-radius: 999px;
+    color: var(--cyan-text);
+    display: inline-flex;
+    font-size: 0.82rem;
+    font-weight: 800;
+    gap: 0.35em;
+    line-height: 1;
+    min-height: 2.1em;
+    padding: 0.35em 0.65em;
+  }
+
+  .filter-chips button span {
+    color: var(--muted);
+    font-size: 0.78em;
+  }
+
   .filter-secondary {
     display: none;
     gap: 10px;

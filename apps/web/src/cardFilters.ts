@@ -4,6 +4,7 @@ import { isSellableCard } from "@gigsmith/data-contracts";
 export type CardColorFilter = "Any" | CardColor;
 export type CardTypeFilter = "Any" | CardType;
 export type NumberFilter = "Any" | string;
+export type TextListFilter = "Any" | string;
 export type SellableFilter = "Any" | "Sellable" | "Not Sellable";
 export type DeckMembershipFilter = "All" | "In Deck" | "Not In Deck";
 export type RamCompatibilityFilter = "All" | "Compatible" | "Incompatible";
@@ -15,6 +16,8 @@ export interface CardFilters {
   type: CardTypeFilter;
   ram: NumberFilter;
   cost: NumberFilter;
+  classification: TextListFilter;
+  keyword: TextListFilter;
   sellable: SellableFilter;
 }
 
@@ -37,6 +40,17 @@ export function numberFilterOptions(
   ];
   if (hasMissingValue) options.push("none");
   return options;
+}
+
+export function textListFilterOptions(
+  cards: Card[],
+  field: "classifications" | "keywords"
+): TextListFilter[] {
+  const values = new Set<string>();
+  for (const card of cards) {
+    for (const value of card[field]) values.add(value);
+  }
+  return ["Any", ...[...values].sort((left, right) => left.localeCompare(right))];
 }
 
 function normalize(value: string): string {
@@ -76,6 +90,8 @@ export function filterCards(cards: Card[], filters: CardFilters): Card[] {
     if (filters.type !== "Any" && card.card_type !== filters.type) return false;
     if (!fieldMatchesNumberFilter(card.ram, filters.ram)) return false;
     if (!fieldMatchesNumberFilter(card.cost, filters.cost)) return false;
+    if (filters.classification !== "Any" && !card.classifications.includes(filters.classification)) return false;
+    if (filters.keyword !== "Any" && !card.keywords.includes(filters.keyword)) return false;
     if (filters.sellable === "Sellable" && !isSellableCard(card)) return false;
     if (filters.sellable === "Not Sellable" && isSellableCard(card)) return false;
     return true;

@@ -25,10 +25,6 @@ function cardNames(cardIds: string[], cards: Map<string, Card>): string {
   return cardIds.map((cardId) => cards.get(cardId)?.display_name ?? cardId).join(", ");
 }
 
-function playerLabel(playerId: string): string {
-  return playerId === "player" ? "Your" : "Rival";
-}
-
 function profileMetric(profile: GigRollProfile, condition: GigConditionId, friendlyValues: number[]): string {
   const distinctFriendlyValues = new Set(friendlyValues).size;
   if (condition === "distinct-2" && friendlyValues.length === 0) return "Need 1 Gig";
@@ -56,11 +52,10 @@ interface GigOddsPanelProps {
 }
 
 export function GigOddsPanel({ deck, cardDb, match, onMatchChange }: GigOddsPanelProps) {
-  const analysisPlayerId = match.activePlayerId;
-  const analysisPlayerLabel = playerLabel(analysisPlayerId);
+  const analysisPlayerId = "player";
   const report = useMemo(
     () => analyzeGigOdds(deck, cardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable, match, analysisPlayerId),
-    [analysisPlayerId, cardDb, deck, match]
+    [cardDb, deck, match]
   );
   const cards = useMemo(() => new Map(cardDb.cards.map((card) => [card.id, card])), [cardDb]);
   const supportedDemands = report.demands.filter((demand) => demand.supported);
@@ -90,8 +85,8 @@ export function GigOddsPanel({ deck, cardDb, match, onMatchChange }: GigOddsPane
       {report.nextDieOptions.length > 0 && supportedDemands.length > 0 && (
         <section className="next-die-analysis" aria-labelledby="next-die-title">
           <div className="gig-order-heading">
-            <h3 id="next-die-title">{analysisPlayerLabel} Next Fixer Die</h3>
-            <span>{friendlyValues.length > 0 ? `${analysisPlayerLabel} Gig values: ${friendlyValues.join(", ")}` : `No ${analysisPlayerLabel.toLowerCase()} Gigs yet`}</span>
+            <h3 id="next-die-title">Your Next Fixer Die</h3>
+            <span>{friendlyValues.length > 0 ? `Your Gig values: ${friendlyValues.join(", ")}` : "No friendly Gigs yet"}</span>
           </div>
           <div className="next-die-options">
             {report.nextDieOptions.map((option) => (
@@ -100,7 +95,7 @@ export function GigOddsPanel({ deck, cardDb, match, onMatchChange }: GigOddsPane
                 <span>Deck fit {percent(option.deckFitScore)}</span>
                 <dl>{supportedDemands.slice(0, 3).map((demand) => <div key={demand.condition}><dt>{conditionLabels[demand.condition]}</dt><dd>{profileMetric(option.profile, demand.condition, friendlyValues)}</dd></div>)}</dl>
                 <button
-                  aria-label={`Roll and gain ${analysisPlayerLabel.toLowerCase()} ${option.dieType}`}
+                  aria-label={`Roll and gain your ${option.dieType}`}
                   disabled={!availableDieTypes.has(option.dieType) || match.gainedGigThisTurn}
                   onClick={() => rollAndGain(option.dieType)}
                 >

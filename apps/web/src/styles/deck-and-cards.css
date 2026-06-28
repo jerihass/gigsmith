@@ -450,11 +450,12 @@ textarea {
   background: var(--app-bg);
   border: 1px solid color-mix(in srgb, var(--success) 22%, var(--border));
   border-radius: 50%;
+  box-sizing: border-box;
   content: "";
   height: 0.36em;
   position: absolute;
   right: 0.22em;
-  top: 50%;
+  top: calc(50% + 0.03em);
   transform: translateY(-50%);
   width: 0.36em;
 }

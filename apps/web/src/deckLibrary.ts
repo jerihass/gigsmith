@@ -41,6 +41,30 @@ function isDeckEntry(value: unknown): boolean {
   );
 }
 
+function isIsoDate(value: unknown): boolean {
+  return typeof value === "string" && !Number.isNaN(Date.parse(value));
+}
+
+function isDeckVersionSnapshot(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    typeof value.id === "string" &&
+    value.id.length > 0 &&
+    typeof value.name === "string" &&
+    value.name.length > 0 &&
+    isIsoDate(value.createdAt) &&
+    typeof value.deckName === "string" &&
+    typeof value.formatId === "string" &&
+    typeof value.rulesetVersion === "string" &&
+    typeof value.cardDataVersion === "string" &&
+    Array.isArray(value.legends) &&
+    value.legends.every(isDeckEntry) &&
+    Array.isArray(value.main) &&
+    value.main.every(isDeckEntry) &&
+    (value.notes === undefined || typeof value.notes === "string")
+  );
+}
+
 function isDeck(value: unknown): value is Deck {
   if (!isRecord(value)) return false;
   return (
@@ -52,7 +76,8 @@ function isDeck(value: unknown): value is Deck {
     Array.isArray(value.legends) &&
     value.legends.every(isDeckEntry) &&
     Array.isArray(value.main) &&
-    value.main.every(isDeckEntry)
+    value.main.every(isDeckEntry) &&
+    (value.versions === undefined || (Array.isArray(value.versions) && value.versions.every(isDeckVersionSnapshot)))
   );
 }
 

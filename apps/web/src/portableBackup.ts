@@ -90,7 +90,12 @@ export function mergeBackupDeckLibrary(
       id,
       legends: deck.legends.map((entry) => ({ ...entry })),
       main: deck.main.map((entry) => ({ ...entry })),
-      metadata: deck.metadata ? { ...deck.metadata } : undefined
+      metadata: deck.metadata ? { ...deck.metadata } : undefined,
+      versions: deck.versions?.map((version) => ({
+        ...version,
+        legends: version.legends.map((entry) => ({ ...entry })),
+        main: version.main.map((entry) => ({ ...entry }))
+      }))
     });
   }
   return { library: { ...current, decks }, addedDeckCount: imported.decks.length };

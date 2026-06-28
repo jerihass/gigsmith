@@ -85,6 +85,43 @@ describe("deck JSON import/export", () => {
     });
   });
 
+  it("exports and imports version history only when explicitly requested", () => {
+    const deck = createValidDeck({
+      versions: [{
+        id: "version-1",
+        name: "Week 1",
+        createdAt: "2026-06-28T12:00:00.000Z",
+        deckName: "Red Rage",
+        legends: createValidDeck().legends,
+        main: createValidDeck().main,
+        formatId: createValidDeck().formatId,
+        rulesetVersion: createValidDeck().rulesetVersion,
+        cardDataVersion: createValidDeck().cardDataVersion
+      }]
+    });
+
+    expect(exportDeckJson(deck)).not.toContain("version-1");
+
+    const result = importDeckJson(exportDeckJson(deck, { includeVersionHistory: true }));
+
+    expect(result.errors).toEqual([]);
+    expect(result.document?.deck.versions).toEqual(deck.versions);
+  });
+
+  it("rejects invalid version history entries with paths", () => {
+    const value = JSON.parse(exportDeckJson(createValidDeck(), { includeVersionHistory: true })) as {
+      deck: { versions?: Array<{ createdAt?: string }> };
+    };
+    value.deck.versions = [{ createdAt: "today" }];
+
+    const errors = importDeckJson(JSON.stringify(value)).errors;
+
+    expect(errors).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: "$.deck.versions[0].id" }),
+      expect.objectContaining({ path: "$.deck.versions[0].createdAt" })
+    ]));
+  });
+
   it("rejects oversized documents and bounded fields before persistence", () => {
     expect(importDeckJson("x".repeat(deckInputLimits.textCharacters + 1)).errors[0]).toMatchObject({
       code: "invalid-payload",

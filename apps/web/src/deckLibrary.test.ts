@@ -46,6 +46,27 @@ describe("loadDeckLibrary", () => {
     expect(loadDeckLibrary(storage, deck("fallback"))).toEqual(saved);
   });
 
+  it("loads a saved library with immutable deck versions", () => {
+    const savedDeck: Deck = {
+      ...deck("one"),
+      versions: [{
+        id: "version-1",
+        name: "Week 1",
+        createdAt: "2026-06-28T12:00:00.000Z",
+        deckName: "One",
+        legends: [],
+        main: [],
+        formatId: "open-guide",
+        rulesetVersion: "ruleset.v0-guide",
+        cardDataVersion: "cards.v1"
+      }]
+    };
+    const saved = createDeckLibrary(savedDeck);
+    const storage = memoryStorage({ [deckLibraryStorageKey]: JSON.stringify(saved) });
+
+    expect(loadDeckLibrary(storage, deck("fallback"))).toEqual(saved);
+  });
+
   it("migrates the legacy single-deck value", () => {
     const legacy = deck("legacy");
     const storage = memoryStorage({ [legacyDeckStorageKey]: JSON.stringify(legacy) });
@@ -104,6 +125,18 @@ describe("loadDeckLibrary", () => {
       reason: "invalid-json"
     });
     expect(storage.getItem(legacyDeckStorageKey)).toBe("{");
+  });
+
+  it("preserves a saved library containing malformed version history", () => {
+    const saved = createDeckLibrary({
+      ...deck("one"),
+      versions: [{ id: "version-1", createdAt: "today" }]
+    } as unknown as Deck);
+    const storage = memoryStorage({ [deckLibraryStorageKey]: JSON.stringify(saved) });
+
+    const result = loadDeckLibraryResult(storage, deck("fallback"));
+
+    expect(result.recovery?.reason).toBe("invalid-schema");
   });
 
   it("clears only Gigsmith deck keys during an explicit reset", () => {

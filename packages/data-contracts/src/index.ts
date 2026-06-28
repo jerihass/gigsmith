@@ -98,6 +98,19 @@ export interface DeckMetadata {
   notes?: string;
 }
 
+export interface DeckVersionSnapshot {
+  id: string;
+  name: string;
+  createdAt: string;
+  deckName: string;
+  legends: DeckCardEntry[];
+  main: DeckCardEntry[];
+  formatId: FormatId;
+  rulesetVersion: RulesetVersion;
+  cardDataVersion: CardDataVersion;
+  notes?: string;
+}
+
 export interface Deck {
   id: string;
   name: string;
@@ -107,6 +120,7 @@ export interface Deck {
   rulesetVersion: RulesetVersion;
   cardDataVersion: CardDataVersion;
   metadata?: DeckMetadata;
+  versions?: DeckVersionSnapshot[];
 }
 
 export interface PortableDeckV1 {
@@ -117,6 +131,7 @@ export interface PortableDeckV1 {
   rulesetVersion: RulesetVersion;
   cardDataVersion: CardDataVersion;
   notes?: string;
+  versions?: DeckVersionSnapshot[];
 }
 
 export interface DeckDocumentV1 {

@@ -16,6 +16,19 @@ export interface RestoreResult {
   message: string;
 }
 
+function libraryFingerprint(library: DeckLibrary): string {
+  return JSON.stringify({
+    activeDeckId: library.activeDeckId,
+    decks: library.decks.map((deck) => ({
+      id: deck.id,
+      name: deck.name,
+      legends: deck.legends.length,
+      main: deck.main.length,
+      updatedAt: deck.metadata?.updatedAt
+    }))
+  });
+}
+
 export function PortableBackup({
   library,
   theme,
@@ -37,14 +50,25 @@ export function PortableBackup({
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingBackup, setPendingBackup] = useState<PortableBackupV1>();
+  const [pendingLibraryFingerprint, setPendingLibraryFingerprint] = useState("");
   const [mode, setMode] = useState<RestoreMode>("replace");
   const [toast, setToast] = useState<{ kind: "success" | "error"; message: string }>();
+  const currentLibraryFingerprint = libraryFingerprint(library);
 
   useEffect(() => {
     if (!toast) return;
     const timeout = window.setTimeout(() => setToast(undefined), 6000);
     return () => window.clearTimeout(timeout);
   }, [toast]);
+
+  useEffect(() => {
+    if (pendingBackup && pendingLibraryFingerprint && pendingLibraryFingerprint !== currentLibraryFingerprint) {
+      setPendingBackup(undefined);
+      setPendingLibraryFingerprint("");
+      setMode("replace");
+      setToast({ kind: "error", message: "Restore confirmation expired because local decks changed. Re-select the backup to continue." });
+    }
+  }, [currentLibraryFingerprint, pendingBackup, pendingLibraryFingerprint]);
 
   function downloadBackup() {
     const text = exportPortableBackup({
@@ -75,6 +99,7 @@ export function PortableBackup({
         return;
       }
       setPendingBackup(result.backup);
+      setPendingLibraryFingerprint(currentLibraryFingerprint);
       setMode("replace");
     } catch {
       setPendingBackup(undefined);
@@ -89,6 +114,7 @@ export function PortableBackup({
     const result = onRestore(pendingBackup, mode);
     if (result.kind === "success") {
       setPendingBackup(undefined);
+      setPendingLibraryFingerprint("");
       return;
     }
     setToast(result);
@@ -123,7 +149,7 @@ export function PortableBackup({
           <label><input type="radio" checked={mode === "merge"} onChange={() => setMode("merge")} /> Add backup decks only</label>
           <div>
             <button className="primary" onClick={restoreBackup}>Confirm restore</button>
-            <button onClick={() => setPendingBackup(undefined)}>Cancel</button>
+            <button onClick={() => { setPendingBackup(undefined); setPendingLibraryFingerprint(""); }}>Cancel</button>
           </div>
         </div>
       )}

@@ -188,9 +188,18 @@ test("exports JSON and reports malformed imports", async ({ page }) => {
   await expect(page.getByRole("alert")).toContainText("Import failed");
   await expect(page.locator(".import-error")).toContainText("schema");
 
-  await page.getByLabel("JSON deck import").fill(await exportField.inputValue());
+  const validExport = await exportField.inputValue();
+  await page.getByLabel("JSON deck import").fill(validExport);
+  await expect(page.locator(".import-error")).toHaveCount(0);
   await page.getByRole("button", { name: "Import JSON" }).click();
   await expect(page.getByRole("status")).toContainText("Imported Starter Legal Shell successfully");
+
+  await page.getByRole("button", { name: "Copy share link" }).click();
+  await expect(page.getByLabel("Deck share link")).toHaveValue(/#deck=/);
+  await page.getByRole("tab", { name: "Deck" }).click();
+  await page.getByLabel("Deck name", { exact: true }).fill("Fresh Share Deck");
+  await page.getByRole("tab", { name: "Transfer" }).click();
+  await expect(page.getByLabel("Deck share link")).toHaveCount(0);
 });
 
 test("repeats a sample hand for the same seed", async ({ page }) => {

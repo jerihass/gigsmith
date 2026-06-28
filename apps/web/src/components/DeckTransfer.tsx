@@ -32,6 +32,15 @@ export function DeckTransfer({
     return () => window.clearTimeout(timeout);
   }, [importToast]);
 
+  useEffect(() => {
+    setShareUrl("");
+    setShareStatus("");
+  }, [exportText]);
+
+  useEffect(() => {
+    if (importError) setImportError("");
+  }, [importText]);
+
   function changeFormat(next: "text" | "json") {
     setFormat(next);
     setImportText("");

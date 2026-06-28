@@ -7,6 +7,15 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.6",
+    date: "2026-06-27",
+    title: "Faster Card Filtering",
+    changes: [
+      "Added card taxonomy filters with active filter chips.",
+      "Collapsed advanced card filters on mobile to keep the card database easier to scan."
+    ]
+  },
+  {
     version: "0.1.5",
     date: "2026-06-27",
     title: "Sellable Tag Polish",

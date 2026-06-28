@@ -7,6 +7,15 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.9",
+    date: "2026-06-28",
+    title: "Gig Odds Scope Fixes",
+    changes: [
+      "Scoped Gig odds calculations to the active player.",
+      "Kept Gig odds tied to the local deck so opponent state does not affect local deck analysis."
+    ]
+  },
+  {
     version: "0.1.8",
     date: "2026-06-28",
     title: "Gig Sandbox Stability",

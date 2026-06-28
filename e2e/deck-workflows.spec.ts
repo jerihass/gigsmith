@@ -1,4 +1,18 @@
 import { expect, test } from "@playwright/test";
+import type { Page } from "@playwright/test";
+
+function cardResult(page: Page, name: string) {
+  return page.getByRole("list", { name: "Card database results" }).getByRole("article", { name });
+}
+
+function mainDeckCard(page: Page, name: string) {
+  return page.getByRole("list", { name: "Main deck cards" }).getByRole("listitem", { name: new RegExp(`^${name},`) });
+}
+
+async function showAdvancedCardFilters(page: Page) {
+  const toggle = page.getByRole("button", { name: /^Filters/ });
+  if ((await toggle.isVisible()) && (await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
+}
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -12,7 +26,7 @@ test("creates and edits a deck with immediate validation", async ({ page }) => {
   await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
   await page.getByRole("button", { name: "+ Main", exact: true }).click();
   await expect(page.getByText("1 / 40-50", { exact: true })).toBeVisible();
-  await expect(page.getByText("1 in deck", { exact: false })).toBeVisible();
+  await expect(cardResult(page, "Chrome Reverie").getByLabel("1 copy in deck")).toBeVisible();
 });
 
 test("prevents a fourth copy through deck editing controls", async ({ page }) => {
@@ -36,21 +50,23 @@ test("repairs a previously saved over-limit deck without normalizing it on load"
   });
   await page.reload();
 
-  await expect(page.getByRole("button", { name: "Remove one Swordwise Huscle" })).toBeEnabled();
-  await expect(page.getByLabel("4 copies")).toBeVisible();
-  await page.getByRole("button", { name: "Remove one Swordwise Huscle" }).click();
-  await expect(page.getByLabel("3 copies")).toBeVisible();
+  const deckCard = mainDeckCard(page, "Swordwise Huscle");
+  await expect(deckCard.getByRole("button", { name: "Remove one Swordwise Huscle" })).toBeEnabled();
+  await expect(deckCard.getByLabel("4 copies", { exact: true })).toBeVisible();
+  await deckCard.getByRole("button", { name: "Remove one Swordwise Huscle" }).click();
+  await expect(deckCard.getByLabel("3 copies", { exact: true })).toBeVisible();
 });
 
 test("filters by Legend RAM fit and allows a warned incompatible addition", async ({ page }) => {
-  await page.getByLabel("RAM fit", { exact: true }).selectOption("Incompatible");
-  const card = page.getByRole("article").filter({ hasText: "Adam Smasher — Metal Over Meat" });
+  await showAdvancedCardFilters(page);
+  await page.getByRole("combobox", { name: "RAM fit", exact: true }).selectOption("Incompatible");
+  const card = cardResult(page, "Adam Smasher — Metal Over Meat");
   await expect(card.getByText("Over RAM", { exact: false })).toBeVisible();
   await card.getByRole("button", { name: "+ Main" }).click();
 
   await expect(page.locator(".deck-edit-notice")).toContainText("requires 6 Yellow RAM");
-  const deckRow = page.locator(".deck-row").filter({ hasText: "Adam Smasher — Metal Over Meat" });
-  await expect(deckRow.getByText("Over RAM", { exact: false })).toBeVisible();
+  const deckCard = mainDeckCard(page, "Adam Smasher — Metal Over Meat");
+  await expect(deckCard.getByText("Over RAM", { exact: false })).toBeVisible();
   await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
 });
 

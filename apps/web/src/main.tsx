@@ -708,11 +708,17 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           <DeckCurveSummary demand={eddyCurve.mainDeckDemand} />
 
           <div className="deck-section-title"><h3>Legends</h3><span>{entryCount(deck.legends)} / 3</span></div>
-          <div className="deck-list">
+          <div aria-label="Legend cards" className="deck-list" role="list">
             {deck.legends.map((entry) => {
               const card = cardsById.get(entry.cardId);
               return (
-                <div className="deck-row" data-color={card?.color.toLowerCase()} key={entry.cardId}>
+                <div
+                  aria-label={card?.display_name ?? entry.cardId}
+                  className="deck-row"
+                  data-color={card?.color.toLowerCase()}
+                  key={entry.cardId}
+                  role="listitem"
+                >
                   <div className="deck-card-copy">
                     <span>{card?.display_name ?? entry.cardId}</span>
                   </div>
@@ -733,13 +739,19 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           </div>
 
           <div className="deck-section-title"><h3>Main</h3><span>{entryCount(deck.main)} / 40-50</span></div>
-          <div className="deck-list">
+          <div aria-label="Main deck cards" className="deck-list" role="list">
             {deck.main.map((entry) => {
               const card = cardsById.get(entry.cardId);
               const compatibility = card ? ramCompatibilityById.get(card.id) : undefined;
               const addition = card ? additionEvaluationById.get(card.id) : undefined;
               return (
-                <div className="deck-row" data-color={card?.color.toLowerCase()} key={entry.cardId}>
+                <div
+                  aria-label={`${card?.display_name ?? entry.cardId}, ${entry.count} ${entry.count === 1 ? "copy" : "copies"}`}
+                  className="deck-row"
+                  data-color={card?.color.toLowerCase()}
+                  key={entry.cardId}
+                  role="listitem"
+                >
                   <div className="deck-card-copy">
                     <span>{card?.display_name ?? entry.cardId}</span>
                     {compatibility?.status === "incompatible" && (
@@ -910,7 +922,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               {deckEditNotice.message}
             </div>
           )}
-          <div className="card-list">
+          <div aria-label="Card database results" className="card-list" role="list">
             {filteredCards.map((card) => {
               const legendSelected = card.card_type === "Legend" && hasDeckEntry(deck.legends, card.id);
               const deckCopies = deckCountById.get(card.id) ?? 0;
@@ -918,7 +930,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               const addition = additionEvaluationById.get(card.id);
               const atCopyLimit = addition?.blockers.some((blocker) => blocker.code === "max-copies") ?? false;
               return (
-                <article className="card-row" data-color={card.color.toLowerCase()} key={card.id}>
+                <article aria-label={card.display_name} className="card-row" data-color={card.color.toLowerCase()} key={card.id}>
                   <CardArt
                     card={card}
                     enabled={cardArtEnabled}

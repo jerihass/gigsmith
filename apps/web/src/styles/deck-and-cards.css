@@ -437,7 +437,7 @@ textarea {
   border-radius: 2px 5px 5px 2px;
   color: color-mix(in srgb, var(--success-text) 82%, var(--text));
   display: inline-flex;
-  font-size: 0.66rem;
+  font-size: 0.76rem;
   font-weight: 800;
   line-height: 1;
   min-height: 1.32em;

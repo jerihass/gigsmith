@@ -455,7 +455,7 @@ textarea {
   height: 0.36em;
   position: absolute;
   right: 0.22em;
-  top: calc(50% - 0.5px);
+  top: calc(50% + 0.5px);
   transform: translateY(-50%);
   width: 0.36em;
 }

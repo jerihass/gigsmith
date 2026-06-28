@@ -8,6 +8,8 @@ This backlog is organized by milestone. Each task must preserve the development 
 - Web shell renders a local deck editor, card browser, RAM summary, validation report, and text import/export.
 - Card data snapshot is `netdeck-cyberpunk-2026-06-20` with 61 Netdeck cards.
 - Rules baseline is `ruleset.v1-printable-2026-06-19`.
+- Static GitHub Pages deployment is configured with root/subpath PWA build verification and deployment documentation.
+- Weekly source freshness is documented as a manual policy; scheduled source-change reporting is still backlog work.
 - Implemented validation rules:
   - exactly 3 Legend cards
   - 40-50 main-deck cards
@@ -22,11 +24,10 @@ The original `M0`-`M10` plan is complete. Execute the next product work in this 
 1. `GS-110` legality-aware deck-edit guardrails.
 2. `GS-111` named deck-version snapshots and comparison.
 3. `GS-120` local playtest journal and per-version summaries.
-4. `GS-160` hosted static-PWA deployment.
-5. `GS-161` weekly card/rules source-change reporting.
-6. `GS-130` collection-aware deck building.
-7. `GS-140` deeper composition analysis.
-8. `GS-150` shareable and printable deck reports.
+4. `GS-161` weekly card/rules source-change reporting automation.
+5. `GS-130` collection-aware deck building.
+6. `GS-140` deeper composition analysis.
+7. `GS-150` shareable and printable deck reports.
 
 Each step should land as a focused commit with tests, typechecking, and a production build.
 
@@ -893,7 +894,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P1 after `GS-110`.
 
-**Status:** Planned; hosting provider not yet selected.
+**Status:** Done.
 
 **Goal:** Make Gigsmith installable on a phone without keeping a development server running.
 
@@ -911,13 +912,18 @@ domain model and tests remain available for future card-aware analysis.
 **Tests:**
 - Hosted smoke test plus the existing root/subpath PWA and offline suites.
 
+**Implementation Notes:**
+- GitHub Pages deployment lives in `.github/workflows/deploy-pages.yml`.
+- `docs/PWA_DEPLOYMENT.md` documents root/subpath builds, update prompting, cache identity, rollback/storage-origin cautions, and verification commands.
+- CI verifies root and `/gigsmith/` subpath PWA builds; browser coverage verifies offline reload and local-deck preservation.
+
 **Constitution Check:** Deployment preserves the static, local-first architecture.
 
 ### GS-161: Add Weekly Source-Change Reporting
 
 **Priority:** P1 after `GS-160`.
 
-**Status:** Planned.
+**Status:** Planned; manual weekly freshness policy exists, but scheduled reporting is not implemented.
 
 **Goal:** Detect new cards or rules revisions without silently changing Gigsmith's reviewed local snapshots.
 
@@ -927,6 +933,11 @@ domain model and tests remain available for future card-aware analysis.
 - Produce a readable workflow summary and open or update one tracking issue when changes are detected.
 - Provide the same comparison through a local command.
 - Never commit refreshed snapshots or rules automatically.
+
+**Existing Coverage:**
+- `docs/RULE_SOURCE.md` records the weekly manual check policy for the printable guide.
+- `docs/CARD_SNAPSHOT_REFRESH.md` documents manual Netdeck snapshot refresh and validation.
+- The app supports explicit user-triggered card database refresh, but that is not the scheduled source-change reporter described here.
 
 **Acceptance Criteria:**
 - An unchanged source produces no repository changes or duplicate issues.

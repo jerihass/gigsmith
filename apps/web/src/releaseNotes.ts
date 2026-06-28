@@ -13,7 +13,8 @@ export const releaseNotes: ReleaseNoteEntry[] = [
     changes: [
       "Changed sellable badges to use a tag shape.",
       "Refined sellable tag spacing, height, rounded trailing edge, and right-side hole orientation.",
-      "Centered and fine-tuned the tag hole alignment so the badge reads cleanly at small sizes."
+      "Centered and fine-tuned the tag hole alignment so the badge reads cleanly at small sizes.",
+      "Scaled the sellable tag to match the surrounding card stat badges."
     ]
   },
   {

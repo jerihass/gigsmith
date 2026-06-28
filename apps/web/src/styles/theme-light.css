@@ -1,108 +1,129 @@
+:root[data-theme="light"] h1 {
+  text-shadow: 0 1px 0 #ffffff, 0 0 6px rgb(0 158 180 / 14%);
+}
+
+:root[data-theme="light"] .app-header {
+  box-shadow: 0 -1px 0 var(--cyan), 0 2px 14px rgb(0 158 180 / 10%);
+}
+
+:root[data-theme="light"] .app-header::before {
+  background: linear-gradient(90deg, var(--cyan), #d42369 52%, var(--accent-fill));
+}
+
+:root[data-theme="light"] .panel {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 86%), 0 1px 8px rgb(21 75 89 / 8%);
+}
+
+:root[data-theme="light"] .theme-picker {
+  border-color: color-mix(in srgb, var(--cyan) 55%, var(--border));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%);
+}
+
 :root[data-theme="light"] .deck-row[data-color="red"] {
-  --card-accent: #c92f43;
-  --deck-surface: #fae9eb;
+  --card-accent: #d42369;
+  --deck-surface: #ffe9f2;
 }
 
 :root[data-theme="light"] .deck-row[data-color="blue"] {
-  --card-accent: #006f96;
-  --deck-surface: #e3f1f7;
+  --card-accent: #0087c7;
+  --deck-surface: #e4f6ff;
 }
 
 :root[data-theme="light"] .deck-row[data-color="green"] {
-  --card-accent: #13744b;
-  --deck-surface: #e1f2e9;
+  --card-accent: #11824d;
+  --deck-surface: #e2f8eb;
 }
 
 :root[data-theme="light"] .deck-row[data-color="yellow"] {
-  --card-accent: #756600;
-  --deck-surface: #f5efcf;
+  --card-accent: #a48600;
+  --deck-surface: #fff4c7;
 }
 
 :root[data-theme="light"] .deck-row[data-color="colorless"] {
-  --card-accent: #5c686c;
-  --deck-surface: #eef1f1;
+  --card-accent: #6e39b8;
+  --deck-surface: #f1eaff;
 }
 
 :root[data-theme="light"] .card-row[data-color="red"] {
-  --card-accent: #c92f43;
-  --card-surface: #f7dde1;
+  --card-accent: #d42369;
+  --card-surface: #ffe2ee;
 }
 
 :root[data-theme="light"] .new-card-row[data-color="red"] {
-  --card-accent: #c92f43;
-  --card-surface: #f7dde1;
+  --card-accent: #d42369;
+  --card-surface: #ffe2ee;
 }
 
 :root[data-theme="light"] .card-row[data-color="blue"] {
-  --card-accent: #006f96;
-  --card-surface: #d9edf6;
+  --card-accent: #0087c7;
+  --card-surface: #dff4ff;
 }
 
 :root[data-theme="light"] .new-card-row[data-color="blue"] {
-  --card-accent: #006f96;
-  --card-surface: #d9edf6;
+  --card-accent: #0087c7;
+  --card-surface: #dff4ff;
 }
 
 :root[data-theme="light"] .card-row[data-color="green"] {
-  --card-accent: #13744b;
-  --card-surface: #d8eee2;
+  --card-accent: #11824d;
+  --card-surface: #d9f5e5;
 }
 
 :root[data-theme="light"] .new-card-row[data-color="green"] {
-  --card-accent: #13744b;
-  --card-surface: #d8eee2;
+  --card-accent: #11824d;
+  --card-surface: #d9f5e5;
 }
 
 :root[data-theme="light"] .card-row[data-color="yellow"] {
-  --card-accent: #756600;
-  --card-surface: #f1e8b7;
+  --card-accent: #a48600;
+  --card-surface: #fff1b0;
 }
 
 :root[data-theme="light"] .new-card-row[data-color="yellow"] {
-  --card-accent: #756600;
-  --card-surface: #f1e8b7;
+  --card-accent: #a48600;
+  --card-surface: #fff1b0;
 }
 
 :root[data-theme="light"] .card-row[data-color="colorless"] {
-  --card-accent: #5c686c;
-  --card-surface: #e7ecec;
+  --card-accent: #6e39b8;
+  --card-surface: #eee5ff;
 }
 
 :root[data-theme="light"] .new-card-row[data-color="colorless"] {
-  --card-accent: #5c686c;
-  --card-surface: #e7ecec;
+  --card-accent: #6e39b8;
+  --card-surface: #eee5ff;
 }
 
 :root[data-theme="light"] .card-detail-dialog[data-color="red"] {
-  --detail-accent: #c92f43;
-  --detail-border: #c77c86;
-  --detail-surface: #fff4f5;
+  --detail-accent: #d42369;
+  --detail-border: #d46a98;
+  --detail-surface: #fff4f8;
 }
 
 :root[data-theme="light"] .card-detail-dialog[data-color="blue"] {
-  --detail-accent: #006f96;
-  --detail-border: #6eabc2;
-  --detail-surface: #f1f9fc;
+  --detail-accent: #0087c7;
+  --detail-border: #58aed5;
+  --detail-surface: #f0faff;
 }
 
 :root[data-theme="light"] .card-detail-dialog[data-color="green"] {
-  --detail-accent: #13744b;
-  --detail-border: #74ad91;
-  --detail-surface: #f1faf5;
+  --detail-accent: #11824d;
+  --detail-border: #68b88e;
+  --detail-surface: #f1fbf5;
 }
 
 :root[data-theme="light"] .card-detail-dialog[data-color="yellow"] {
-  --detail-accent: #756600;
-  --detail-border: #b5a65d;
-  --detail-surface: #fffbee;
+  --detail-accent: #a48600;
+  --detail-border: #d1b743;
+  --detail-surface: #fff9df;
 }
 
 :root[data-theme="light"] .card-detail-dialog[data-color="colorless"] {
-  --detail-accent: #5c686c;
-  --detail-border: #929fa2;
-  --detail-surface: #f7f9f9;
+  --detail-accent: #6e39b8;
+  --detail-border: #a283d0;
+  --detail-surface: #f8f4ff;
 }
 
 :root[data-theme="light"] .card-detail-dialog {
-  box-shadow: inset 0 2px 0 rgb(255 255 255 / 70%);
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / 82%), 0 8px 28px rgb(21 75 89 / 18%);
 }

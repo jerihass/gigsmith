@@ -70,6 +70,19 @@ test("filters by Legend RAM fit and allows a warned incompatible addition", asyn
   await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
 });
 
+test("clears stale RAM warnings after Legends make the card compatible", async ({ page }) => {
+  await page.getByRole("button", { name: "New", exact: true }).click();
+
+  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Wraith Marauders");
+  await cardResult(page, "Wraith Marauders").getByRole("button", { name: "+ Main" }).click();
+  await expect(page.locator(".deck-edit-notice")).toContainText("requires 2 Green RAM");
+
+  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Goro Takemura — Vengeful Bodyguard");
+  await cardResult(page, "Goro Takemura — Vengeful Bodyguard").getByRole("button", { name: "Add Legend" }).click();
+  await expect(page.locator(".deck-edit-notice")).toBeHidden();
+  await expect(mainDeckCard(page, "Wraith Marauders").getByText("Over RAM", { exact: false })).toHaveCount(0);
+});
+
 test("undoes and redoes an active-deck card edit", async ({ page }) => {
   await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
   await page.getByRole("button", { name: "+ Main", exact: true }).click();

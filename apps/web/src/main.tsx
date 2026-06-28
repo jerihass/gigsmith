@@ -334,6 +334,17 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   }, [deck.id]);
 
   useEffect(() => {
+    if (!deckEditNotice) return;
+    const affectedCardId = deckEditNotice.affectedCards[0];
+    if (!affectedCardId) return;
+
+    const currentEvaluation = additionEvaluationById.get(affectedCardId);
+    const stillApplies = [...(currentEvaluation?.blockers ?? []), ...(currentEvaluation?.warnings ?? [])]
+      .some((issue) => issue.code === deckEditNotice.code);
+    if (!stillApplies) setDeckEditNotice(undefined);
+  }, [additionEvaluationById, deckEditNotice]);
+
+  useEffect(() => {
     if (!backupRestoreToast) return;
     const timeout = window.setTimeout(() => setBackupRestoreToast(undefined), 6000);
     return () => window.clearTimeout(timeout);

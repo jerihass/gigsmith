@@ -7,6 +7,17 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.12",
+    date: "2026-06-29",
+    title: "Journal and Update Polish",
+    changes: [
+      "Cleared stale transfer state after import/export flows.",
+      "Aligned playtest journal color checkbox behavior.",
+      "Clarified the PWA update banner copy.",
+      "Aligned the app package version with the in-app release history."
+    ]
+  },
+  {
     version: "0.1.11",
     date: "2026-06-29",
     title: "Playtest Journal",

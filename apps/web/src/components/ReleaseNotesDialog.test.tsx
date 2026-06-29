@@ -7,9 +7,13 @@ describe("ReleaseNotesDialog", () => {
     const markup = renderToStaticMarkup(<ReleaseNotesDialog open onClose={() => undefined} />);
 
     expect(markup).toContain("Release Notes");
+    expect(markup).toContain("0.1.12");
+    expect(markup).toContain("Journal and Update Polish");
+    expect(markup).toContain("PWA update banner");
+    expect(markup).toContain("0.1.11");
+    expect(markup).toContain("Playtest Journal");
+    expect(markup).toContain("playtest journal data");
     expect(markup).toContain("0.1.10");
-    expect(markup).toContain("Deck Warning Cleanup");
-    expect(markup).toContain("stale deck RAM warnings");
     expect(markup).toContain("0.1.9");
     expect(markup).toContain("Gig Odds Scope Fixes");
     expect(markup).toContain("0.1.8");

@@ -21,11 +21,10 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 The original `M0`-`M10` plan is complete. Execute the next product work in this order:
 
-1. `GS-120` local playtest journal and per-version summaries.
-2. `GS-161` weekly card/rules source-change reporting automation.
-3. `GS-130` collection-aware deck building.
-4. `GS-140` deeper composition analysis.
-5. `GS-150` shareable and printable deck reports.
+1. `GS-161` weekly card/rules source-change reporting automation.
+2. `GS-130` collection-aware deck building.
+3. `GS-140` deeper composition analysis.
+4. `GS-150` shareable and printable deck reports.
 
 Each step should land as a focused commit with tests, typechecking, and a production build.
 
@@ -792,7 +791,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P1 after `GS-111`.
 
-**Status:** Planned.
+**Status:** Done.
 
 **Goal:** Connect Gigsmith's deck analysis to observed games without presenting small samples as authoritative strategy.
 
@@ -811,6 +810,13 @@ domain model and tests remain available for future card-aware analysis.
 **Tests:**
 - Journal CRUD, version linkage, aggregation, migration, and import/export tests.
 - Phone browser workflow for recording a result in a few actions.
+
+**Implementation Notes:**
+- Added a `Journal` tab with fast local entry for result, deck version/current snapshot, opponent archetype/colors, first-player order, turns, final Street Cred, event, tags, and notes.
+- Each playtest stores an immutable deck snapshot and optional saved deck-version identity so later deck edits do not rewrite observed records.
+- Added per-deck and selected-version summaries with sample size, record, average turns, first-player split, opponent-color counts, and tags.
+- Records can be edited or deleted locally.
+- Full-device backups include the playtest journal.
 
 **Constitution Check:** The journal remains local-first and reports observed data without black-box strategic conclusions.
 

@@ -41,6 +41,7 @@ import { EddyCurvePanel } from "./components/EddyCurvePanel";
 import { GigWorkspace } from "./components/GigWorkspace";
 import { PwaUpdateNotice } from "./components/PwaUpdateNotice";
 import { PortableBackup, type RestoreResult } from "./components/PortableBackup";
+import { PlaytestJournalPanel } from "./components/PlaytestJournalPanel";
 import { ReleaseNotesDialog } from "./components/ReleaseNotesDialog";
 import { SampleHandPanel } from "./components/SampleHandPanel";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
@@ -75,6 +76,7 @@ import {
 } from "./deckLibrary";
 import { createDefaultGigMatch, loadGigMatch, saveGigMatch } from "./gigMatchStorage";
 import { mergeBackupDeckLibrary, type PortableBackupV1 } from "./portableBackup";
+import { createEmptyPlaytestJournal, loadPlaytestJournal, savePlaytestJournal, type PlaytestJournal } from "./playtestJournal";
 import { groupValidationResult } from "./validationGroups";
 import {
   applyThemePreference,
@@ -184,6 +186,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [cardArtUrls, setCardArtUrls] = useState<ReadonlyMap<string, string>>(() => new Map());
   const [cardArtSourceStatus, setCardArtSourceStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
   const [gigMatch, setGigMatch] = useState<GigMatchState>(() => loadGigMatch(window.localStorage));
+  const [playtestJournal, setPlaytestJournal] = useState<PlaytestJournal>(() => loadPlaytestJournal(window.localStorage));
   const [eddyPlayerOrder, setEddyPlayerOrder] = useState<"first" | "second">("first");
   const [sharedDocument, setSharedDocument] = useState<DeckDocumentV1>();
   const [sharedDeckError, setSharedDeckError] = useState("");
@@ -444,6 +447,11 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     saveGigMatch(window.localStorage, nextMatch);
   }
 
+  function handlePlaytestJournalChange(nextJournal: PlaytestJournal) {
+    setPlaytestJournal(nextJournal);
+    savePlaytestJournal(window.localStorage, nextJournal);
+  }
+
   function handleBackupRestore(backup: PortableBackupV1, mode: "replace" | "merge"): RestoreResult {
     try {
       if (mode === "merge") {
@@ -478,6 +486,9 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
       const restoredMatch = backup.gigMatch ?? createDefaultGigMatch();
       setGigMatch(restoredMatch);
       saveGigMatch(window.localStorage, restoredMatch);
+      const restoredJournal = backup.playtestJournal ?? createEmptyPlaytestJournal();
+      setPlaytestJournal(restoredJournal);
+      savePlaytestJournal(window.localStorage, restoredJournal);
       const result = {
         kind: "success",
         message: `Restored ${backup.library.decks.length} deck${backup.library.decks.length === 1 ? "" : "s"}, preferences, card data, and Gig Sandbox state.`
@@ -1059,6 +1070,16 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
 
       <section
         className="app-view"
+        id="app-panel-journal"
+        role="tabpanel"
+        aria-labelledby="app-tab-journal"
+        hidden={activeView !== "journal"}
+      >
+        <PlaytestJournalPanel deck={deck} journal={playtestJournal} onChange={handlePlaytestJournalChange} />
+      </section>
+
+      <section
+        className="app-view"
         id="app-panel-gigs"
         role="tabpanel"
         aria-labelledby="app-tab-gigs"
@@ -1092,6 +1113,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           cardDb={cardDb}
           usingCardDatabaseOverride={cardDatabaseState.usingOverride}
           gigMatch={gigMatch}
+          playtestJournal={playtestJournal}
           onRestore={handleBackupRestore}
         />
         <DeckTransfer deck={deck} cardDb={cardDb} onReplace={persist} />

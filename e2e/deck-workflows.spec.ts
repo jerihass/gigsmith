@@ -117,6 +117,39 @@ test("saves, compares, restores, and exports deck versions explicitly", async ({
   await expect(page.getByLabel("JSON deck export")).toContainText("Before Chrome");
 });
 
+test("records and edits a playtest tied to a saved deck version", async ({ page }) => {
+  await page.getByRole("textbox", { name: "Version name" }).fill("Event List");
+  await page.getByRole("button", { name: "Save version" }).click();
+  await page.getByRole("tab", { name: "Journal" }).click();
+  const journal = page.getByRole("tabpanel", { name: "Journal" });
+
+  await journal.getByLabel("Playtest date").fill("2026-06-29");
+  await journal.getByLabel("Playtest deck version").selectOption({ label: "Event List" });
+  await journal.getByLabel("Playtest result").selectOption("win");
+  await journal.getByLabel("Playtest first player").selectOption("first");
+  await journal.getByLabel("Opponent archetype").fill("Blue control");
+  await journal.getByLabel("Blue").check();
+  await journal.getByLabel("Turns played").fill("5");
+  await journal.getByLabel("Final Street Cred").fill("22");
+  await journal.getByLabel("Playtest event").fill("Store night");
+  await journal.getByLabel("Playtest tags").fill("starter, tempo");
+  await journal.getByLabel("Playtest notes").fill("Won on Gig pressure.");
+  await journal.getByRole("button", { name: "Record playtest" }).click();
+
+  await expect(journal.getByLabel("Playtest summary")).toContainText("1");
+  await expect(journal.getByLabel("Playtest records")).toContainText("WIN");
+  await expect(journal.getByLabel("Playtest records")).toContainText("Event List");
+  await expect(page.getByText("Blue 1")).toBeVisible();
+
+  await journal.getByRole("button", { name: "Edit" }).click();
+  await journal.getByLabel("Playtest result").selectOption("loss");
+  await journal.getByRole("button", { name: "Save playtest" }).click();
+
+  await expect(journal.getByLabel("Playtest summary")).toContainText("0-1-0");
+  await expect(journal.getByLabel("Playtest records")).toContainText("LOSS");
+  await expect(journal.getByLabel("Playtest records")).toContainText("Event List");
+});
+
 test("opens card details and restores focus when dismissed", async ({ page }) => {
   await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
   const card = page.getByRole("article").filter({ hasText: "Chrome Reverie" });

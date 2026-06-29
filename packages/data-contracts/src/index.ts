@@ -123,6 +123,40 @@ export interface Deck {
   versions?: DeckVersionSnapshot[];
 }
 
+export type PlaytestResult = "win" | "loss" | "draw";
+export type PlaytestPlayerOrder = "first" | "second" | "unknown";
+
+export interface PlaytestDeckSnapshot {
+  deckId: string;
+  deckName: string;
+  deckVersionId?: string;
+  deckVersionName?: string;
+  legends: DeckCardEntry[];
+  main: DeckCardEntry[];
+  formatId: FormatId;
+  rulesetVersion: RulesetVersion;
+  cardDataVersion: CardDataVersion;
+}
+
+export interface PlaytestRecord {
+  id: string;
+  playedAt: string;
+  result: PlaytestResult;
+  playerOrder: PlaytestPlayerOrder;
+  deck: PlaytestDeckSnapshot;
+  opponent: {
+    name?: string;
+    colors: CardColor[];
+  };
+  turns?: number;
+  finalStreetCred?: number;
+  event?: string;
+  notes?: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PortableDeckV1 {
   name: string;
   legends: DeckCardEntry[];

@@ -16,7 +16,8 @@ function backupInput() {
     library: addDeck(createDeckLibrary(first), second),
     preferences: { theme: "neon" as const, cardArtEnabled: true, activeView: "gigs" as const },
     cardDatabaseOverride: cyberpunkCardSnapshot,
-    gigMatch: createGigMatch(["player", "rival"], "player", cyberpunkRulesetV1Printable)
+    gigMatch: createGigMatch(["player", "rival"], "player", cyberpunkRulesetV1Printable),
+    playtestJournal: { version: 1 as const, records: [] }
   };
 }
 
@@ -32,7 +33,8 @@ describe("portable backup", () => {
       library: { decks: [{ id: "one" }, { id: "two" }] },
       preferences: { theme: "neon", cardArtEnabled: true, activeView: "gigs" },
       cardDatabaseOverride: { metadata: cyberpunkCardSnapshot.metadata },
-      gigMatch: { playerIds: ["player", "rival"] }
+      gigMatch: { playerIds: ["player", "rival"] },
+      playtestJournal: { records: [] }
     });
   });
 

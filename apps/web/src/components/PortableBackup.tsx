@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Download, Upload, X } from "lucide-react";
 import type { CardDatabase, GigMatchState } from "@gigsmith/data-contracts";
 import type { DeckLibrary } from "../deckLibrary";
+import type { PlaytestJournal } from "../playtestJournal";
 import {
   exportPortableBackup,
   importPortableBackup,
@@ -37,6 +38,7 @@ export function PortableBackup({
   cardDb,
   usingCardDatabaseOverride,
   gigMatch,
+  playtestJournal,
   onRestore
 }: {
   library: DeckLibrary;
@@ -46,6 +48,7 @@ export function PortableBackup({
   cardDb: CardDatabase;
   usingCardDatabaseOverride: boolean;
   gigMatch: GigMatchState;
+  playtestJournal: PlaytestJournal;
   onRestore: (backup: PortableBackupV1, mode: RestoreMode) => RestoreResult;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,7 +78,8 @@ export function PortableBackup({
       library,
       preferences: { theme, cardArtEnabled, activeView },
       cardDatabaseOverride: usingCardDatabaseOverride ? { metadata: cardDb.metadata, cards: cardDb.cards } : undefined,
-      gigMatch
+      gigMatch,
+      playtestJournal
     });
     const blob = new Blob([text], { type: "application/json" });
     const url = URL.createObjectURL(blob);

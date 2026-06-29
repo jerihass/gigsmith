@@ -7,6 +7,16 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.11",
+    date: "2026-06-29",
+    title: "Playtest Journal",
+    changes: [
+      "Added a local playtest journal tied to deck versions and current-edit snapshots.",
+      "Added per-version observed summaries for record, sample size, first-player split, turns, opponent colors, and tags.",
+      "Included playtest journal data in full-device backups."
+    ]
+  },
+  {
     version: "0.1.10",
     date: "2026-06-28",
     title: "Deck Warning Cleanup",

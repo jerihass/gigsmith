@@ -239,3 +239,118 @@
   padding: 18px;
   text-align: center;
 }
+
+.playtest-journal {
+  display: grid;
+  gap: 16px;
+}
+
+.playtest-title {
+  margin-bottom: 0;
+}
+
+.playtest-summary-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.playtest-summary-grid > div,
+.playtest-breakdowns > div {
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+}
+
+.playtest-summary-grid span,
+.playtest-breakdowns span,
+.playtest-note {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.playtest-summary-grid strong {
+  font-size: 1.35rem;
+}
+
+.playtest-entry-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.playtest-entry-grid .field:nth-child(2),
+.playtest-entry-grid .field:nth-child(5),
+.playtest-entry-grid .playtest-colors,
+.playtest-notes {
+  grid-column: span 2;
+}
+
+.playtest-notes textarea {
+  min-height: 96px;
+}
+
+.playtest-colors {
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin: 0;
+  padding: 10px;
+}
+
+.playtest-colors legend {
+  color: var(--muted);
+  font-size: 0.82rem;
+  padding: 0 4px;
+}
+
+.playtest-colors label {
+  align-items: center;
+  display: inline-flex;
+  gap: 5px;
+}
+
+.playtest-actions,
+.playtest-record-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.playtest-breakdowns {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.playtest-records {
+  display: grid;
+  gap: 8px;
+}
+
+.playtest-records article {
+  align-items: center;
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 10px;
+}
+
+.playtest-records article > div:first-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.playtest-records span,
+.playtest-records small {
+  color: var(--muted);
+}

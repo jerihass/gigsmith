@@ -3,6 +3,7 @@ import { validateCardSnapshot } from "@gigsmith/card-data";
 import { isAppView, type AppView } from "./appViews";
 import { isDeckLibrary, type DeckLibrary } from "./deckLibrary";
 import { isGigMatchState } from "./gigMatchStorage";
+import type { PlaytestJournal } from "./playtestJournal";
 import type { AppTheme } from "./themePreference";
 
 export const portableBackupSchema = "gigsmith.backup";
@@ -20,6 +21,7 @@ export interface PortableBackupV1 {
   };
   cardDatabaseOverride?: CardSnapshot;
   gigMatch?: GigMatchState;
+  playtestJournal?: PlaytestJournal;
 }
 
 export interface BackupImportResult {
@@ -69,6 +71,11 @@ export function importPortableBackup(value: string): BackupImportResult {
   }
   if (parsed.gigMatch !== undefined && !isGigMatchState(parsed.gigMatch)) {
     return { errors: ["Backup Gig Sandbox state is invalid."] };
+  }
+  if (parsed.playtestJournal !== undefined) {
+    if (!isRecord(parsed.playtestJournal) || parsed.playtestJournal.version !== 1 || !Array.isArray(parsed.playtestJournal.records)) {
+      return { errors: ["Backup playtest journal is invalid."] };
+    }
   }
 
   return { backup: parsed as unknown as PortableBackupV1, errors: [] };

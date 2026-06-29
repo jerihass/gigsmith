@@ -312,7 +312,20 @@
 .playtest-colors label {
   align-items: center;
   display: inline-flex;
-  gap: 5px;
+  gap: 7px;
+  line-height: 1;
+  min-height: 24px;
+}
+
+.playtest-colors input[type="checkbox"] {
+  flex: 0 0 auto;
+  height: 16px;
+  margin: 0;
+  width: 16px;
+}
+
+.playtest-colors label span {
+  line-height: 1.1;
 }
 
 .playtest-actions,

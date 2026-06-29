@@ -178,7 +178,10 @@ export function PlaytestJournalPanel({
         <fieldset className="playtest-colors">
           <legend>Opponent colors</legend>
           {colors.map((color) => (
-            <label key={color}><input checked={opponentColors.includes(color)} type="checkbox" onChange={() => toggleColor(color)} /> {color}</label>
+            <label key={color}>
+              <input checked={opponentColors.includes(color)} type="checkbox" onChange={() => toggleColor(color)} />
+              <span>{color}</span>
+            </label>
           ))}
         </fieldset>
         <label className="field">

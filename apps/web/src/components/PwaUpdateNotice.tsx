@@ -16,10 +16,10 @@ export function PwaUpdateNotice({ onReleaseNotes }: { onReleaseNotes: (trigger: 
   if (!activateUpdate) return null;
   return (
     <aside className="pwa-update" aria-live="polite">
-      <span>Gigsmith update ready</span>
+      <span>Gigsmith update downloaded</span>
       <div className="pwa-update-actions">
         <button onClick={(event) => onReleaseNotes(event.currentTarget)}>Release notes</button>
-        <button className="primary" onClick={activateUpdate}>Update now</button>
+        <button className="primary" onClick={activateUpdate}>Restart app</button>
       </div>
     </aside>
   );

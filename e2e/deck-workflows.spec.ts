@@ -316,6 +316,13 @@ test("connects deck Gig goals with exact roll and current-board odds", async ({ 
   await odds.getByText("Deck demand and natural-order analysis").click();
   await expect(odds.locator(".die-order > span")).toHaveCount(6);
   await expect(odds.getByRole("row")).toHaveCount(7);
+  const expandedAnalysisClearsTracker = await page.evaluate(() => {
+    const oddsBox = document.querySelector(".gig-odds-panel")?.getBoundingClientRect();
+    const trackerBox = document.querySelector(".gig-sandbox")?.getBoundingClientRect();
+    if (!oddsBox || !trackerBox) return false;
+    return oddsBox.bottom <= trackerBox.top + 0.5 || trackerBox.bottom <= oddsBox.top + 0.5;
+  });
+  expect(expandedAnalysisClearsTracker).toBe(true);
 
   await odds.getByRole("button", { name: "Roll and gain your d4" }).click();
   await expect(odds.locator(".next-die-options article")).toHaveCount(4);

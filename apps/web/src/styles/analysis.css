@@ -817,4 +817,18 @@
   .gig-workspace .next-die-options {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .gig-workspace:has(.gig-deep-analysis[open]) {
+    grid-template-columns: 1fr;
+  }
+
+  .gig-workspace:has(.gig-deep-analysis[open]) .gig-odds-panel {
+    max-height: none;
+    overflow: visible;
+    position: static;
+  }
+
+  .gig-workspace:has(.gig-deep-analysis[open]) .next-die-options {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }

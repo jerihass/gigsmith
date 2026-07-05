@@ -325,14 +325,16 @@ test("connects deck Gig goals with exact roll and current-board odds", async ({ 
 
   const gigRowsFitPools = await page.locator(".match-gig").evaluateAll((rows) =>
     rows.every((row) => {
-      const pool = row.closest(".gig-pool");
-      if (!pool) return false;
+      const zone = row.closest(".gig-zone");
+      const board = row.closest(".gig-player-board");
+      if (!zone || !board) return false;
       const rowBox = row.getBoundingClientRect();
-      const poolBox = pool.getBoundingClientRect();
+      const zoneBox = zone.getBoundingClientRect();
       return (
-        rowBox.left >= poolBox.left - 0.5 &&
-        rowBox.right <= poolBox.right + 0.5 &&
-        row.scrollWidth <= row.clientWidth
+        rowBox.left >= zoneBox.left - 0.5 &&
+        rowBox.right <= zoneBox.right + 0.5 &&
+        row.scrollWidth <= row.clientWidth &&
+        board.scrollWidth <= board.clientWidth
       );
     })
   );

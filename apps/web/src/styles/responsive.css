@@ -476,6 +476,11 @@
     font-size: 0.72rem;
   }
 
+  .fixer-gig .gig-command {
+    padding-inline: 0.25rem;
+    white-space: normal;
+  }
+
   .eddy-summary > div + div,
   .eddy-summary > div:nth-child(3) {
     border-left: 0;

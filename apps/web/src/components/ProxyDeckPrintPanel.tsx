@@ -19,6 +19,16 @@ export interface MissingProxyCard {
   count: number;
 }
 
+const proxiesPerPrintedPage = 9;
+
+function chunkProxyCopies(copies: ProxyCardCopy[]): ProxyCardCopy[][] {
+  const pages: ProxyCardCopy[][] = [];
+  for (let index = 0; index < copies.length; index += proxiesPerPrintedPage) {
+    pages.push(copies.slice(index, index + proxiesPerPrintedPage));
+  }
+  return pages;
+}
+
 function expandEntries(
   entries: DeckCardEntry[],
   section: "Legend" | "Main",
@@ -101,6 +111,7 @@ function ProxyCard({ copy }: { copy: ProxyCardCopy }) {
 
 export function ProxyDeckPrintPanel({ deck, cardDb }: { deck: Deck; cardDb: CardDatabase }) {
   const { copies, missing } = proxyDeckCards(deck, cardDb);
+  const pages = chunkProxyCopies(copies);
   const mainCount = deck.main.reduce((total, entry) => total + entry.count, 0);
   const legendCount = deck.legends.reduce((total, entry) => total + entry.count, 0);
   const [tone, setTone] = useState<ProxyPrintTone>("bw");
@@ -135,7 +146,11 @@ export function ProxyDeckPrintPanel({ deck, cardDb }: { deck: Deck; cardDb: Card
       )}
 
       <div className="proxy-page" aria-label={`${deck.name} printable proxy sheet`}>
-        {copies.map((copy, index) => <ProxyCard copy={copy} key={`${copy.card.id}-${copy.deckSection}-${copy.copyNumber}-${index}`} />)}
+        {pages.map((page, pageIndex) => (
+          <div className="proxy-sheet-page" aria-label={`Proxy sheet page ${pageIndex + 1}`} key={pageIndex}>
+            {page.map((copy, index) => <ProxyCard copy={copy} key={`${copy.card.id}-${copy.deckSection}-${copy.copyNumber}-${index}`} />)}
+          </div>
+        ))}
       </div>
     </section>
   );

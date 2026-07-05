@@ -90,6 +90,7 @@ describe("ProxyDeckPrintPanel", () => {
     expect(markup).toContain("Quick");
     expect(markup).toContain("Solo");
     expect(markup).toContain("Sell €$");
+    expect(markup).toContain("Proxy sheet page 1");
     expect(markup).not.toContain("<img");
   });
 });

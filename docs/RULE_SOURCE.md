@@ -9,6 +9,10 @@ Gigsmith's current rules baseline is the official printable gameplay guide retri
 
 Use the local copy for routine implementation and review. Check the remote source no more than once per week. When its bytes change, compare the new guide with this baseline before replacing the local file or changing rules code. A confirmed rules change must update the dated PDF, hash, ruleset version, uncertainty register, and affected tests together.
 
+The weekly GitHub `Source Check` workflow and local `npm run check:sources`
+command compare the remote PDF hash against this local copy. They report changes
+only; they never replace the PDF or update rules code automatically.
+
 The current Gig baseline is:
 
 - Each player has one `d4`, `d6`, `d8`, `d10`, `d12`, and `d20` in their Fixer area.

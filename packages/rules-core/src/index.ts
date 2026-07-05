@@ -16,6 +16,7 @@ import type {
 } from "@gigsmith/data-contracts";
 
 export { analyzeEddyCurve } from "./eddyCurve";
+export { analyzeDeckComposition, compositionRoleRegistryVersion } from "./composition";
 export { evaluateAttackLines } from "./attackLines";
 export { drawSampleHand } from "./sampleHand";
 export { analyzeMulligan, type MulliganAnalysisOptions } from "./mulligan";

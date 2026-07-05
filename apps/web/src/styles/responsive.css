@@ -27,7 +27,8 @@
   .source-panel,
   .filter-grid,
   .eddy-analysis-layout,
-  .gig-odds-layout {
+  .gig-odds-layout,
+  .composition-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -86,6 +87,10 @@
   }
 
   .eddy-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .composition-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -165,6 +170,14 @@
 
   .data-refresh-facts {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .deck-report-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .deck-report-list {
+    columns: 1;
   }
 
   .data-refresh-actions {
@@ -335,6 +348,10 @@
     grid-template-columns: 1fr;
   }
 
+  .composition-summary {
+    grid-template-columns: 1fr;
+  }
+
   .street-cred-summary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -423,6 +440,16 @@
     flex-direction: column;
   }
 
+  .deck-report-header,
+  .deck-report-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .deck-report-qr {
+    height: 96px;
+    width: 96px;
+  }
+
   .deck-version-create,
   .deck-version-metrics {
     grid-template-columns: 1fr;
@@ -487,7 +514,8 @@
   }
 
   .eddy-summary > div + div,
-  .eddy-summary > div:nth-child(3) {
+  .eddy-summary > div:nth-child(3),
+  .composition-summary > div + div {
     border-left: 0;
     border-top: 1px solid var(--border);
   }

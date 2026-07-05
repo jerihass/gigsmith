@@ -16,6 +16,17 @@ Do not bundle card art. The snapshot may preserve stable `source_image_url` refe
 These steps update the bundled repository snapshot. Use them when preparing a
 release or checking in a new known-good card baseline.
 
+Before refreshing, run the source-change report:
+
+```sh
+npm run check:sources -- --json /tmp/gigsmith-source-check.json --markdown /tmp/gigsmith-source-check.md
+```
+
+This compares Netdeck and the official printable rules source against the reviewed
+repository baselines. It does not write repository data or refresh snapshots.
+The scheduled GitHub workflow performs the same check weekly and opens or updates
+one `source-check` issue when changes are detected.
+
 1. Fetch the current Netdeck payload:
 
    ```sh

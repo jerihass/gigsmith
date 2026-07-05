@@ -1,11 +1,13 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { Info, Palette, Redo2, Undo2, X } from "lucide-react";
-import { cyberpunkCardDb, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
+import { cyberpunkCardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, CardDatabase, Deck, DeckCardEntry, DeckDocumentV1, GigMatchState, ValidationIssue } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload, deckInputLimits } from "@gigsmith/deck-io";
 import {
   analyzeEddyCurve,
+  analyzeDeckComposition,
+  analyzeGigOdds,
   calculateRamLimits,
   evaluateCardRamCompatibility,
   evaluateMainDeckAdditions,
@@ -34,6 +36,8 @@ import { CardPreviewIdentity, CardPreviewStats } from "./components/CardPreviewS
 import { CardDatabaseRefresh } from "./components/CardDatabaseRefresh";
 import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
 import { DeckCurveSummary } from "./components/DeckCurveSummary";
+import { DeckCompositionPanel } from "./components/DeckCompositionPanel";
+import { DeckReportPanel } from "./components/DeckReportPanel";
 import { DeckRecovery } from "./components/DeckRecovery";
 import { DeckTransfer } from "./components/DeckTransfer";
 import { DeckVersionsPanel } from "./components/DeckVersionsPanel";
@@ -309,6 +313,22 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
       { mainCards: entryCount(deck.main) }
     ),
     [cardDb, deck]
+  );
+  const composition = useMemo(
+    () => measurePerformance(
+      "deck.composition",
+      () => analyzeDeckComposition(deck, cardDb),
+      { mainCards: entryCount(deck.main), cards: cardDb.cards.length }
+    ),
+    [cardDb, deck]
+  );
+  const reportGigOdds = useMemo(
+    () => activeView === "print" ? measurePerformance(
+      "deck.reportGigOdds",
+      () => analyzeGigOdds(deck, cardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable),
+      { mainCards: entryCount(deck.main) }
+    ) : undefined,
+    [activeView, cardDb, deck]
   );
   const deckCountById = useMemo(() => {
     const counts = new Map<string, number>();
@@ -1146,6 +1166,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           playerOrder={eddyPlayerOrder}
           onPlayerOrderChange={setEddyPlayerOrder}
         />
+        <DeckCompositionPanel report={composition} cards={cardDb.cards} />
         <SampleHandPanel deck={deck} cardDb={cardDb} />
       </section>
 
@@ -1182,7 +1203,18 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
       >
         {activeView === "print" && (
           <React.Suspense fallback={<section className="panel loading-panel">Loading print tools...</section>}>
-            <LazyProxyDeckPrintPanel deck={deck} cardDb={cardDb} />
+            {reportGigOdds && <>
+              <DeckReportPanel
+                deck={deck}
+                cardDb={cardDb}
+                validation={validation}
+                ram={ram}
+                eddyCurve={eddyCurve}
+                composition={composition}
+                gigOdds={reportGigOdds}
+              />
+              <LazyProxyDeckPrintPanel deck={deck} cardDb={cardDb} />
+            </>}
           </React.Suspense>
         )}
       </section>

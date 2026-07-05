@@ -19,12 +19,11 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 ## Next Execution Sequence
 
-The original `M0`-`M10` plan is complete. Execute the next product work in this order:
+The original `M0`-`M10` plan is complete. Current stabilization priorities:
 
-1. `GS-161` weekly card/rules source-change reporting automation.
-2. `GS-130` collection-aware deck building.
-3. `GS-140` deeper composition analysis.
-4. `GS-150` shareable and printable deck reports.
+1. Review source-change reports and refresh card snapshots only through explicit reviewed commits.
+2. Table-test deck legality, mobile Gig tracking, backup/restore, offline install, and print/report output.
+3. Revisit `GS-130` collection-aware deck building only if owned-card tracking becomes a real user workflow.
 
 Each step should land as a focused commit with tests, typechecking, and a production build.
 
@@ -851,9 +850,9 @@ domain model and tests remain available for future card-aware analysis.
 
 ### GS-140: Add Explainable Deck-Composition Analysis
 
-**Priority:** P2 after `GS-130`.
+**Priority:** P2.
 
-**Status:** Planned.
+**Status:** Done.
 
 **Goal:** Expand deck analysis beyond Eddy and Gig odds using explicit, reviewable card metadata.
 
@@ -880,7 +879,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P2 after `GS-140`.
 
-**Status:** Planned.
+**Status:** Done.
 
 **Goal:** Make a deck easy to review, print, and transfer without exposing private library, collection, or journal data.
 
@@ -935,7 +934,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P1 after `GS-160`.
 
-**Status:** Planned; manual weekly freshness policy exists, but scheduled reporting is not implemented.
+**Status:** Done.
 
 **Goal:** Detect new cards or rules revisions without silently changing Gigsmith's reviewed local snapshots.
 

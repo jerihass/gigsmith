@@ -3,6 +3,178 @@
   margin-bottom: 16px;
 }
 
+.composition-panel {
+  margin: 16px 0;
+}
+
+.composition-summary {
+  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.composition-summary > div {
+  padding: 10px 12px;
+}
+
+.composition-summary > div + div {
+  border-left: 1px solid var(--border);
+}
+
+.composition-summary dt {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.composition-summary dd {
+  color: var(--text);
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 2px 0 0;
+}
+
+.composition-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.composition-block {
+  min-width: 0;
+}
+
+.composition-block h3 {
+  font-size: 0.9rem;
+  margin: 0 0 10px;
+}
+
+.composition-bars {
+  display: grid;
+  gap: 10px;
+}
+
+.composition-row {
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.composition-row-head {
+  align-items: baseline;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.composition-row-head span {
+  color: var(--text);
+  font-weight: 800;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.composition-row-head strong {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.composition-track {
+  background: var(--surface-raised);
+  height: 8px;
+  margin: 6px 0;
+  overflow: hidden;
+}
+
+.composition-track span {
+  background: var(--cyan);
+  display: block;
+  height: 100%;
+  min-width: 2px;
+}
+
+.composition-sources summary,
+.composition-role-list summary,
+.composition-versions summary,
+.composition-warnings summary {
+  color: var(--muted-strong);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.composition-sources ul,
+.composition-role-list ul {
+  color: var(--muted-strong);
+  font-size: 0.78rem;
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.composition-role-list {
+  display: grid;
+  gap: 8px;
+}
+
+.composition-role-list details {
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.composition-role-list summary {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+}
+
+.composition-role-list summary span {
+  color: var(--text);
+  font-size: 0.86rem;
+}
+
+.composition-role-list summary strong {
+  color: var(--accent);
+}
+
+.composition-role-list p,
+.composition-warnings p {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 8px 0 0;
+}
+
+.composition-versions,
+.composition-warnings {
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+  padding-top: 12px;
+}
+
+.composition-version-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.composition-version-list article {
+  align-items: center;
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 8px;
+}
+
 .compact-panel-title {
   align-items: baseline;
   display: flex;

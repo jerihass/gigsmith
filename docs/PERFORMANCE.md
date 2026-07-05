@@ -33,6 +33,8 @@ On June 21, 2026, exact Gig-roll profiling moved from exhaustive outcome enumera
 
 The same pass removed repeated deck expansion and card indexing from each mulligan sample, batch-evaluated all card-add states from one RAM/index context, memoized unchanged Analysis/Gig subtrees, and enabled paint containment for offscreen card rows. The 250-card batch-add computation has a dedicated 100 ms pure-computation budget alongside card filtering.
 
+On July 5, 2026, read-only deck reports added print/report CSS and optional QR generation. The QR package is dynamically imported from the Print tab and emitted as a lazy chunk; initial JavaScript remains under the existing 130,000 B gzip budget. Lazy JavaScript gzip budget moved from 200,000 B to 215,000 B and CSS gzip from 12,000 B to 13,000 B after inspecting the production bundle.
+
 ## Browser Method
 
 The `performance-chromium` Playwright project uses a Pixel 7 viewport and Chromium's 4x CPU throttling. It performs one deterministic path on the production preview:

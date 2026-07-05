@@ -15,11 +15,13 @@
     "test:e2e": "npm run build && playwright test",
     "test:performance-budgets": "node apps/web/scripts/check-performance-budgets.mjs",
     "test:pwa-builds": "node apps/web/scripts/test-pwa-builds.mjs",
+    "check:sources": "node scripts/check-source-changes.mjs",
     "typecheck": "tsc -b"
   },
   "dependencies": {
     "lucide-react": "^1.21.0",
     "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

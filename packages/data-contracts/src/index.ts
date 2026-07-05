@@ -349,6 +349,63 @@ export interface EddyCurveReport {
   warnings: EddyCurveWarning[];
 }
 
+export interface CompositionBucket {
+  label: string;
+  copyCount: number;
+  uniqueCardCount: number;
+  cardIds: CardId[];
+}
+
+export interface CompositionNumberBucket extends CompositionBucket {
+  value: number | "none";
+}
+
+export interface CompositionRoleBucket extends CompositionBucket {
+  roleId: string;
+  description: string;
+}
+
+export interface CompositionSectionReport {
+  cardCount: number;
+  uniqueCardCount: number;
+  colorBuckets: CompositionBucket[];
+  typeBuckets: CompositionBucket[];
+  classificationBuckets: CompositionBucket[];
+  keywordBuckets: CompositionBucket[];
+  costBuckets: CompositionNumberBucket[];
+  powerBuckets: CompositionNumberBucket[];
+  ramBuckets: CompositionNumberBucket[];
+  roleBuckets: CompositionRoleBucket[];
+  unknownCardIds: CardId[];
+}
+
+export interface CompositionVersionComparison {
+  versionId: string;
+  versionName: string;
+  createdAt: string;
+  mainCardDelta: number;
+  legendCardDelta: number;
+  colorDeltas: CompositionBucket[];
+  typeDeltas: CompositionBucket[];
+}
+
+export interface CompositionWarning {
+  code: "unknown-card" | "role-coverage";
+  message: string;
+  affectedCards: CardId[];
+}
+
+export interface DeckCompositionReport {
+  version: "deck-composition.v1";
+  roleRegistryVersion: string;
+  cardDataVersion: CardDataVersion;
+  main: CompositionSectionReport;
+  legends: CompositionSectionReport;
+  versionComparisons: CompositionVersionComparison[];
+  warnings: CompositionWarning[];
+  assumptions: string[];
+}
+
 export interface SampleHandCard {
   cardId: CardId;
   copyNumber: number;

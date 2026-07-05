@@ -1,0 +1,264 @@
+.proxy-print-panel {
+  overflow: visible;
+}
+
+.proxy-print-title {
+  align-items: end;
+}
+
+.proxy-print-controls {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.proxy-print-controls button {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.compact-field {
+  min-width: 180px;
+}
+
+.proxy-print-summary {
+  color: var(--muted-strong);
+  margin: 0 0 14px;
+}
+
+.proxy-print-warning {
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-text);
+  margin-bottom: 14px;
+  padding: 10px;
+}
+
+.proxy-page {
+  display: grid;
+  gap: 0.12in;
+  grid-template-columns: repeat(auto-fill, minmax(2.5in, 2.5in));
+  justify-content: center;
+}
+
+.proxy-card {
+  --proxy-accent: #8c969a;
+  background: var(--surface);
+  border: 0.03in solid var(--proxy-accent);
+  border-radius: 0.08in;
+  box-sizing: border-box;
+  color: var(--text);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  height: 3.5in;
+  overflow: hidden;
+  padding: 0.1in;
+  width: 2.5in;
+}
+
+.proxy-print-panel[data-print-tone="bw"] .proxy-card {
+  --proxy-accent: #111;
+  background: #fff;
+  color: #111;
+}
+
+.proxy-print-panel[data-print-tone="color"] .proxy-card[data-color="red"] {
+  --proxy-accent: #d23b45;
+}
+
+.proxy-print-panel[data-print-tone="color"] .proxy-card[data-color="blue"] {
+  --proxy-accent: #1988bf;
+}
+
+.proxy-print-panel[data-print-tone="color"] .proxy-card[data-color="green"] {
+  --proxy-accent: #1f8a56;
+}
+
+.proxy-print-panel[data-print-tone="color"] .proxy-card[data-color="yellow"] {
+  --proxy-accent: #9d8500;
+}
+
+.proxy-card-header {
+  border-bottom: 0.03in solid var(--proxy-accent);
+  display: grid;
+  gap: 0.05in;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding-bottom: 0.06in;
+}
+
+.proxy-card-header p,
+.proxy-card-header h3,
+.proxy-card-header span,
+.proxy-card-rules h4,
+.proxy-card-rules p,
+.proxy-card-tags,
+.proxy-card-footer {
+  margin: 0;
+}
+
+.proxy-card-header p,
+.proxy-card-header span,
+.proxy-card-rules h4,
+.proxy-card-tags dt,
+.proxy-card-footer {
+  font-size: 0.09in;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.proxy-card-header p,
+.proxy-card-header span,
+.proxy-card-rules h4,
+.proxy-card-tags dt {
+  color: var(--proxy-accent);
+}
+
+.proxy-card-header h3 {
+  font-size: 0.16in;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+
+.proxy-card-stats {
+  display: grid;
+  gap: 0.05in;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0.07in 0;
+}
+
+.proxy-card-stats div {
+  border: 0.015in solid var(--proxy-accent);
+  padding: 0.035in;
+  text-align: center;
+}
+
+.proxy-card-stats dt {
+  color: var(--proxy-accent);
+  font-size: 0.075in;
+  font-weight: 800;
+  margin: 0;
+}
+
+.proxy-card-stats dd {
+  font-size: 0.16in;
+  font-weight: 900;
+  line-height: 1;
+  margin: 0.025in 0 0;
+}
+
+.proxy-card-rules {
+  min-height: 0;
+}
+
+.proxy-card-rules h4 {
+  margin-bottom: 0.035in;
+}
+
+.proxy-card-rules p {
+  font-size: 0.115in;
+  line-height: 1.22;
+  white-space: pre-wrap;
+}
+
+.proxy-card-rules[data-density="compact"] p {
+  font-size: 0.102in;
+  line-height: 1.16;
+}
+
+.proxy-card-rules[data-density="dense"] p {
+  font-size: 0.092in;
+  line-height: 1.12;
+}
+
+.proxy-card-tags {
+  border-top: 0.015in solid var(--proxy-accent);
+  display: grid;
+  gap: 0.025in;
+  margin-top: 0.05in;
+  padding-top: 0.04in;
+}
+
+.proxy-card-tags div,
+.proxy-card-footer {
+  display: flex;
+  gap: 0.04in;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.proxy-card-tags dd {
+  font-size: 0.085in;
+  margin: 0;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.proxy-card-footer {
+  border-top: 0.015in solid var(--proxy-accent);
+  margin-top: 0.04in;
+  padding-top: 0.035in;
+}
+
+@media print {
+  @page {
+    margin: 0.25in;
+    size: letter;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .proxy-print-panel,
+  .proxy-print-panel * {
+    visibility: visible;
+  }
+
+  .proxy-print-panel {
+    background: #fff !important;
+    border: 0;
+    box-shadow: none;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  .proxy-print-title,
+  .proxy-print-summary,
+  .proxy-print-warning,
+  .proxy-print-controls {
+    display: none !important;
+  }
+
+  .proxy-page {
+    gap: 0;
+    grid-template-columns: repeat(3, 2.5in);
+    justify-content: start;
+  }
+
+  .proxy-card {
+    break-inside: avoid;
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
+
+  .proxy-print-panel[data-print-tone="bw"] .proxy-card {
+    --proxy-accent: #000;
+    background: #fff !important;
+    color: #000 !important;
+  }
+}

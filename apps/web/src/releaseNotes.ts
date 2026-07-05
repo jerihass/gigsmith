@@ -7,6 +7,16 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.13",
+    date: "2026-07-05",
+    title: "Printable Proxy Decks",
+    changes: [
+      "Added a Print tab that generates sleeve-sized proxy cards from local deck metadata.",
+      "Included playable card fields on proxies: color, type, RAM, cost, power, sellable marker, rules text, keywords, classifications, and printing reference.",
+      "Defaulted proxy printing to black-and-white with an optional color-accent mode."
+    ]
+  },
+  {
     version: "0.1.12",
     date: "2026-06-29",
     title: "Journal and Update Polish",

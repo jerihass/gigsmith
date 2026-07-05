@@ -6,6 +6,7 @@ const labels: Record<AppView, string> = {
   analysis: "Analysis",
   journal: "Journal",
   gigs: "Gigs",
+  print: "Print",
   transfer: "Transfer"
 };
 

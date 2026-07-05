@@ -7,6 +7,9 @@ describe("ReleaseNotesDialog", () => {
     const markup = renderToStaticMarkup(<ReleaseNotesDialog open onClose={() => undefined} />);
 
     expect(markup).toContain("Release Notes");
+    expect(markup).toContain("0.1.13");
+    expect(markup).toContain("Printable Proxy Decks");
+    expect(markup).toContain("sleeve-sized proxy cards");
     expect(markup).toContain("0.1.12");
     expect(markup).toContain("Journal and Update Polish");
     expect(markup).toContain("PWA update banner");

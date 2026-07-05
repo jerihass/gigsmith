@@ -150,6 +150,18 @@ test("records and edits a playtest tied to a saved deck version", async ({ page 
   await expect(journal.getByLabel("Playtest records")).toContainText("Event List");
 });
 
+test("renders printable proxy cards without artwork", async ({ page }) => {
+  await page.getByRole("tab", { name: "Print" }).click();
+  const printPanel = page.getByRole("tabpanel", { name: "Print" });
+
+  await expect(printPanel.getByRole("heading", { name: "Printable Proxy Deck" })).toBeVisible();
+  await expect(printPanel.getByLabel("Proxy print mode")).toHaveValue("bw");
+  await expect(printPanel.locator(".proxy-card")).toHaveCount(43);
+  await expect(printPanel.getByLabel("V — StreetKid proxy")).toContainText("Red Legend");
+  await expect(printPanel.getByLabel("Dum Dum — Maelstrom Triggerman proxy").first()).toContainText("Ability");
+  await expect(printPanel.locator("img")).toHaveCount(0);
+});
+
 test("opens card details and restores focus when dismissed", async ({ page }) => {
   await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
   const card = page.getByRole("article").filter({ hasText: "Chrome Reverie" });

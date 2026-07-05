@@ -42,6 +42,7 @@ import { GigWorkspace } from "./components/GigWorkspace";
 import { PwaUpdateNotice } from "./components/PwaUpdateNotice";
 import { PortableBackup, type RestoreResult } from "./components/PortableBackup";
 import { PlaytestJournalPanel } from "./components/PlaytestJournalPanel";
+import { ProxyDeckPrintPanel } from "./components/ProxyDeckPrintPanel";
 import { ReleaseNotesDialog } from "./components/ReleaseNotesDialog";
 import { SampleHandPanel } from "./components/SampleHandPanel";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
@@ -1086,6 +1087,16 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         hidden={activeView !== "gigs"}
       >
         <GigWorkspace deck={deck} cardDb={cardDb} match={gigMatch} onMatchChange={handleGigMatchChange} />
+      </section>
+
+      <section
+        className="app-view"
+        id="app-panel-print"
+        role="tabpanel"
+        aria-labelledby="app-tab-print"
+        hidden={activeView !== "print"}
+      >
+        <ProxyDeckPrintPanel deck={deck} cardDb={cardDb} />
       </section>
 
       <section

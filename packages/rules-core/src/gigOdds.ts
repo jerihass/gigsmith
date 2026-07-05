@@ -157,6 +157,35 @@ function deckFitScore(profile: GigRollProfile, demands: GigConditionDemand[]): n
   return copies === 0 ? 0 : round(weighted / copies);
 }
 
+type RecommendedOrderCandidate = {
+  order: DieType[];
+  profiles: Array<GigRollProfile & { deckFitScore: number }>;
+  score: number;
+};
+
+function compareRecommendedOrders(
+  left: RecommendedOrderCandidate,
+  right: RecommendedOrderCandidate
+): number {
+  const scoreDelta = left.score - right.score;
+  if (scoreDelta !== 0) return scoreDelta;
+  if (left.score === 0 && right.score === 0) return 0;
+
+  for (let index = 0; index < Math.min(left.profiles.length, right.profiles.length); index += 1) {
+    const fitDelta = left.profiles[index].deckFitScore - right.profiles[index].deckFitScore;
+    if (fitDelta !== 0) return fitDelta;
+    const credDelta = left.profiles[index].expectedStreetCred - right.profiles[index].expectedStreetCred;
+    if (credDelta !== 0) return credDelta;
+  }
+
+  for (let index = 0; index < Math.min(left.order.length, right.order.length); index += 1) {
+    const dieDelta = gigDieMaximum(left.order[index]) - gigDieMaximum(right.order[index]);
+    if (dieDelta !== 0) return dieDelta;
+  }
+
+  return 0;
+}
+
 function buildDemands(deck: Deck, cardDb: CardDatabase, registry: GigRequirementRegistry): GigConditionDemand[] {
   const cards = new Map(cardDb.cards.map((card) => [card.id, card]));
   const requirements = new Map(registry.entries.map((entry) => [entry.externalCardId, entry]));
@@ -220,12 +249,20 @@ export function analyzeGigOdds(
   const earlyDice = ruleset.gigRules.playerDieTypes.filter((dieType) => dieType !== "d20");
   const orders = permutations(earlyDice).map((order) => d20 ? [...order, d20] : order);
   let recommendedOrder = orders[0] ?? [];
-  let recommendedScore = -1;
+  let recommendedCandidate: RecommendedOrderCandidate | undefined;
   for (const order of orders) {
-    const score = order.reduce((sum, _dieType, index) => sum + deckFitScore(profileForDice(order.slice(0, index + 1)), demands), 0);
-    if (score > recommendedScore) {
+    const profiles: Array<GigRollProfile & { deckFitScore: number }> = order.map((_dieType, index) => {
+      const profile = profileForDice(order.slice(0, index + 1));
+      return { ...profile, deckFitScore: deckFitScore(profile, demands) };
+    });
+    const candidate = {
+      order,
+      profiles,
+      score: round(profiles.reduce((sum, profile) => sum + profile.deckFitScore, 0))
+    };
+    if (!recommendedCandidate || compareRecommendedOrders(candidate, recommendedCandidate) > 0) {
+      recommendedCandidate = candidate;
       recommendedOrder = order;
-      recommendedScore = score;
     }
   }
   const turns = recommendedOrder.map((dieType, index) => {

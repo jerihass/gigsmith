@@ -67,6 +67,24 @@ describe("Gig odds analysis", () => {
     expect(report.demands[0]).toMatchObject({ condition: "high-8", copies: 6, supported: true });
   });
 
+  it("breaks equal Street Cred recommendation scores toward higher early dice", () => {
+    const report = analyzeGigOdds(
+      {
+        ...deck([["cb-minotaur", 1]]),
+        legends: [{ cardId: cardId("cb-yorinobu-arasaka-embracing-destruction"), count: 1 }]
+      },
+      cyberpunkCardDb,
+      cyberpunkGigRequirements,
+      cyberpunkRulesetV1Printable
+    );
+
+    expect(report.recommendedOrder.slice(0, 2)).toEqual(["d12", "d10"]);
+    expect(report.demands).toEqual(expect.arrayContaining([
+      expect.objectContaining({ condition: "street-cred-20", supported: true }),
+      expect.objectContaining({ condition: "street-cred-lead", supported: false })
+    ]));
+  });
+
   it("puts overlapping low-sided dice first for Green same-value pairs", () => {
     const report = analyzeGigOdds(
       deck([["cb-goro-takemura-vengeful-bodyguard", 1], ["cb-peace-offering", 3]]),

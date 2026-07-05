@@ -1,7 +1,7 @@
 {
   "name": "gigsmith",
   "private": true,
-  "version": "0.1.13",
+  "version": "0.1.14",
   "type": "module",
   "workspaces": [
     "apps/*",
@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "lucide-react": "^1.21.0",
+    "pdf-lib": "^1.17.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

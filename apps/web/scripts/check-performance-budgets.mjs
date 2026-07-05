@@ -20,8 +20,20 @@ async function aggregate(files) {
 }
 
 const assets = resolve(dist, "assets");
-const [javascript, css, serviceWorker, snapshot] = await Promise.all([
-  filesWithExtension(assets, ".js").then(aggregate),
+function initialJavaScriptFiles(html) {
+  return [...html.matchAll(/<script[^>]+type="module"[^>]+src="([^"]+\.js)"/g)]
+    .map((match) => resolve(dist, match[1].replace(/^\//, "")));
+}
+
+const html = await readFile(resolve(dist, "index.html"), "utf8");
+const allJavaScriptFiles = await filesWithExtension(assets, ".js");
+const initialJavaScript = initialJavaScriptFiles(html);
+const initialJavaScriptSet = new Set(initialJavaScript.map(String));
+const lazyJavaScript = allJavaScriptFiles.filter((file) => !initialJavaScriptSet.has(String(file)));
+
+const [javascript, lazyJavascript, css, serviceWorker, snapshot] = await Promise.all([
+  aggregate(initialJavaScript),
+  lazyJavaScript.length ? aggregate(lazyJavaScript) : Promise.resolve({ raw: 0, gzip: 0 }),
   filesWithExtension(assets, ".css").then(aggregate),
   aggregate([resolve(dist, "sw.js")]),
   aggregate([resolve(root, "packages/card-data/src/cyberpunk-snapshot.json")])
@@ -30,6 +42,8 @@ const snapshotDocument = JSON.parse(await readFile(resolve(root, "packages/card-
 const actual = {
   javascriptRawBytes: javascript.raw,
   javascriptGzipBytes: javascript.gzip,
+  lazyJavascriptRawBytes: lazyJavascript.raw,
+  lazyJavascriptGzipBytes: lazyJavascript.gzip,
   cssRawBytes: css.raw,
   cssGzipBytes: css.gzip,
   serviceWorkerRawBytes: serviceWorker.raw,
@@ -40,7 +54,8 @@ const actual = {
 };
 
 console.table([
-  { asset: "JavaScript", rawBytes: javascript.raw, gzipBytes: javascript.gzip },
+  { asset: "Initial JavaScript", rawBytes: javascript.raw, gzipBytes: javascript.gzip },
+  { asset: "Lazy JavaScript", rawBytes: lazyJavascript.raw, gzipBytes: lazyJavascript.gzip },
   { asset: "CSS", rawBytes: css.raw, gzipBytes: css.gzip },
   { asset: "Service worker", rawBytes: serviceWorker.raw, gzipBytes: serviceWorker.gzip },
   { asset: `Card snapshot (${snapshotDocument.cards.length} cards)`, rawBytes: snapshot.raw, gzipBytes: snapshot.gzip },

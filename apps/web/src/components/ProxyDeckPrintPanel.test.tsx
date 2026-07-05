@@ -81,6 +81,8 @@ describe("ProxyDeckPrintPanel", () => {
 
     expect(markup).toContain("Printable Proxy Deck");
     expect(markup).toContain("Black and white");
+    expect(markup).toContain("Download 9-up PDF");
+    expect(markup).toContain("Browser print");
     expect(markup).toContain("Test Card");
     expect(markup).toContain("Red Unit");
     expect(markup).toContain("RAM");

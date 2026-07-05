@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
+import { PDFDocument } from "pdf-lib";
 
 function cardResult(page: Page, name: string) {
   return page.getByRole("region", { name: "Card database results" }).getByRole("article", { name });
@@ -156,11 +158,23 @@ test("renders printable proxy cards without artwork", async ({ page }) => {
 
   await expect(printPanel.getByRole("heading", { name: "Printable Proxy Deck" })).toBeVisible();
   await expect(printPanel.getByLabel("Proxy print mode")).toHaveValue("bw");
+  await expect(printPanel.getByRole("button", { name: "Download 9-up PDF" })).toBeVisible();
+  await expect(printPanel.getByRole("button", { name: "Browser print" })).toBeVisible();
   await expect(printPanel.locator(".proxy-card")).toHaveCount(43);
   await expect(printPanel.locator(".proxy-sheet-page")).toHaveCount(8);
   await expect(printPanel.getByLabel("V — StreetKid proxy")).toContainText("Red Legend");
   await expect(printPanel.getByLabel("Dum Dum — Maelstrom Triggerman proxy").first()).toContainText("Ability");
   await expect(printPanel.locator("img")).toHaveCount(0);
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    printPanel.getByRole("button", { name: "Download 9-up PDF" }).click()
+  ]);
+  expect(download.suggestedFilename()).toBe("gigsmith-starter-legal-shell-proxies.pdf");
+  const downloadPath = await download.path();
+  expect(downloadPath).not.toBeNull();
+  const document = await PDFDocument.load(await readFile(downloadPath!));
+  expect(document.getPageCount()).toBe(5);
 });
 
 test("opens card details and restores focus when dismissed", async ({ page }) => {

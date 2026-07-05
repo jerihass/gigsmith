@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Printer } from "lucide-react";
+import { Download, Printer } from "lucide-react";
 import type { Card, CardDatabase, Deck, DeckCardEntry } from "@gigsmith/data-contracts";
 import { isSellableCard } from "@gigsmith/data-contracts";
 import { cardDetailTags, cardDetailText, displayPreviewNumber, eddieSymbol } from "../cardDetails";
+import { generateProxyDeckPdf, proxyPdfFileName } from "../proxyPdf";
 
 export type ProxyPrintTone = "bw" | "color";
 
@@ -115,6 +116,27 @@ export function ProxyDeckPrintPanel({ deck, cardDb }: { deck: Deck; cardDb: Card
   const mainCount = deck.main.reduce((total, entry) => total + entry.count, 0);
   const legendCount = deck.legends.reduce((total, entry) => total + entry.count, 0);
   const [tone, setTone] = useState<ProxyPrintTone>("bw");
+  const [downloadStatus, setDownloadStatus] = useState("");
+
+  async function downloadPdf() {
+    try {
+      setDownloadStatus("Preparing PDF...");
+      const bytes = await generateProxyDeckPdf(copies, { tone });
+      const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+      const blob = new Blob([buffer], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = proxyPdfFileName(deck.name);
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+      setDownloadStatus(`Downloaded ${Math.ceil(copies.length / 9)} PDF sheet${copies.length <= 9 ? "" : "s"}.`);
+    } catch {
+      setDownloadStatus("PDF export failed.");
+    }
+  }
 
   return (
     <section className="panel proxy-print-panel" data-print-tone={tone}>
@@ -131,13 +153,15 @@ export function ProxyDeckPrintPanel({ deck, cardDb }: { deck: Deck; cardDb: Card
               <option value="color">Color accents</option>
             </select>
           </label>
-          <button className="primary" onClick={() => window.print()}><Printer size={16} aria-hidden="true" /> Print proxies</button>
+          <button className="primary" disabled={copies.length === 0} onClick={downloadPdf}><Download size={16} aria-hidden="true" /> Download 9-up PDF</button>
+          <button onClick={() => window.print()}><Printer size={16} aria-hidden="true" /> Browser print</button>
         </div>
       </div>
 
       <p className="proxy-print-summary">
-        {copies.length} proxies: {legendCount} Legends and {mainCount} main-deck cards. Cards print at 2.5 by 3.5 inches with no artwork.
+        {copies.length} proxies: {legendCount} Legends and {mainCount} main-deck cards. PDF export prints 9 cards per Letter sheet at 2.5 by 3.5 inches with no artwork.
       </p>
+      {downloadStatus && <p className="proxy-download-status" role="status">{downloadStatus}</p>}
 
       {missing.length > 0 && (
         <div className="proxy-print-warning" role="alert">

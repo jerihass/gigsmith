@@ -7,6 +7,16 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.14",
+    date: "2026-07-05",
+    title: "Offline Proxy PDF Export",
+    changes: [
+      "Added offline 9-up PDF export for printable proxy decks.",
+      "Kept browser print as a fallback while PDF export avoids Safari page-break quirks.",
+      "Generated proxy PDFs without artwork using local deck and card metadata."
+    ]
+  },
+  {
     version: "0.1.13",
     date: "2026-07-05",
     title: "Printable Proxy Decks",

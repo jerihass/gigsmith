@@ -32,6 +32,7 @@ describe("cardDatabase refresh", () => {
   it("normalizes and validates a Netdeck items payload", async () => {
     const { source_image_url: _sourceImageUrl, ...card } = {
       ...cyberpunkCardSnapshot.cards[0],
+      keywords: [],
       image_url: "https://dstcynss47vun.cloudfront.net/card.webp?Signature=abc"
     };
     const fetcher = vi.fn(() => Promise.resolve(mockResponse({ total: 1, items: [card] })));
@@ -42,6 +43,7 @@ describe("cardDatabase refresh", () => {
     expect(snapshot.metadata.sourceCardCount).toBe(1);
     expect(snapshot.cards[0].source_image_url).toBe("https://dstcynss47vun.cloudfront.net/card.webp");
     expect("image_url" in snapshot.cards[0]).toBe(false);
+    expect(snapshot.cards[0].keywords).toEqual(expect.arrayContaining(["Go Solo", "Trash"]));
   });
 
   it("saves a valid refreshed snapshot and reloads it", async () => {
@@ -58,6 +60,21 @@ describe("cardDatabase refresh", () => {
     expect(result.message).toContain("1 new");
     expect(loaded.usingOverride).toBe(true);
     expect(loaded.cardDb.cards).toHaveLength(1);
+    expect(loaded.cardDb.cards[0].keywords).toEqual(expect.arrayContaining(card.keywords));
+  });
+
+  it("repairs stored snapshots with missing keywords", () => {
+    const storage = createStorage();
+    const card = { ...cyberpunkCardSnapshot.cards[0], keywords: [] };
+    storage.setItem("gigsmith.card-database.override.v1", JSON.stringify({
+      metadata: { ...cyberpunkCardSnapshot.metadata, sourceCardCount: 1 },
+      cards: [card]
+    }));
+
+    const loaded = loadStoredCardDatabase(storage);
+
+    expect(loaded.usingOverride).toBe(true);
+    expect(loaded.cardDb.cards[0].keywords).toEqual(expect.arrayContaining(["Go Solo", "Trash"]));
   });
 
   it("reports no change when the card content already matches", async () => {

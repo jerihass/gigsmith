@@ -1,6 +1,8 @@
 import {
   cyberpunkCardDb,
   cyberpunkCardSnapshot,
+  cyberpunkRulesetV1Printable,
+  enrichCardKeywords,
   sanitizeCardSnapshot,
   validateCardSnapshot
 } from "@gigsmith/card-data";
@@ -8,6 +10,7 @@ import type { Card, CardDatabase, CardSnapshot } from "@gigsmith/data-contracts"
 
 export const cardDatabaseOverrideStorageKey = "gigsmith.card-database.override.v1";
 const defaultFetchLimit = 1000;
+const knownCyberpunkKeywords = cyberpunkRulesetV1Printable.keywords.map((keyword) => keyword.name);
 
 export interface CardDatabaseLoadResult {
   cardDb: CardDatabase;
@@ -31,7 +34,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function snapshotToDatabase(snapshot: CardSnapshot): CardDatabase {
   return {
     metadata: snapshot.metadata,
-    cards: snapshot.cards
+    cards: snapshot.cards.map((card) => enrichCardKeywords(card, knownCyberpunkKeywords))
+  };
+}
+
+function enrichSnapshotKeywords(snapshot: unknown): unknown {
+  if (!isRecord(snapshot) || !Array.isArray(snapshot.cards)) return snapshot;
+  return {
+    ...snapshot,
+    cards: snapshot.cards.map((card) => (
+      isRecord(card) ? enrichCardKeywords(card as unknown as Card, knownCyberpunkKeywords) : card
+    ))
   };
 }
 
@@ -81,7 +94,7 @@ export function saveStoredCardDatabase(storage: Storage, snapshot: CardSnapshot)
 
 function normalizeFetchedSnapshot(payload: unknown, sourceUrl: string, etag: string | null): unknown {
   if (isRecord(payload) && isRecord(payload.metadata) && Array.isArray(payload.cards)) {
-    return sanitizeCardSnapshot(payload);
+    return enrichSnapshotKeywords(sanitizeCardSnapshot(payload));
   }
 
   if (!isRecord(payload) || !Array.isArray(payload.items)) return payload;
@@ -97,7 +110,7 @@ function normalizeFetchedSnapshot(payload: unknown, sourceUrl: string, etag: str
   const sourceCount = Number.isInteger(payload.total) ? Number(payload.total) : cards.length;
   const versionDate = retrievedAt.slice(0, 10);
 
-  return sanitizeCardSnapshot({
+  return enrichSnapshotKeywords(sanitizeCardSnapshot({
     metadata: {
       game: "cyberpunk",
       sourceName: "Netdeck",
@@ -111,7 +124,7 @@ function normalizeFetchedSnapshot(payload: unknown, sourceUrl: string, etag: str
       ].join(" ")
     },
     cards
-  });
+  }));
 }
 
 export async function fetchCardDatabaseSnapshot(

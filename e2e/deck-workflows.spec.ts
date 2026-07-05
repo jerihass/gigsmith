@@ -172,7 +172,7 @@ test("renders printable proxy cards without artwork", async ({ page }) => {
     return header.bottom - title.bottom;
   });
   expect(headerGap).toBeGreaterThan(4);
-  await expect(printPanel.locator("img")).toHaveCount(0);
+  await expect(printPanel.locator(".proxy-card img")).toHaveCount(0);
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),

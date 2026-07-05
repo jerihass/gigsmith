@@ -25,9 +25,14 @@ export function saveThemePreference(storage: PreferenceStorage, theme: AppTheme)
 }
 
 export function applyThemePreference(theme: AppTheme): void {
+  const themeColor = theme === "light" ? "#edf3f2" : theme === "neon" ? "#050008" : "#080a0b";
+  let themeColorMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (!themeColorMeta) {
+    themeColorMeta = document.createElement("meta");
+    themeColorMeta.name = "theme-color";
+    document.head.append(themeColorMeta);
+  }
   document.documentElement.dataset.theme = theme;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute(
-    "content",
-    theme === "light" ? "#edf3f2" : theme === "neon" ? "#050008" : "#080a0b"
-  );
+  themeColorMeta.content = themeColor;
+  themeColorMeta.setAttribute("content", themeColor);
 }

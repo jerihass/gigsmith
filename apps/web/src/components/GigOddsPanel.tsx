@@ -44,6 +44,40 @@ function profileMetric(profile: GigRollProfile, condition: GigConditionId, frien
   }
 }
 
+function optionReason(
+  profile: GigRollProfile,
+  demands: Array<{ condition: GigConditionId; copies: number }>
+): string {
+  const scored = demands
+    .map((demand) => ({
+      demand,
+      value: conditionValueForReason(profile, demand.condition)
+    }))
+    .filter((entry): entry is { demand: { condition: GigConditionId; copies: number }; value: number } => entry.value !== undefined)
+    .sort((left, right) => {
+      const weightedDelta = right.value * right.demand.copies - left.value * left.demand.copies;
+      if (weightedDelta !== 0) return weightedDelta;
+      return right.demand.copies - left.demand.copies;
+    });
+  const top = scored.slice(0, 2).map((entry) => conditionLabels[entry.demand.condition]);
+  return top.length > 0 ? top.join(" + ") : "No scored deck goal";
+}
+
+function conditionValueForReason(profile: GigRollProfile, condition: GigConditionId): number | undefined {
+  switch (condition) {
+    case "high-8": return profile.high8Probability;
+    case "maximum": return profile.maximumProbability;
+    case "minimum": return profile.minimumProbability;
+    case "parity-mix": return profile.parityMixProbability;
+    case "distinct-2": return profile.distinct2Probability;
+    case "distinct-3": return profile.distinct3Probability;
+    case "value-pair": return profile.valuePairProbability;
+    case "cost-match": return profile.expectedCostMatchDensity ?? undefined;
+    case "street-cred-20": return profile.streetCred20Probability;
+    default: return undefined;
+  }
+}
+
 interface GigOddsPanelProps {
   deck: Deck;
   cardDb: CardDatabase;
@@ -93,6 +127,7 @@ export function GigOddsPanel({ deck, cardDb, match, onMatchChange }: GigOddsPane
               <article key={option.dieType}>
                 <strong>{option.dieType}</strong>
                 <span>Deck fit {percent(option.deckFitScore)}</span>
+                <small className="next-die-reason">Why: {optionReason(option.profile, supportedDemands)}</small>
                 <dl>{supportedDemands.slice(0, 3).map((demand) => <div key={demand.condition}><dt>{conditionLabels[demand.condition]}</dt><dd>{profileMetric(option.profile, demand.condition, friendlyValues)}</dd></div>)}</dl>
                 <button
                   aria-label={`Roll and gain your ${option.dieType}`}

@@ -743,6 +743,11 @@
   font-weight: 700;
 }
 
+.next-die-reason {
+  color: var(--muted-strong);
+  font-size: 0.7rem;
+}
+
 .next-die-options dl {
   display: grid;
   gap: 5px;

@@ -7,6 +7,16 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.17",
+    date: "2026-07-05",
+    title: "Card Database Refresh",
+    changes: [
+      "Updated the bundled Netdeck Cyberpunk card snapshot from 61 to 82 cards.",
+      "Kept the refreshed snapshot text-first with stable external artwork references only.",
+      "Confirmed the official printable rules PDF hash is unchanged."
+    ]
+  },
+  {
     version: "0.1.16",
     date: "2026-07-05",
     title: "Gig Odds Performance",

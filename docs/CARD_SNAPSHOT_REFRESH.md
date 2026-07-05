@@ -7,7 +7,7 @@ Gigsmith is local-first. The app should not require live Netdeck access at runti
 - Preferred source: `https://api.netdeck.gg/api/cards/cyberpunk`
 - Human reference page: `https://netdeck.gg/cards/cyberpunk`
 - Current snapshot: `packages/card-data/src/cyberpunk-snapshot.json`
-- Current version: `netdeck-cyberpunk-2026-06-20`
+- Current version: `netdeck-cyberpunk-2026-07-05`
 
 Do not bundle card art. The snapshot may preserve stable `source_image_url` references, but images are not app assets and should not be redistributed by this repository. Never persist Netdeck's signed `image_url` field: its `Expires`, `Signature`, and related query parameters are transient.
 

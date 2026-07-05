@@ -163,9 +163,43 @@ type RecommendedOrderCandidate = {
   score: number;
 };
 
+function conditionTieBreakerValue(condition: GigConditionId, profile: GigRollProfile): number | undefined {
+  switch (condition) {
+    case "high-8":
+    case "maximum":
+    case "street-cred-20":
+      return profile.expectedStreetCred;
+    case "minimum":
+      return -profile.expectedStreetCred;
+    case "value-pair":
+      return -profile.expectedStreetCred;
+    case "parity-mix":
+    case "distinct-2":
+    case "distinct-3":
+      return profile.outcomeCount;
+    case "cost-match":
+      return profile.expectedCostMatchDensity ?? undefined;
+    default:
+      return undefined;
+  }
+}
+
+function deckTieBreakerScore(profile: GigRollProfile, demands: GigConditionDemand[]): number {
+  let weighted = 0;
+  let copies = 0;
+  for (const demand of demands) {
+    const value = conditionTieBreakerValue(demand.condition, profile);
+    if (value === undefined) continue;
+    weighted += value * demand.copies;
+    copies += demand.copies;
+  }
+  return copies === 0 ? 0 : round(weighted / copies);
+}
+
 function compareRecommendedOrders(
   left: RecommendedOrderCandidate,
-  right: RecommendedOrderCandidate
+  right: RecommendedOrderCandidate,
+  demands: GigConditionDemand[]
 ): number {
   const scoreDelta = left.score - right.score;
   if (scoreDelta !== 0) return scoreDelta;
@@ -174,8 +208,8 @@ function compareRecommendedOrders(
   for (let index = 0; index < Math.min(left.profiles.length, right.profiles.length); index += 1) {
     const fitDelta = left.profiles[index].deckFitScore - right.profiles[index].deckFitScore;
     if (fitDelta !== 0) return fitDelta;
-    const credDelta = left.profiles[index].expectedStreetCred - right.profiles[index].expectedStreetCred;
-    if (credDelta !== 0) return credDelta;
+    const demandDelta = deckTieBreakerScore(left.profiles[index], demands) - deckTieBreakerScore(right.profiles[index], demands);
+    if (demandDelta !== 0) return demandDelta;
   }
 
   for (let index = 0; index < Math.min(left.order.length, right.order.length); index += 1) {
@@ -260,7 +294,7 @@ export function analyzeGigOdds(
       profiles,
       score: round(profiles.reduce((sum, profile) => sum + profile.deckFitScore, 0))
     };
-    if (!recommendedCandidate || compareRecommendedOrders(candidate, recommendedCandidate) > 0) {
+    if (!recommendedCandidate || compareRecommendedOrders(candidate, recommendedCandidate, demands) > 0) {
       recommendedCandidate = candidate;
       recommendedOrder = order;
     }

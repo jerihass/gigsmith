@@ -85,6 +85,33 @@ describe("Gig odds analysis", () => {
     ]));
   });
 
+  it("does not use high-die tie breaking for Blue minimum goals", () => {
+    const report = analyzeGigOdds(
+      deck([["cb-chrome-reverie", 3], ["cb-alt-cunningham-soulkiller-architect", 1]]),
+      cyberpunkCardDb,
+      cyberpunkGigRequirements,
+      cyberpunkRulesetV1Printable
+    );
+
+    expect(report.recommendedOrder[0]).toBe("d4");
+    expect(report.demands[0]).toMatchObject({ condition: "minimum", supported: true });
+  });
+
+  it("keeps Yellow different-value goals on high-variety dice instead of low-only tie breaking", () => {
+    const report = analyzeGigOdds(
+      deck([["cb-afterparty-at-lizzie-s", 3], ["cb-zetatech-faceplate", 1]]),
+      cyberpunkCardDb,
+      cyberpunkGigRequirements,
+      cyberpunkRulesetV1Printable
+    );
+
+    expect(report.recommendedOrder.slice(0, 2)).toEqual(["d12", "d10"]);
+    expect(report.demands).toEqual(expect.arrayContaining([
+      expect.objectContaining({ condition: "distinct-2", supported: true }),
+      expect.objectContaining({ condition: "distinct-3", supported: true })
+    ]));
+  });
+
   it("puts overlapping low-sided dice first for Green same-value pairs", () => {
     const report = analyzeGigOdds(
       deck([["cb-goro-takemura-vengeful-bodyguard", 1], ["cb-peace-offering", 3]]),

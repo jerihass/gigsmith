@@ -138,7 +138,7 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
               <span>{fixerDice.length} dice</span>
             </div>
             <div className="gig-list">
-              {fixerDice.length ? fixerDice.map(renderFixerGig) : <p className="gig-zone-empty">No dice in Fixer.</p>}
+              {fixerDice.length ? fixerDice.map(renderFixerGig) : <p className="empty-state">No dice in Fixer.</p>}
             </div>
           </section>
 
@@ -148,7 +148,7 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
               <span>{controlledGigs.length} total</span>
             </div>
             <div className="gig-list">
-              {controlledGigs.length ? controlledGigs.map(renderControlledGig) : <p className="gig-zone-empty">No controlled Gigs.</p>}
+              {controlledGigs.length ? controlledGigs.map(renderControlledGig) : <p className="empty-state">No controlled Gigs.</p>}
             </div>
           </section>
         </div>

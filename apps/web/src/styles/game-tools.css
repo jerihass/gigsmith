@@ -132,61 +132,32 @@
 .gig-player-boards {
   display: grid;
   gap: 18px;
-  grid-template-columns: 1fr;
 }
 
 .gig-player-board {
-  background: color-mix(in srgb, var(--surface-control) 76%, transparent);
   border: 1px solid var(--border);
   border-radius: 8px;
-  min-width: 0;
   padding: 12px;
-}
-
-.gig-player-board.active {
-  border-color: var(--accent);
-  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .gig-player-heading {
   align-items: center;
   border-bottom: 1px solid var(--border);
   display: flex;
-  gap: 12px;
   justify-content: space-between;
   margin-bottom: 12px;
   padding-bottom: 10px;
 }
 
-.gig-player-heading h3 {
-  font-size: 1.05rem;
-  margin: 0;
-}
-
 .gig-player-stats {
   display: grid;
-  gap: 2px;
   text-align: right;
-}
-
-.gig-player-stats strong {
-  color: var(--text);
-  font-size: 0.95rem;
-}
-
-.gig-player-stats span {
-  color: var(--muted);
-  font-size: 0.78rem;
 }
 
 .gig-zone-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(220px, 0.82fr) minmax(280px, 1.18fr);
-}
-
-.gig-zone {
-  min-width: 0;
+  grid-template-columns: 220px 1fr;
 }
 
 .gig-zone-title {
@@ -197,24 +168,7 @@
 }
 
 .gig-zone-title h4 {
-  font-size: 0.86rem;
   margin: 0;
-}
-
-.gig-zone-title span {
-  color: var(--muted);
-  font-size: 0.76rem;
-}
-
-.gig-zone-empty {
-  border: 1px dashed var(--border);
-  border-radius: 6px;
-  color: var(--muted);
-  font-size: 0.82rem;
-  margin: 0;
-  min-height: 46px;
-  padding: 13px 10px;
-  text-align: center;
 }
 
 .match-gig {

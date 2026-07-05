@@ -2,7 +2,7 @@ import type { Card } from "@gigsmith/data-contracts";
 
 const allowedArtworkHost = "dstcynss47vun.cloudfront.net";
 const externalCardArtCacheSchema = "gigsmith.card-art-url-cache";
-const externalCardArtCacheVersion = 1;
+const externalCardArtCacheVersion = 2;
 const externalCardArtCacheTtlMs = 12 * 60 * 60 * 1000;
 
 export const externalCardArtCacheStorageKey = "gigsmith.card-art.urls.v1";
@@ -10,6 +10,9 @@ export const externalCardArtCacheStorageKey = "gigsmith.card-art.urls.v1";
 interface ExternalCardRecord {
   id?: unknown;
   external_id?: unknown;
+  slug?: unknown;
+  printing_id?: unknown;
+  source_image_url?: unknown;
   image_url?: unknown;
 }
 
@@ -41,6 +44,22 @@ function signedArtworkUrl(value: unknown): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+function stableArtworkUrl(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname === allowedArtworkHost && !url.search && !url.hash
+      ? url.href
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function addArtUrlKey(urls: Map<string, string>, key: unknown, artworkUrl: string): void {
+  if (typeof key === "string" && key.length > 0) urls.set(key, artworkUrl);
 }
 
 function cacheDocumentFromStorage(value: string | null, sourceUrl: string, nowMs: number): ExternalCardArtCacheDocument | undefined {
@@ -96,8 +115,11 @@ export async function fetchExternalCardArtUrls(
   for (const item of payload.items as ExternalCardRecord[]) {
     const artworkUrl = signedArtworkUrl(item.image_url);
     if (!artworkUrl) continue;
-    if (typeof item.id === "string") urls.set(item.id, artworkUrl);
-    if (typeof item.external_id === "string") urls.set(item.external_id, artworkUrl);
+    addArtUrlKey(urls, item.id, artworkUrl);
+    addArtUrlKey(urls, item.external_id, artworkUrl);
+    addArtUrlKey(urls, item.slug, artworkUrl);
+    addArtUrlKey(urls, item.printing_id, artworkUrl);
+    addArtUrlKey(urls, stableArtworkUrl(item.source_image_url), artworkUrl);
   }
   if (urls.size === 0) throw new Error("Card artwork source returned no usable URLs.");
   return urls;
@@ -158,8 +180,13 @@ export async function loadExternalCardArtUrls(
 }
 
 export function selectExternalCardArtUrl(
-  card: Pick<Card, "id" | "external_id">,
+  card: Pick<Card, "id" | "external_id" | "slug" | "printing_id" | "source_image_url">,
   urls: ReadonlyMap<string, string>
 ): string | undefined {
-  return urls.get(card.id) ?? urls.get(card.external_id);
+  const sourceImageUrl = stableArtworkUrl(card.source_image_url);
+  return urls.get(card.id) ??
+    urls.get(card.external_id) ??
+    urls.get(card.slug) ??
+    urls.get(card.printing_id) ??
+    (sourceImageUrl ? urls.get(sourceImageUrl) : undefined);
 }

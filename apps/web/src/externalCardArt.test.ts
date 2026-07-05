@@ -27,14 +27,52 @@ function createStorage(): Storage {
 describe("external card art", () => {
   it("loads signed URLs from the opt-in source without persisting them", async () => {
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => new Response(JSON.stringify({
-      items: [{ id: "card-1", external_id: "CP-001", image_url: signedUrl }]
+      items: [{
+        id: "card-1",
+        external_id: "CP-001",
+        slug: "test-card",
+        printing_id: "print-1",
+        source_image_url: "https://dstcynss47vun.cloudfront.net/card.webp",
+        image_url: signedUrl
+      }]
     }), { status: 200, headers: { "content-type": "application/json" } }));
 
     const urls = await fetchExternalCardArtUrls(sourceUrl, undefined, fetchMock as unknown as typeof fetch);
 
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(String(fetchMock.mock.calls[0]?.[0])).toBe(`${sourceUrl}?limit=1000`);
-    expect(selectExternalCardArtUrl({ id: "card-1", external_id: "CP-001" }, urls)).toBe(signedUrl);
+    expect(selectExternalCardArtUrl({
+      id: "card-1",
+      external_id: "CP-001",
+      slug: "test-card",
+      printing_id: "print-1",
+      source_image_url: "https://dstcynss47vun.cloudfront.net/card.webp"
+    }, urls)).toBe(signedUrl);
+  });
+
+  it("selects art by stable card fields when local IDs differ from the live art source", async () => {
+    const sourceImageUrl = "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/a195323a-e29e-4c05-8e6c-7f1638c8264c/render-mpvm290s.webp";
+    const augmentedNegotiatorsUrl = `${sourceImageUrl}?Expires=123&Signature=test`;
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
+      items: [{
+        id: "ce45cb9d-430a-4ccf-bb4b-acf0b76120e0",
+        external_id: "cb-augmented-negotiators",
+        slug: "augmented-negotiators",
+        printing_id: "a195323a-e29e-4c05-8e6c-7f1638c8264c",
+        source_image_url: sourceImageUrl,
+        image_url: augmentedNegotiatorsUrl
+      }]
+    }), { status: 200 })) as typeof fetch;
+
+    const urls = await fetchExternalCardArtUrls(sourceUrl, undefined, fetchMock);
+
+    expect(selectExternalCardArtUrl({
+      id: "local-augmented-negotiators",
+      external_id: "local-cb-augmented-negotiators",
+      slug: "augmented-negotiators",
+      printing_id: "a195323a-e29e-4c05-8e6c-7f1638c8264c",
+      source_image_url: sourceImageUrl
+    }, urls)).toBe(augmentedNegotiatorsUrl);
   });
 
   it("rejects untrusted, unsigned, and malformed artwork URLs", async () => {

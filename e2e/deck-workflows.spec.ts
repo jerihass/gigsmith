@@ -157,7 +157,7 @@ test("renders printable proxy cards without artwork", async ({ page }) => {
   await expect(printPanel.getByRole("heading", { name: "Printable Proxy Deck" })).toBeVisible();
   await expect(printPanel.getByLabel("Proxy print mode")).toHaveValue("bw");
   await expect(printPanel.locator(".proxy-card")).toHaveCount(43);
-  await expect(printPanel.locator(".proxy-sheet-page")).toHaveCount(5);
+  await expect(printPanel.locator(".proxy-sheet-page")).toHaveCount(8);
   await expect(printPanel.getByLabel("V — StreetKid proxy")).toContainText("Red Legend");
   await expect(printPanel.getByLabel("Dum Dum — Maelstrom Triggerman proxy").first()).toContainText("Ability");
   await expect(printPanel.locator("img")).toHaveCount(0);

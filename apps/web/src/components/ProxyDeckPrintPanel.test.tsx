@@ -74,7 +74,7 @@ describe("ProxyDeckPrintPanel", () => {
   });
 
   it("renders legible playable fields without artwork", () => {
-    const markup = renderToStaticMarkup(<ProxyDeckPrintPanel deck={deck()} cardDb={cardDb([
+    const markup = renderToStaticMarkup(<ProxyDeckPrintPanel deck={deck({ main: [{ cardId: "card-1", count: 6 }] })} cardDb={cardDb([
       card({ id: "legend-1", display_name: "Legend Card", card_type: "Legend", color: "Blue", cost: null, power: null, ram: 2 }),
       card()
     ])} />);
@@ -91,6 +91,7 @@ describe("ProxyDeckPrintPanel", () => {
     expect(markup).toContain("Solo");
     expect(markup).toContain("Sell €$");
     expect(markup).toContain("Proxy sheet page 1");
+    expect(markup).toContain("Proxy sheet page 2");
     expect(markup).not.toContain("<img");
   });
 });

@@ -19,7 +19,7 @@ export interface MissingProxyCard {
   count: number;
 }
 
-const proxiesPerPrintedPage = 9;
+const proxiesPerPrintedPage = 6;
 
 function chunkProxyCopies(copies: ProxyCardCopy[]): ProxyCardCopy[][] {
   const pages: ProxyCardCopy[][] = [];

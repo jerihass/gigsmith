@@ -6,6 +6,20 @@ async function pageTime(page: Page): Promise<number> {
 }
 
 test("keeps core phone workflows within measured response budgets", async ({ page, context }) => {
+  const appTimings: unknown[] = [];
+  page.on("console", (message) => {
+    const text = message.text();
+    const prefix = "[gigsmith:performance] ";
+    if (!text.startsWith(prefix)) return;
+    try {
+      appTimings.push(JSON.parse(text.slice(prefix.length)) as unknown);
+    } catch {
+      appTimings.push({ malformed: text });
+    }
+  });
+  await context.addInitScript(() => {
+    (window as Window & { __GIGSMITH_PERF__?: boolean }).__GIGSMITH_PERF__ = true;
+  });
   const cdp = await context.newCDPSession(page);
   await cdp.send("Emulation.setCPUThrottlingRate", { rate: budgets.interactions.cpuThrottleRate });
 
@@ -48,7 +62,8 @@ test("keeps core phone workflows within measured response budgets", async ({ pag
       filterResponseMs: Math.round(filterResponseMs),
       deckEditResponseMs: Math.round(deckEditResponseMs),
       analysisRecalculationMs: Math.round(analysisRecalculationMs),
-      gigRollResponseMs: Math.round(gigRollResponseMs)
+      gigRollResponseMs: Math.round(gigRollResponseMs),
+      appTimings: appTimings.slice(-12)
     };
     console.log(`[performance] ${JSON.stringify(results)}`);
 

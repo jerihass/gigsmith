@@ -1106,7 +1106,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P1 after `GS-905`.
 
-**Status:** Ready.
+**Status:** Done.
 
 **Goal:** Reduce repeated exact Gig-odds recomputation during Gigs view updates without changing probability results.
 
@@ -1130,7 +1130,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P2 after `GS-906`.
 
-**Status:** Ready.
+**Status:** Done.
 
 **Goal:** Make card browsing scale cleanly as Cyberpunk card data grows toward the 250-card target and beyond.
 
@@ -1154,7 +1154,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P2 after `GS-907`.
 
-**Status:** Ready.
+**Status:** Done.
 
 **Goal:** Reduce localStorage write churn from rapid deck edits and Gig tracker interactions, especially on mobile Safari.
 
@@ -1179,7 +1179,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P3.
 
-**Status:** Ready.
+**Status:** Done.
 
 **Goal:** Keep initial interaction fast as optional tools grow.
 
@@ -1203,7 +1203,7 @@ domain model and tests remain available for future card-aware analysis.
 
 **Priority:** P3.
 
-**Status:** Ready.
+**Status:** Done.
 
 **Goal:** Make future optimization decisions evidence-based.
 

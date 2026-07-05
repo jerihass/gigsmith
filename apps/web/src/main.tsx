@@ -38,15 +38,13 @@ import { DeckRecovery } from "./components/DeckRecovery";
 import { DeckTransfer } from "./components/DeckTransfer";
 import { DeckVersionsPanel } from "./components/DeckVersionsPanel";
 import { EddyCurvePanel } from "./components/EddyCurvePanel";
-import { GigWorkspace } from "./components/GigWorkspace";
 import { PwaUpdateNotice } from "./components/PwaUpdateNotice";
-import { PortableBackup, type RestoreResult } from "./components/PortableBackup";
+import type { RestoreResult } from "./components/PortableBackup";
 import { PlaytestJournalPanel } from "./components/PlaytestJournalPanel";
-import { ProxyDeckPrintPanel } from "./components/ProxyDeckPrintPanel";
-import { ReleaseNotesDialog } from "./components/ReleaseNotesDialog";
 import { SampleHandPanel } from "./components/SampleHandPanel";
 import { SharedDeckPreview } from "./components/SharedDeckPreview";
 import { ValidationReport } from "./components/ValidationReport";
+import { createDeferredPersistence } from "./deferredPersistence";
 import { adjustDeckEntry, hasDeckEntry } from "./deckEntries";
 import {
   loadStoredCardDatabase,
@@ -77,6 +75,7 @@ import {
 } from "./deckLibrary";
 import { createDefaultGigMatch, loadGigMatch, saveGigMatch } from "./gigMatchStorage";
 import { mergeBackupDeckLibrary, type PortableBackupV1 } from "./portableBackup";
+import { measurePerformance } from "./performanceInstrumentation";
 import { createEmptyPlaytestJournal, loadPlaytestJournal, savePlaytestJournal, type PlaytestJournal } from "./playtestJournal";
 import { groupValidationResult } from "./validationGroups";
 import {
@@ -95,6 +94,19 @@ declare global {
 
 const colorOptions: CardColorFilter[] = ["Any", "Red", "Yellow", "Green", "Blue"];
 const typeOptions: CardTypeFilter[] = ["Any", "Legend", "Unit", "Program", "Gear"];
+
+const LazyGigWorkspace = React.lazy(async () => ({
+  default: (await import("./components/GigWorkspace")).GigWorkspace
+}));
+const LazyPortableBackup = React.lazy(async () => ({
+  default: (await import("./components/PortableBackup")).PortableBackup
+}));
+const LazyProxyDeckPrintPanel = React.lazy(async () => ({
+  default: (await import("./components/ProxyDeckPrintPanel")).ProxyDeckPrintPanel
+}));
+const LazyReleaseNotesDialog = React.lazy(async () => ({
+  default: (await import("./components/ReleaseNotesDialog")).ReleaseNotesDialog
+}));
 
 function cardIdBySlug(slug: string): string {
   const card = cyberpunkCardDb.cards.find((candidate) => candidate.slug === slug);
@@ -196,6 +208,33 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
   const detailTriggerRef = useRef<HTMLButtonElement>();
   const releaseNotesTriggerRef = useRef<HTMLButtonElement>();
+  const libraryPersistence = useRef(
+    createDeferredPersistence<DeckLibrary>((next) =>
+      measurePerformance(
+        "persistence.deckLibrary",
+        () => saveDeckLibrary(window.localStorage, next),
+        { decks: next.decks.length }
+      )
+    )
+  ).current;
+  const gigMatchPersistence = useRef(
+    createDeferredPersistence<GigMatchState>((next) =>
+      measurePerformance(
+        "persistence.gigMatch",
+        () => saveGigMatch(window.localStorage, next),
+        { gigs: next.gigs.length }
+      )
+    )
+  ).current;
+  const playtestJournalPersistence = useRef(
+    createDeferredPersistence<PlaytestJournal>((next) =>
+      measurePerformance(
+        "persistence.playtestJournal",
+        () => savePlaytestJournal(window.localStorage, next),
+        { records: next.records.length }
+      )
+    )
+  ).current;
   const advancedFiltersId = useId();
   const cardDb = cardDatabaseState.cardDb;
   const deck = getActiveDeck(library);
@@ -242,7 +281,14 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     ? deckDetailCards.findIndex((card) => card.id === detailCardId)
     : -1;
 
-  const validation = useMemo(() => validateDeck(deck, cardDb, cyberpunkRulesetV1Printable), [cardDb, deck]);
+  const validation = useMemo(
+    () => measurePerformance(
+      "deck.validation",
+      () => validateDeck(deck, cardDb, cyberpunkRulesetV1Printable),
+      { legends: entryCount(deck.legends), mainCards: entryCount(deck.main), cards: cardDb.cards.length }
+    ),
+    [cardDb, deck]
+  );
   const validationGroups = useMemo(
     () => groupValidationResult(validation, cardDb.cards),
     [cardDb, validation]
@@ -257,7 +303,11 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     [cardDb, deck]
   );
   const eddyCurve = useMemo(
-    () => analyzeEddyCurve(deck, cardDb, cyberpunkRulesetV1Printable),
+    () => measurePerformance(
+      "deck.eddyCurve",
+      () => analyzeEddyCurve(deck, cardDb, cyberpunkRulesetV1Printable),
+      { mainCards: entryCount(deck.main) }
+    ),
     [cardDb, deck]
   );
   const deckCountById = useMemo(() => {
@@ -269,7 +319,8 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   }, [deck.legends, deck.main]);
   const deckCardIds = useMemo(() => new Set(deckCountById.keys()), [deckCountById]);
   const filteredCards = useMemo(() => {
-    const browsedCards = browseCards(
+    return measurePerformance("card.filter", () => {
+      const browsedCards = browseCards(
         cardDb.cards,
         {
           query,
@@ -285,11 +336,12 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         cardSort,
         deckCardIds
       );
-    return filterCardsByRamCompatibility(
-      browsedCards,
-      ramCompatibilityFilter,
-      new Map([...ramCompatibilityById].map(([cardId, report]) => [cardId, report.status]))
-    );
+      return filterCardsByRamCompatibility(
+        browsedCards,
+        ramCompatibilityFilter,
+        new Map([...ramCompatibilityById].map(([cardId, report]) => [cardId, report.status]))
+      );
+    }, { cards: cardDb.cards.length, deckCards: deckCardIds.size });
   }, [
     cardSort,
     cardDb,
@@ -332,6 +384,26 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
       });
     return () => controller.abort();
   }, [cardArtEnabled, cardDb.metadata.sourceUrl]);
+
+  function flushDeferredPersistence() {
+    libraryPersistence.flush();
+    gigMatchPersistence.flush();
+    playtestJournalPersistence.flush();
+  }
+
+  useEffect(() => {
+    function flushOnHidden() {
+      if (document.visibilityState === "hidden") flushDeferredPersistence();
+    }
+
+    window.addEventListener("pagehide", flushDeferredPersistence);
+    document.addEventListener("visibilitychange", flushOnHidden);
+    return () => {
+      window.removeEventListener("pagehide", flushDeferredPersistence);
+      document.removeEventListener("visibilitychange", flushOnHidden);
+      flushDeferredPersistence();
+    };
+  }, [gigMatchPersistence, libraryPersistence, playtestJournalPersistence]);
 
   useEffect(() => {
     setDeckEditNotice(undefined);
@@ -384,9 +456,14 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     return () => window.removeEventListener("hashchange", readSharedDeckFromHash);
   }, []);
 
-  function persistLibrary(next: typeof library) {
+  function persistLibrary(next: typeof library, options: { immediate?: boolean } = {}) {
     setLibrary(next);
-    saveDeckLibrary(window.localStorage, next);
+    if (options.immediate) {
+      libraryPersistence.cancel();
+      saveDeckLibrary(window.localStorage, next);
+      return;
+    }
+    libraryPersistence.schedule(next);
   }
 
   function persist(next: Deck) {
@@ -445,19 +522,19 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
 
   function handleGigMatchChange(nextMatch: GigMatchState) {
     setGigMatch(nextMatch);
-    saveGigMatch(window.localStorage, nextMatch);
+    gigMatchPersistence.schedule(nextMatch);
   }
 
   function handlePlaytestJournalChange(nextJournal: PlaytestJournal) {
     setPlaytestJournal(nextJournal);
-    savePlaytestJournal(window.localStorage, nextJournal);
+    playtestJournalPersistence.schedule(nextJournal);
   }
 
   function handleBackupRestore(backup: PortableBackupV1, mode: "replace" | "merge"): RestoreResult {
     try {
       if (mode === "merge") {
         const merged = mergeBackupDeckLibrary(library, backup.library, createDeckId);
-        persistLibrary(merged.library);
+        persistLibrary(merged.library, { immediate: true });
         const result = {
           kind: "success",
           message: `Added ${merged.addedDeckCount} backup deck${merged.addedDeckCount === 1 ? "" : "s"}; current preferences and sandbox were kept.`
@@ -466,6 +543,9 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         return result;
       }
 
+      libraryPersistence.cancel();
+      gigMatchPersistence.cancel();
+      playtestJournalPersistence.cancel();
       saveDeckLibrary(window.localStorage, backup.library);
       setLibrary(backup.library);
       setDeckHistories({});
@@ -1086,7 +1166,11 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         aria-labelledby="app-tab-gigs"
         hidden={activeView !== "gigs"}
       >
-        <GigWorkspace deck={deck} cardDb={cardDb} match={gigMatch} onMatchChange={handleGigMatchChange} />
+        {activeView === "gigs" && (
+          <React.Suspense fallback={<section className="panel loading-panel">Loading Gig tools...</section>}>
+            <LazyGigWorkspace deck={deck} cardDb={cardDb} match={gigMatch} onMatchChange={handleGigMatchChange} />
+          </React.Suspense>
+        )}
       </section>
 
       <section
@@ -1096,7 +1180,11 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         aria-labelledby="app-tab-print"
         hidden={activeView !== "print"}
       >
-        <ProxyDeckPrintPanel deck={deck} cardDb={cardDb} />
+        {activeView === "print" && (
+          <React.Suspense fallback={<section className="panel loading-panel">Loading print tools...</section>}>
+            <LazyProxyDeckPrintPanel deck={deck} cardDb={cardDb} />
+          </React.Suspense>
+        )}
       </section>
 
       <section
@@ -1116,17 +1204,22 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           onChange={handleCardDatabaseChange}
           onViewCard={(card, trigger) => openCardDetails(card, trigger)}
         />
-        <PortableBackup
-          library={library}
-          theme={theme}
-          cardArtEnabled={cardArtEnabled}
-          activeView={activeView}
-          cardDb={cardDb}
-          usingCardDatabaseOverride={cardDatabaseState.usingOverride}
-          gigMatch={gigMatch}
-          playtestJournal={playtestJournal}
-          onRestore={handleBackupRestore}
-        />
+        {activeView === "transfer" && (
+          <React.Suspense fallback={<section className="panel loading-panel">Loading backup tools...</section>}>
+            <LazyPortableBackup
+              library={library}
+              theme={theme}
+              cardArtEnabled={cardArtEnabled}
+              activeView={activeView}
+              cardDb={cardDb}
+              usingCardDatabaseOverride={cardDatabaseState.usingOverride}
+              gigMatch={gigMatch}
+              playtestJournal={playtestJournal}
+              onBeforeExport={flushDeferredPersistence}
+              onRestore={handleBackupRestore}
+            />
+          </React.Suspense>
+        )}
         <DeckTransfer deck={deck} cardDb={cardDb} onReplace={persist} />
       </section>
 
@@ -1178,7 +1271,11 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         } : undefined}
         onClose={closeCardDetails}
       />
-      <ReleaseNotesDialog open={releaseNotesOpen} onClose={closeReleaseNotes} />
+      {releaseNotesOpen && (
+        <React.Suspense fallback={null}>
+          <LazyReleaseNotesDialog open={releaseNotesOpen} onClose={closeReleaseNotes} />
+        </React.Suspense>
+      )}
       {backupRestoreToast && (
         <div className="import-toast success" role="status">
           <span>{backupRestoreToast}</span>

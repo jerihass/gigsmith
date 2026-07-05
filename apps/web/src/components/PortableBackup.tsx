@@ -8,6 +8,7 @@ import {
   importPortableBackup,
   type PortableBackupV1
 } from "../portableBackup";
+import { measurePerformance } from "../performanceInstrumentation";
 import type { AppTheme } from "../themePreference";
 import type { AppView } from "../appViews";
 
@@ -39,6 +40,7 @@ export function PortableBackup({
   usingCardDatabaseOverride,
   gigMatch,
   playtestJournal,
+  onBeforeExport,
   onRestore
 }: {
   library: DeckLibrary;
@@ -49,6 +51,7 @@ export function PortableBackup({
   usingCardDatabaseOverride: boolean;
   gigMatch: GigMatchState;
   playtestJournal: PlaytestJournal;
+  onBeforeExport?: () => void;
   onRestore: (backup: PortableBackupV1, mode: RestoreMode) => RestoreResult;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -74,13 +77,18 @@ export function PortableBackup({
   }, [currentLibraryFingerprint, pendingBackup, pendingLibraryFingerprint]);
 
   function downloadBackup() {
-    const text = exportPortableBackup({
-      library,
-      preferences: { theme, cardArtEnabled, activeView },
-      cardDatabaseOverride: usingCardDatabaseOverride ? { metadata: cardDb.metadata, cards: cardDb.cards } : undefined,
-      gigMatch,
-      playtestJournal
-    });
+    onBeforeExport?.();
+    const text = measurePerformance(
+      "backup.export",
+      () => exportPortableBackup({
+        library,
+        preferences: { theme, cardArtEnabled, activeView },
+        cardDatabaseOverride: usingCardDatabaseOverride ? { metadata: cardDb.metadata, cards: cardDb.cards } : undefined,
+        gigMatch,
+        playtestJournal
+      }),
+      { decks: library.decks.length, cards: cardDb.cards.length, records: playtestJournal.records.length }
+    );
     const blob = new Blob([text], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -96,7 +104,12 @@ export function PortableBackup({
   async function selectBackup(file: File | undefined) {
     if (!file) return;
     try {
-      const result = importPortableBackup(await file.text());
+      const text = await file.text();
+      const result = measurePerformance(
+        "backup.import",
+        () => importPortableBackup(text),
+        { bytes: text.length }
+      );
       if (!result.backup) {
         setPendingBackup(undefined);
         setToast({ kind: "error", message: `Backup import failed: ${result.errors[0] ?? "Unknown error."}` });

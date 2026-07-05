@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { cyberpunkGigRequirements, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, CardDatabase, Deck, GigConditionId, GigMatchState, GigRollProfile } from "@gigsmith/data-contracts";
 import { analyzeGigOdds, availableFixerGigs, gainGig, gigDieMaximum } from "@gigsmith/rules-core";
+import { measurePerformance } from "../performanceInstrumentation";
 
 const conditionLabels: Record<GigConditionId, string> = {
   "high-8": "8+ value",
@@ -88,7 +89,14 @@ interface GigOddsPanelProps {
 export function GigOddsPanel({ deck, cardDb, match, onMatchChange }: GigOddsPanelProps) {
   const analysisPlayerId = "player";
   const report = useMemo(
-    () => analyzeGigOdds(deck, cardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable, match, analysisPlayerId),
+    () => measurePerformance(
+      "gig.odds",
+      () => analyzeGigOdds(deck, cardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable, match, analysisPlayerId),
+      {
+        controlledGigs: match.gigs.filter((gig) => gig.controllerId === analysisPlayerId).length,
+        availableGigs: match.gigs.filter((gig) => !gig.controllerId).length
+      }
+    ),
     [cardDb, deck, match]
   );
   const cards = useMemo(() => new Map(cardDb.cards.map((card) => [card.id, card])), [cardDb]);

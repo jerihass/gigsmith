@@ -7,6 +7,17 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.15",
+    date: "2026-07-05",
+    title: "Gig Tracker and Proxy Polish",
+    changes: [
+      "Reorganized the Gig tracker into player zones with a compact mobile layout.",
+      "Prioritized controlled Gigs and made next-die recommendations explain their reasoning.",
+      "Made Gig recommendation tie-breakers goal-aware and prefer higher dice when recommendations are otherwise tied.",
+      "Refined printable proxy pagination, stat layout, and keyword handling."
+    ]
+  },
+  {
     version: "0.1.14",
     date: "2026-07-05",
     title: "Offline Proxy PDF Export",

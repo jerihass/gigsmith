@@ -21,5 +21,7 @@ describe("GigSandbox", () => {
     expect(markup).toContain("Steal for Rival");
     expect(markup).not.toContain("original dice");
     expect(markup.indexOf("id=\"rival-board-title\"")).toBeLessThan(markup.indexOf("id=\"player-board-title\""));
+    const firstBoard = markup.slice(markup.indexOf("id=\"rival-board-title\""));
+    expect(firstBoard.indexOf("Controlled Gigs")).toBeLessThan(firstBoard.indexOf("Fixer"));
   });
 });

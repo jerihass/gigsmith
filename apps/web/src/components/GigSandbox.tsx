@@ -136,16 +136,6 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
         </div>
 
         <div className="gig-zone-grid">
-          <section className="gig-zone fixer-zone" aria-label={`${playerLabel(playerId)} Fixer dice`}>
-            <div className="gig-zone-title">
-              <h4>Fixer</h4>
-              <span>{fixerDice.length} dice</span>
-            </div>
-            <div className="gig-list">
-              {fixerDice.length ? fixerDice.map(renderFixerGig) : <p className="empty-state">No dice in Fixer.</p>}
-            </div>
-          </section>
-
           <section className="gig-zone controlled-zone" aria-label={`${playerLabel(playerId)} controlled Gigs`}>
             <div className="gig-zone-title">
               <h4>Controlled Gigs</h4>
@@ -153,6 +143,16 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
             </div>
             <div className="gig-list">
               {controlledGigs.length ? controlledGigs.map(renderControlledGig) : <p className="empty-state">No controlled Gigs.</p>}
+            </div>
+          </section>
+
+          <section className="gig-zone fixer-zone" aria-label={`${playerLabel(playerId)} Fixer dice`}>
+            <div className="gig-zone-title">
+              <h4>Fixer</h4>
+              <span>{fixerDice.length} dice</span>
+            </div>
+            <div className="gig-list">
+              {fixerDice.length ? fixerDice.map(renderFixerGig) : <p className="empty-state">No dice in Fixer.</p>}
             </div>
           </section>
         </div>

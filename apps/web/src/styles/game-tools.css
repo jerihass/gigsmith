@@ -157,7 +157,7 @@
 .gig-zone-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 1fr 220px;
 }
 
 .gig-zone-title {

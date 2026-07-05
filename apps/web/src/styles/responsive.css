@@ -340,7 +340,7 @@
   }
 
   .street-cred-summary > div {
-    padding: 8px 6px;
+    padding: 6px 5px;
   }
 
   .street-cred-summary > div + div {
@@ -349,11 +349,12 @@
   }
 
   .street-cred-summary dd {
-    font-size: 1rem;
+    font-size: 0.92rem;
+    margin-top: 2px;
   }
 
   .street-cred-summary .street-cred-detail {
-    font-size: 0.68rem;
+    font-size: 0.64rem;
   }
 
   .gig-sandbox-title {
@@ -388,25 +389,29 @@
   }
 
   .gig-player-boards {
-    gap: 10px;
+    gap: 8px;
   }
 
   .gig-player-board {
-    padding: 8px;
+    padding: 6px;
   }
 
   .gig-player-heading {
-    margin-bottom: 8px;
-    padding-bottom: 6px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
   }
 
   .gig-zone-title {
-    margin-bottom: 5px;
+    margin-bottom: 4px;
   }
 
   .gig-zone-grid,
   .gig-list {
-    gap: 6px;
+    gap: 5px;
+  }
+
+  .gig-zone .empty-state {
+    padding: 8px;
   }
 
   .fixer-zone .gig-list {
@@ -434,10 +439,10 @@
   }
 
   .match-gig {
-    gap: 5px;
+    gap: 4px;
     grid-template-columns: 1fr;
     min-height: 0;
-    padding: 6px;
+    padding: 5px;
   }
 
   .gig-value-controls,
@@ -455,7 +460,7 @@
   }
 
   .gig-die {
-    padding: 5px;
+    padding: 4px;
   }
 
   .gig-die span,

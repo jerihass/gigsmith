@@ -95,7 +95,6 @@ function ProxyCard({ copy }: { copy: ProxyCardCopy }) {
       </section>
 
       <dl className="proxy-card-tags">
-        <div><dt>Keywords</dt><dd>{cardDetailTags(card.keywords)}</dd></div>
         <div><dt>Class</dt><dd>{cardDetailTags(card.classifications)}</dd></div>
       </dl>
 

@@ -91,7 +91,7 @@ describe("ProxyDeckPrintPanel", () => {
     expect(markup).toContain("€$");
     expect(markup).toContain("PWR");
     expect(markup).toContain("{Play} Draw 1.");
-    expect(markup).toContain("Quick");
+    expect(markup).not.toContain("Quick");
     expect(markup).toContain("Solo");
     expect(markup).toContain("Sell €$");
     expect(markup).toContain("Proxy sheet page 1");

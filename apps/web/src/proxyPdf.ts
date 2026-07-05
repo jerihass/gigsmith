@@ -182,8 +182,7 @@ function drawProxyCard(page: PDFPage, copy: ProxyCardCopy, x: number, y: number,
   const tagY = y + 50;
   const tagWidth = innerWidth - powerSize - 8;
   page.drawLine({ start: { x: innerX, y: tagY + 18 }, end: { x: innerX + innerWidth, y: tagY + 18 }, color: accent, thickness: 0.75 });
-  drawTextBox(page, `Keywords: ${cardDetailTags(card.keywords)}`, { x: innerX, y: tagY + 8, width: tagWidth, size: 6.2, lineHeight: 7, font: fonts.regular, maxLines: 1 });
-  drawTextBox(page, `Class: ${cardDetailTags(card.classifications)}`, { x: innerX, y: tagY, width: tagWidth, size: 6.2, lineHeight: 7, font: fonts.regular, maxLines: 1 });
+  drawTextBox(page, `Class: ${cardDetailTags(card.classifications)}`, { x: innerX, y: tagY + 5, width: tagWidth, size: 6.2, lineHeight: 7, font: fonts.regular, maxLines: 1 });
   page.drawLine({ start: { x: innerX, y: y + 46 }, end: { x: innerX + innerWidth, y: y + 46 }, color: accent, thickness: 0.75 });
   const footerLeft = `${copy.deckSection} · ${copy.copyNumber}/${copy.totalCopies}`;
   const footerRight = `${card.print_number ?? card.set.code} · ${card.rarity ?? "Unknown rarity"}`;

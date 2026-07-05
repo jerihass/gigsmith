@@ -57,18 +57,13 @@ function normalize(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function fieldMatchesNumberFilter(value: number | null, filter: NumberFilter): boolean {
-  if (filter === "Any") return true;
-  if (filter === "none") return value === null;
-  const expected = Number(filter);
-  return Number.isFinite(expected) && value === expected;
-}
+const cardSearchTextCache = new WeakMap<Card, string>();
 
-function matchesQuery(card: Card, query: string): boolean {
-  const normalizedQuery = normalize(query);
-  if (!normalizedQuery) return true;
+function searchableText(card: Card): string {
+  const cached = cardSearchTextCache.get(card);
+  if (cached) return cached;
 
-  const haystack = [
+  const value = normalize([
     card.display_name,
     card.name,
     card.slug,
@@ -78,14 +73,27 @@ function matchesQuery(card: Card, query: string): boolean {
     card.rules_text ?? "",
     card.classifications.join(" "),
     card.keywords.join(" ")
-  ].join(" ");
+  ].join(" "));
+  cardSearchTextCache.set(card, value);
+  return value;
+}
 
-  return normalize(haystack).includes(normalizedQuery);
+function fieldMatchesNumberFilter(value: number | null, filter: NumberFilter): boolean {
+  if (filter === "Any") return true;
+  if (filter === "none") return value === null;
+  const expected = Number(filter);
+  return Number.isFinite(expected) && value === expected;
+}
+
+function matchesQuery(card: Card, normalizedQuery: string): boolean {
+  if (!normalizedQuery) return true;
+  return searchableText(card).includes(normalizedQuery);
 }
 
 export function filterCards(cards: Card[], filters: CardFilters): Card[] {
+  const normalizedQuery = normalize(filters.query);
   return cards.filter((card) => {
-    if (!matchesQuery(card, filters.query)) return false;
+    if (!matchesQuery(card, normalizedQuery)) return false;
     if (filters.color !== "Any" && card.color !== filters.color) return false;
     if (filters.type !== "Any" && card.card_type !== filters.type) return false;
     if (!fieldMatchesNumberFilter(card.ram, filters.ram)) return false;

@@ -7,6 +7,16 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.16",
+    date: "2026-07-05",
+    title: "Gig Odds Performance",
+    changes: [
+      "Aligned next Gig die ordering with the recommendation list.",
+      "Cached exact Gig odds profiles to reduce repeated analysis work.",
+      "Cached card search text for faster card filtering."
+    ]
+  },
+  {
     version: "0.1.15",
     date: "2026-07-05",
     title: "Gig Tracker and Proxy Polish",

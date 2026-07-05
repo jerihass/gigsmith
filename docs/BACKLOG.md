@@ -1101,3 +1101,123 @@ domain model and tests remain available for future card-aware analysis.
 - Repeatable browser performance scenario with recorded methodology.
 
 **Constitution Check:** Follows deterministic-before-clever and small-dependency principles.
+
+### GS-906: Cache Exact Gig Odds Profiles
+
+**Priority:** P1 after `GS-905`.
+
+**Status:** Ready.
+
+**Goal:** Reduce repeated exact Gig-odds recomputation during Gigs view updates without changing probability results.
+
+**Deliverables:**
+- Cache exact roll profiles by dice domains and deck cost distribution.
+- Keep the cache bounded and deterministic.
+- Preserve current natural-order and current-board recommendation behavior.
+
+**Acceptance Criteria:**
+- Repeated analysis of the same deck and match state reuses cached roll profiles.
+- Probability outputs remain byte-for-byte equivalent for existing Gig odds tests.
+- No worker or dependency is introduced.
+
+**Tests:**
+- Existing Gig odds exact-probability tests.
+- Full typecheck and performance budget check.
+
+**Constitution Check:** Optimizes a measured shared calculation while keeping the pure rules-core boundary.
+
+### GS-907: Precompute Card Search And Filter Indexes
+
+**Priority:** P2 after `GS-906`.
+
+**Status:** Ready.
+
+**Goal:** Make card browsing scale cleanly as Cyberpunk card data grows toward the 250-card target and beyond.
+
+**Deliverables:**
+- Build normalized searchable text once when card data loads.
+- Reuse stable card lookup maps for filters, details, and deck-edit affordances.
+- Preserve current filter semantics and accessibility.
+
+**Acceptance Criteria:**
+- Card filtering avoids repeated string joins and normalization per keystroke.
+- Existing filter tests continue to pass.
+- No visible behavior changes.
+
+**Tests:**
+- Card filter regression tests.
+- 250-card pure filter computation budget.
+
+**Constitution Check:** Improves local-first responsiveness without adding dependencies.
+
+### GS-908: Debounce Local Persistence Writes
+
+**Priority:** P2 after `GS-907`.
+
+**Status:** Ready.
+
+**Goal:** Reduce localStorage write churn from rapid deck edits and Gig tracker interactions, especially on mobile Safari.
+
+**Deliverables:**
+- Debounce noncritical library and match-state writes.
+- Keep immediate in-memory UI updates.
+- Flush safely before export/backup paths.
+
+**Acceptance Criteria:**
+- Rapid repeated edits do not synchronously write on every click.
+- Reload persistence remains reliable.
+- Backup/export sees the latest in-memory state.
+
+**Tests:**
+- Deck library persistence tests.
+- Gig match storage tests.
+- Browser workflow regression for reload after edits.
+
+**Constitution Check:** Preserves local ownership while reducing browser main-thread storage pressure.
+
+### GS-909: Lazy-Load Heavy Optional Tools
+
+**Priority:** P3.
+
+**Status:** Ready.
+
+**Goal:** Keep initial interaction fast as optional tools grow.
+
+**Deliverables:**
+- Review PDF export, backup/restore, release notes, and deep analysis modules for dynamic import opportunities.
+- Preserve offline precache determinism for lazy chunks.
+- Document any chunk split rationale.
+
+**Acceptance Criteria:**
+- Initial JavaScript remains under budget.
+- Optional tools load on demand without breaking offline installed use.
+- No user-visible loading dead ends.
+
+**Tests:**
+- PWA build verification.
+- Offline/browser workflow tests for affected tools.
+
+**Constitution Check:** Keeps the app installable and local-first while limiting initial payload growth.
+
+### GS-910: Add Lightweight Performance Instrumentation
+
+**Priority:** P3.
+
+**Status:** Ready.
+
+**Goal:** Make future optimization decisions evidence-based.
+
+**Deliverables:**
+- Add dev/test-only timing hooks around card filtering, deck validation, Gig odds analysis, import/export, and persistence writes.
+- Emit structured console timing in performance tests.
+- Avoid production UI noise.
+
+**Acceptance Criteria:**
+- Performance traces identify calculation versus rendering pressure.
+- CI performance logs remain concise and actionable.
+
+**Tests:**
+- Existing performance Playwright scenario.
+- Unit tests for any timing helpers if introduced.
+
+**Constitution Check:** Supports measured optimization without adding runtime complexity.

@@ -41,6 +41,37 @@ interface RollDomain {
   values: number[];
 }
 
+const rollProfileCache = new Map<string, GigRollProfile>();
+const rollProfileCacheLimit = 512;
+
+function costCachePart(costCopies: Map<number, number>): string {
+  return [...costCopies]
+    .sort(([left], [right]) => left - right)
+    .map(([cost, copies]) => `${cost}:${copies}`)
+    .join(",");
+}
+
+function domainCachePart(domains: RollDomain[]): string {
+  return domains
+    .map((domain) => `${domain.dieType}:${domain.values.join(".")}`)
+    .sort()
+    .join("|");
+}
+
+function cachedRollProfile(domains: RollDomain[], costCopies: Map<number, number>): GigRollProfile {
+  const key = `${domainCachePart(domains)}::${costCachePart(costCopies)}`;
+  const existing = rollProfileCache.get(key);
+  if (existing) return existing;
+
+  const profile = rollProfile(domains, costCopies);
+  if (rollProfileCache.size >= rollProfileCacheLimit) {
+    const oldestKey = rollProfileCache.keys().next().value;
+    if (oldestKey) rollProfileCache.delete(oldestKey);
+  }
+  rollProfileCache.set(key, profile);
+  return profile;
+}
+
 function rollProfile(domains: RollDomain[], costCopies: Map<number, number>): GigRollProfile {
   const outcomeCount = domains.reduce((count, domain) => count * domain.values.length, 1);
   const knownCostCopies = [...costCopies.values()].reduce((sum, count) => sum + count, 0);
@@ -291,7 +322,7 @@ export function analyzeGigOdds(
     const key = [...dice].sort().join(",");
     const existing = profileCache.get(key);
     if (existing) return existing;
-    const profile = rollProfile(dice.map(dieDomain), costs);
+    const profile = cachedRollProfile(dice.map(dieDomain), costs);
     profileCache.set(key, profile);
     return profile;
   };
@@ -326,7 +357,7 @@ export function analyzeGigOdds(
   if (remaining.some((gig) => gig.dieType !== "d20")) remaining = remaining.filter((gig) => gig.dieType !== "d20");
   const fixedDomains: RollDomain[] = controlled.map((gig) => ({ dieType: gig.dieType, values: [gig.value] }));
   const nextDieOptions = remaining.map((gig) => {
-    const profile = rollProfile([...fixedDomains, dieDomain(gig.dieType)], costs);
+    const profile = cachedRollProfile([...fixedDomains, dieDomain(gig.dieType)], costs);
     return { dieType: gig.dieType, profile, deckFitScore: deckFitScore(profile, demands) };
   }).sort((left, right) => compareNextDieOptions(left, right, demands, recommendedOrder));
 

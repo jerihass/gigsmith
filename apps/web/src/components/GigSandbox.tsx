@@ -41,6 +41,10 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
   const activeLabel = playerLabel(report.activePlayerId);
   const mustGainGig = !match.gainedGigThisTurn && report.availableGigIds.length > 0;
   const matchStarted = match.gigs.some((gig) => Boolean(gig.controllerId));
+  const orderedPlayerIds = useMemo(
+    () => [...playerIds].sort((left, right) => Number(right === report.activePlayerId) - Number(left === report.activePlayerId)),
+    [report.activePlayerId]
+  );
 
   function apply(transition: GigMatchTransition) {
     onChange(transition.state);
@@ -209,7 +213,7 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
       )}
 
       <div className="gig-player-boards">
-        {playerIds.map(renderPlayerBoard)}
+        {orderedPlayerIds.map(renderPlayerBoard)}
       </div>
     </section>
   );

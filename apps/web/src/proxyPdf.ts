@@ -113,15 +113,15 @@ function drawStatBadge(page: PDFPage, label: string, value: string, x: number, y
   const safeLabel = pdfSafeText(label);
   const safeValue = pdfSafeText(value);
   page.drawText(safeLabel, {
-    x: x + (width - fonts.bold.widthOfTextAtSize(safeLabel, 6.5)) / 2,
-    y: y + height - 12,
-    size: 6.5,
+    x: x + (width - fonts.bold.widthOfTextAtSize(safeLabel, 5.5)) / 2,
+    y: y + height - 9,
+    size: 5.5,
     font: fonts.bold,
     color: accent
   });
   page.drawText(safeValue, {
     x: x + (width - fonts.bold.widthOfTextAtSize(safeValue, 13)) / 2,
-    y: y + 7,
+    y: y + 5,
     size: 13,
     font: fonts.bold
   });
@@ -134,7 +134,7 @@ function drawProxyCard(page: PDFPage, copy: ProxyCardCopy, x: number, y: number,
   const innerX = x + pad;
   const innerWidth = cardWidth - pad * 2;
   const top = y + cardHeight - pad;
-  const badgeSize = 25;
+  const badgeSize = 30;
 
   page.drawRectangle({
     x,
@@ -145,24 +145,24 @@ function drawProxyCard(page: PDFPage, copy: ProxyCardCopy, x: number, y: number,
     borderWidth: 1.5,
     color: makeRgb(1, 1, 1)
   });
-  page.drawLine({ start: { x: innerX, y: top - 46 }, end: { x: innerX + innerWidth, y: top - 46 }, color: accent, thickness: 1 });
+  page.drawLine({ start: { x: innerX, y: top - 54 }, end: { x: innerX + innerWidth, y: top - 54 }, color: accent, thickness: 1 });
 
   const identity = `${card.color} ${card.card_type}${isSellableCard(card) ? ` · Sell ${eddieSymbol}` : ""}`;
   drawStatBadge(page, eddieSymbol, displayPreviewNumber(card.cost), innerX, top - badgeSize, badgeSize, badgeSize, fonts, accent);
   drawStatBadge(page, "RAM", displayPreviewNumber(card.ram), x + cardWidth - pad - badgeSize, top - badgeSize, badgeSize, badgeSize, fonts, accent);
-  const titleX = innerX + badgeSize + 5;
-  const titleWidth = innerWidth - badgeSize * 2 - 10;
+  const titleX = innerX + badgeSize + 6;
+  const titleWidth = innerWidth - badgeSize * 2 - 12;
   const safeIdentity = pdfSafeText(identity).toUpperCase();
   page.drawText(safeIdentity, {
     x: titleX + Math.max(0, titleWidth - fonts.bold.widthOfTextAtSize(safeIdentity, 6.3)) / 2,
-    y: top - 8,
+    y: top - 9,
     size: 6.3,
     font: fonts.bold,
     color: accent
   });
-  drawTextBox(page, card.display_name, { x: titleX, y: top - 22, width: titleWidth, size: 10.4, lineHeight: 10.6, font: fonts.bold, maxLines: 2 });
+  drawTextBox(page, card.display_name, { x: titleX, y: top - 24, width: titleWidth, size: 9.8, lineHeight: 10.2, font: fonts.bold, maxLines: 2 });
 
-  const rulesTop = top - 62;
+  const rulesTop = top - 70;
   page.drawText("ABILITY", { x: innerX, y: rulesTop, size: 6.5, font: fonts.bold, color: accent });
   const rulesText = cardDetailText(card.rules_text, "No rules text.");
   const rulesLength = rulesText.length;
@@ -177,18 +177,18 @@ function drawProxyCard(page: PDFPage, copy: ProxyCardCopy, x: number, y: number,
     maxLines: rulesLength > 220 ? 12 : 11
   });
 
-  const powerSize = 30;
+  const powerSize = 34;
   const powerX = x + cardWidth - pad - powerSize;
-  const tagY = y + 40;
+  const tagY = y + 50;
   const tagWidth = innerWidth - powerSize - 8;
   page.drawLine({ start: { x: innerX, y: tagY + 18 }, end: { x: innerX + innerWidth, y: tagY + 18 }, color: accent, thickness: 0.75 });
   drawTextBox(page, `Keywords: ${cardDetailTags(card.keywords)}`, { x: innerX, y: tagY + 8, width: tagWidth, size: 6.2, lineHeight: 7, font: fonts.regular, maxLines: 1 });
   drawTextBox(page, `Class: ${cardDetailTags(card.classifications)}`, { x: innerX, y: tagY, width: tagWidth, size: 6.2, lineHeight: 7, font: fonts.regular, maxLines: 1 });
-  page.drawLine({ start: { x: innerX, y: y + 31 }, end: { x: innerX + innerWidth, y: y + 31 }, color: accent, thickness: 0.75 });
+  page.drawLine({ start: { x: innerX, y: y + 46 }, end: { x: innerX + innerWidth, y: y + 46 }, color: accent, thickness: 0.75 });
   const footerLeft = `${copy.deckSection} · ${copy.copyNumber}/${copy.totalCopies}`;
   const footerRight = `${card.print_number ?? card.set.code} · ${card.rarity ?? "Unknown rarity"}`;
   page.drawText(pdfSafeText(footerLeft), { x: innerX, y: y + 11, size: 6.2, font: fonts.bold });
-  page.drawText(pdfSafeText(footerRight), { x: innerX, y: y + 20, size: 6.2, font: fonts.bold });
+  page.drawText(pdfSafeText(footerRight), { x: innerX, y: y + 26, size: 6.2, font: fonts.bold });
   drawStatBadge(page, "PWR", displayPreviewNumber(card.power), powerX, y + 8, powerSize, powerSize, fonts, accent);
 }
 

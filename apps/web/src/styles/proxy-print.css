@@ -63,7 +63,7 @@
   box-sizing: border-box;
   color: var(--text);
   display: grid;
-  grid-template-rows: 0.74in minmax(0, 1fr) auto auto;
+  grid-template-rows: 0.82in minmax(0, 1fr) auto auto;
   height: 3.5in;
   overflow: hidden;
   padding: 0.1in;
@@ -96,8 +96,8 @@
   border-bottom: 0.03in solid var(--proxy-accent);
   display: grid;
   gap: 0.05in;
-  grid-template-columns: 0.34in minmax(0, 1fr) 0.34in;
-  min-height: 0.64in;
+  grid-template-columns: 0.42in minmax(0, 1fr) 0.42in;
+  min-height: 0.72in;
   padding-bottom: 0.06in;
 }
 
@@ -140,7 +140,7 @@
 
 .proxy-card-header h3 {
   display: -webkit-box;
-  font-size: 0.145in;
+  font-size: 0.135in;
   line-height: 1.02;
   margin-top: 0.03in;
   max-height: 0.3in;
@@ -161,14 +161,14 @@
 
 .proxy-corner-stat {
   align-self: start;
-  min-height: 0.31in;
+  min-height: 0.38in;
   padding: 0.025in;
 }
 
 .proxy-corner-stat span,
 .proxy-power-stat span {
   color: var(--proxy-accent);
-  font-size: 0.07in;
+  font-size: 0.062in;
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -179,8 +179,8 @@
 
 .proxy-power-stat {
   align-self: end;
-  min-height: 0.38in;
-  min-width: 0.38in;
+  min-height: 0.42in;
+  min-width: 0.42in;
   padding: 0.035in;
 }
 
@@ -242,8 +242,8 @@
   display: grid;
   gap: 0.06in;
   grid-template-columns: minmax(0, 1fr) auto;
-  margin-top: 0.04in;
-  padding-top: 0.035in;
+  margin-top: 0.05in;
+  padding-top: 0.045in;
 }
 
 .proxy-card-footer > div:first-child {

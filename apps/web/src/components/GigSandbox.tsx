@@ -23,6 +23,14 @@ function gigLocation(gig: Gig): string {
   return `${playerLabel(gig.controllerId)} Gig area`;
 }
 
+function controlledByPlayer(match: GigMatchState, playerId: string): Gig[] {
+  return match.gigs.filter((gig) => gig.controllerId === playerId);
+}
+
+function fixerDiceForPlayer(match: GigMatchState, playerId: string): Gig[] {
+  return match.gigs.filter((gig) => gig.ownerId === playerId && !gig.controllerId);
+}
+
 function randomRoll(gig: Gig): number {
   return Math.floor(Math.random() * gigDieMaximum(gig.dieType)) + 1;
 }
@@ -48,45 +56,103 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
     apply(setMatchGigValue(match, gig.id, value));
   }
 
-  function renderGig(gig: Gig) {
+  function renderFixerGig(gig: Gig) {
     const available = report.availableGigIds.includes(gig.id) && !match.gainedGigThisTurn && !match.winnerId;
-    const rivalControlled = Boolean(gig.controllerId && gig.controllerId !== match.activePlayerId);
     const issue = issues.find((candidate) => candidate.affectedGigIds.includes(gig.id));
-    const maximum = gigDieMaximum(gig.dieType);
 
     return (
-      <article className={`match-gig${issue ? " invalid" : ""}`} key={gig.id}>
+      <article className={`match-gig fixer-gig${issue ? " invalid" : ""}`} key={gig.id}>
         <div className="gig-die">
           <strong>{gig.dieType}</strong>
           <span>{gig.ownerId === "player" ? "Your die" : "Rival die"}</span>
         </div>
         <div className="gig-location">
           <strong>{gigLocation(gig)}</strong>
-          <span>{gig.controllerId ? `Value ${gig.value}` : gig.dieType === "d20" && !available ? "Must be gained last" : "Unrolled"}</span>
+          <span>{gig.dieType === "d20" && !available ? "Must be gained last" : "Unrolled"}</span>
         </div>
 
-        {!gig.controllerId ? (
-          <button
-            className="gig-command"
-            aria-label={`Roll and gain ${playerLabel(gig.ownerId ?? "")} ${gig.dieType}`}
-            disabled={!available}
-            onClick={() => apply(gainGig(match, gig.id, randomRoll(gig), cyberpunkRulesetV1Printable))}
-          >
-            <Dices size={16} aria-hidden="true" /> Roll &amp; gain
-          </button>
-        ) : (
-          <>
-            <div className="gig-value-controls" aria-label={`Value controls for ${gig.dieType} owned by ${playerLabel(gig.ownerId ?? "")}`}>
-              <button className="icon-button" aria-label={`Decrease ${gig.dieType}`} title="Decrease value" disabled={gig.value <= 1 || Boolean(match.winnerId)} onClick={() => updateValue(gig, gig.value - 1)}><Minus size={16} /></button>
-              <input aria-label={`Value for ${gig.id}`} type="number" min="1" max={maximum} value={gig.value} disabled={Boolean(match.winnerId)} onChange={(event) => updateValue(gig, Number(event.target.value))} />
-              <button className="icon-button" aria-label={`Increase ${gig.dieType}`} title="Increase value" disabled={gig.value >= maximum || Boolean(match.winnerId)} onClick={() => updateValue(gig, gig.value + 1)}><Plus size={16} /></button>
-              <button className="icon-button" aria-label={`Reroll ${gig.dieType}`} title="Reroll" disabled={Boolean(match.winnerId)} onClick={() => updateValue(gig, randomRoll(gig))}><Dices size={16} /></button>
-            </div>
-            <button className="gig-command" aria-label={`Steal ${gig.dieType} for ${activeLabel}`} disabled={!rivalControlled || Boolean(match.winnerId)} onClick={() => apply(stealGig(match, gig.id, cyberpunkRulesetV1Printable))}>Steal for {activeLabel}</button>
-          </>
-        )}
+        <button
+          className="gig-command"
+          aria-label={`Roll and gain ${playerLabel(gig.ownerId ?? "")} ${gig.dieType}`}
+          disabled={!available}
+          onClick={() => apply(gainGig(match, gig.id, randomRoll(gig), cyberpunkRulesetV1Printable))}
+        >
+          <Dices size={16} aria-hidden="true" /> Roll &amp; gain
+        </button>
         {issue && <span className="gig-issue">{issue.message}</span>}
       </article>
+    );
+  }
+
+  function renderControlledGig(gig: Gig) {
+    const rivalControlled = Boolean(gig.controllerId && gig.controllerId !== match.activePlayerId);
+    const issue = issues.find((candidate) => candidate.affectedGigIds.includes(gig.id));
+    const maximum = gigDieMaximum(gig.dieType);
+
+    return (
+      <article className={`match-gig controlled-gig${issue ? " invalid" : ""}`} key={gig.id}>
+        <div className="gig-die">
+          <strong>{gig.dieType}</strong>
+          <span>{gig.ownerId === "player" ? "Your die" : "Rival die"}</span>
+        </div>
+        <div className="gig-location">
+          <strong>{gigLocation(gig)}</strong>
+          <span>Value {gig.value}</span>
+        </div>
+
+        <div className="gig-value-controls" aria-label={`Value controls for ${gig.dieType} owned by ${playerLabel(gig.ownerId ?? "")}`}>
+          <button className="icon-button" aria-label={`Decrease ${gig.dieType}`} title="Decrease value" disabled={gig.value <= 1 || Boolean(match.winnerId)} onClick={() => updateValue(gig, gig.value - 1)}><Minus size={16} /></button>
+          <input aria-label={`Value for ${gig.id}`} type="number" min="1" max={maximum} value={gig.value} disabled={Boolean(match.winnerId)} onChange={(event) => updateValue(gig, Number(event.target.value))} />
+          <button className="icon-button" aria-label={`Increase ${gig.dieType}`} title="Increase value" disabled={gig.value >= maximum || Boolean(match.winnerId)} onClick={() => updateValue(gig, gig.value + 1)}><Plus size={16} /></button>
+          <button className="icon-button" aria-label={`Reroll ${gig.dieType}`} title="Reroll" disabled={Boolean(match.winnerId)} onClick={() => updateValue(gig, randomRoll(gig))}><Dices size={16} /></button>
+        </div>
+        <button className="gig-command" aria-label={`Steal ${gig.dieType} for ${activeLabel}`} disabled={!rivalControlled || Boolean(match.winnerId)} onClick={() => apply(stealGig(match, gig.id, cyberpunkRulesetV1Printable))}>Steal for {activeLabel}</button>
+        {issue && <span className="gig-issue">{issue.message}</span>}
+      </article>
+    );
+  }
+
+  function renderPlayerBoard(playerId: string) {
+    const player = report.players.find((candidate) => candidate.playerId === playerId);
+    const fixerDice = fixerDiceForPlayer(match, playerId);
+    const controlledGigs = controlledByPlayer(match, playerId);
+    const isActive = playerId === match.activePlayerId;
+
+    return (
+      <section className={`gig-player-board${isActive ? " active" : ""}`} aria-labelledby={`${playerId}-board-title`} key={playerId}>
+        <div className="gig-player-heading">
+          <div>
+            <p className="section-kicker">{isActive ? "Current turn" : "Waiting"}</p>
+            <h3 id={`${playerId}-board-title`}>{playerLabel(playerId)}</h3>
+          </div>
+          <div className="gig-player-stats" aria-label={`${playerLabel(playerId)} Gig totals`}>
+            <strong>{player?.controlledGigCount ?? 0} Gigs</strong>
+            <span>{player?.streetCred ?? 0} Street Cred</span>
+          </div>
+        </div>
+
+        <div className="gig-zone-grid">
+          <section className="gig-zone fixer-zone" aria-label={`${playerLabel(playerId)} Fixer dice`}>
+            <div className="gig-zone-title">
+              <h4>Fixer</h4>
+              <span>{fixerDice.length} dice</span>
+            </div>
+            <div className="gig-list">
+              {fixerDice.length ? fixerDice.map(renderFixerGig) : <p className="gig-zone-empty">No dice in Fixer.</p>}
+            </div>
+          </section>
+
+          <section className="gig-zone controlled-zone" aria-label={`${playerLabel(playerId)} controlled Gigs`}>
+            <div className="gig-zone-title">
+              <h4>Controlled Gigs</h4>
+              <span>{controlledGigs.length} total</span>
+            </div>
+            <div className="gig-list">
+              {controlledGigs.length ? controlledGigs.map(renderControlledGig) : <p className="gig-zone-empty">No controlled Gigs.</p>}
+            </div>
+          </section>
+        </div>
+      </section>
     );
   }
 
@@ -142,13 +208,8 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
         <div className="gig-global-issue" role="status">{issues.find((issue) => issue.affectedGigIds.length === 0)?.message}</div>
       )}
 
-      <div className="gig-pools">
-        {playerIds.map((ownerId) => (
-          <section className="gig-pool" aria-labelledby={`${ownerId}-dice-title`} key={ownerId}>
-            <div className="gig-pool-title"><h3 id={`${ownerId}-dice-title`}>{playerLabel(ownerId)}: original dice</h3><span>6 fixed dice</span></div>
-            <div className="gig-list">{match.gigs.filter((gig) => gig.ownerId === ownerId).map(renderGig)}</div>
-          </section>
-        ))}
+      <div className="gig-player-boards">
+        {playerIds.map(renderPlayerBoard)}
       </div>
     </section>
   );

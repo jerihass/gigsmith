@@ -101,7 +101,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .gig-pools {
+  .gig-player-boards {
     grid-template-columns: 1fr;
   }
 
@@ -373,6 +373,14 @@
   .gig-winner {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .gig-player-heading {
+    align-items: flex-start;
+  }
+
+  .gig-zone-grid {
+    grid-template-columns: 1fr;
   }
 
   .io-title {

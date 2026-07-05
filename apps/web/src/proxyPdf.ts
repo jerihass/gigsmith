@@ -108,13 +108,13 @@ function drawTextBox(page: PDFPage, text: string, options: TextBoxOptions): numb
   return cursorY;
 }
 
-function drawStat(page: PDFPage, label: string, value: string, x: number, y: number, width: number, fonts: PdfFonts, accent: RGB) {
-  page.drawRectangle({ x, y, width, height: 34, borderColor: accent, borderWidth: 1 });
+function drawStatBadge(page: PDFPage, label: string, value: string, x: number, y: number, width: number, height: number, fonts: PdfFonts, accent: RGB) {
+  page.drawRectangle({ x, y, width, height, borderColor: accent, borderWidth: 1 });
   const safeLabel = pdfSafeText(label);
   const safeValue = pdfSafeText(value);
   page.drawText(safeLabel, {
     x: x + (width - fonts.bold.widthOfTextAtSize(safeLabel, 6.5)) / 2,
-    y: y + 22,
+    y: y + height - 12,
     size: 6.5,
     font: fonts.bold,
     color: accent
@@ -134,6 +134,7 @@ function drawProxyCard(page: PDFPage, copy: ProxyCardCopy, x: number, y: number,
   const innerX = x + pad;
   const innerWidth = cardWidth - pad * 2;
   const top = y + cardHeight - pad;
+  const badgeSize = 25;
 
   page.drawRectangle({
     x,
@@ -144,27 +145,31 @@ function drawProxyCard(page: PDFPage, copy: ProxyCardCopy, x: number, y: number,
     borderWidth: 1.5,
     color: makeRgb(1, 1, 1)
   });
-  page.drawLine({ start: { x: innerX, y: top - 36 }, end: { x: innerX + innerWidth, y: top - 36 }, color: accent, thickness: 1 });
+  page.drawLine({ start: { x: innerX, y: top - 46 }, end: { x: innerX + innerWidth, y: top - 46 }, color: accent, thickness: 1 });
 
   const identity = `${card.color} ${card.card_type}${isSellableCard(card) ? ` · Sell ${eddieSymbol}` : ""}`;
-  page.drawText(pdfSafeText(identity).toUpperCase(), { x: innerX, y: top - 10, size: 6.5, font: fonts.bold, color: accent });
-  drawTextBox(page, card.display_name, { x: innerX, y: top - 25, width: innerWidth - 24, size: 11.5, lineHeight: 12, font: fonts.bold, maxLines: 2 });
-  const printing = pdfSafeText(card.print_number ?? card.set.code);
-  page.drawText(printing, { x: x + cardWidth - pad - fonts.bold.widthOfTextAtSize(printing, 6.5), y: top - 10, size: 6.5, font: fonts.bold, color: accent });
+  drawStatBadge(page, eddieSymbol, displayPreviewNumber(card.cost), innerX, top - badgeSize, badgeSize, badgeSize, fonts, accent);
+  drawStatBadge(page, "RAM", displayPreviewNumber(card.ram), x + cardWidth - pad - badgeSize, top - badgeSize, badgeSize, badgeSize, fonts, accent);
+  const titleX = innerX + badgeSize + 5;
+  const titleWidth = innerWidth - badgeSize * 2 - 10;
+  const safeIdentity = pdfSafeText(identity).toUpperCase();
+  page.drawText(safeIdentity, {
+    x: titleX + Math.max(0, titleWidth - fonts.bold.widthOfTextAtSize(safeIdentity, 6.3)) / 2,
+    y: top - 8,
+    size: 6.3,
+    font: fonts.bold,
+    color: accent
+  });
+  drawTextBox(page, card.display_name, { x: titleX, y: top - 22, width: titleWidth, size: 10.4, lineHeight: 10.6, font: fonts.bold, maxLines: 2 });
 
-  const statY = top - 78;
-  const statWidth = (innerWidth - 8) / 3;
-  drawStat(page, "RAM", displayPreviewNumber(card.ram), innerX, statY, statWidth, fonts, accent);
-  drawStat(page, eddieSymbol, displayPreviewNumber(card.cost), innerX + statWidth + 4, statY, statWidth, fonts, accent);
-  drawStat(page, "PWR", displayPreviewNumber(card.power), innerX + statWidth * 2 + 8, statY, statWidth, fonts, accent);
-
-  page.drawText("ABILITY", { x: innerX, y: statY - 14, size: 6.5, font: fonts.bold, color: accent });
+  const rulesTop = top - 62;
+  page.drawText("ABILITY", { x: innerX, y: rulesTop, size: 6.5, font: fonts.bold, color: accent });
   const rulesText = cardDetailText(card.rules_text, "No rules text.");
   const rulesLength = rulesText.length;
   const rulesSize = rulesLength > 220 ? 6.5 : rulesLength > 160 ? 7.2 : 8;
   drawTextBox(page, rulesText, {
     x: innerX,
-    y: statY - 27,
+    y: rulesTop - 13,
     width: innerWidth,
     size: rulesSize,
     lineHeight: rulesSize + 1.4,
@@ -172,15 +177,19 @@ function drawProxyCard(page: PDFPage, copy: ProxyCardCopy, x: number, y: number,
     maxLines: rulesLength > 220 ? 12 : 11
   });
 
-  const tagY = y + 30;
+  const powerSize = 30;
+  const powerX = x + cardWidth - pad - powerSize;
+  const tagY = y + 40;
+  const tagWidth = innerWidth - powerSize - 8;
   page.drawLine({ start: { x: innerX, y: tagY + 18 }, end: { x: innerX + innerWidth, y: tagY + 18 }, color: accent, thickness: 0.75 });
-  drawTextBox(page, `Keywords: ${cardDetailTags(card.keywords)}`, { x: innerX, y: tagY + 8, width: innerWidth, size: 6.2, lineHeight: 7, font: fonts.regular, maxLines: 1 });
-  drawTextBox(page, `Class: ${cardDetailTags(card.classifications)}`, { x: innerX, y: tagY, width: innerWidth, size: 6.2, lineHeight: 7, font: fonts.regular, maxLines: 1 });
-  page.drawLine({ start: { x: innerX, y: y + 24 }, end: { x: innerX + innerWidth, y: y + 24 }, color: accent, thickness: 0.75 });
+  drawTextBox(page, `Keywords: ${cardDetailTags(card.keywords)}`, { x: innerX, y: tagY + 8, width: tagWidth, size: 6.2, lineHeight: 7, font: fonts.regular, maxLines: 1 });
+  drawTextBox(page, `Class: ${cardDetailTags(card.classifications)}`, { x: innerX, y: tagY, width: tagWidth, size: 6.2, lineHeight: 7, font: fonts.regular, maxLines: 1 });
+  page.drawLine({ start: { x: innerX, y: y + 31 }, end: { x: innerX + innerWidth, y: y + 31 }, color: accent, thickness: 0.75 });
   const footerLeft = `${copy.deckSection} · ${copy.copyNumber}/${copy.totalCopies}`;
-  const footerRight = card.rarity ?? "Unknown rarity";
+  const footerRight = `${card.print_number ?? card.set.code} · ${card.rarity ?? "Unknown rarity"}`;
   page.drawText(pdfSafeText(footerLeft), { x: innerX, y: y + 11, size: 6.2, font: fonts.bold });
-  page.drawText(pdfSafeText(footerRight), { x: x + cardWidth - pad - fonts.bold.widthOfTextAtSize(pdfSafeText(footerRight), 6.2), y: y + 11, size: 6.2, font: fonts.bold });
+  page.drawText(pdfSafeText(footerRight), { x: innerX, y: y + 20, size: 6.2, font: fonts.bold });
+  drawStatBadge(page, "PWR", displayPreviewNumber(card.power), powerX, y + 8, powerSize, powerSize, fonts, accent);
 }
 
 export async function generateProxyDeckPdf(copies: ProxyCardCopy[], options: { tone: "bw" | "color" }): Promise<Uint8Array> {

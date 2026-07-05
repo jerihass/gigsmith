@@ -85,7 +85,9 @@ describe("ProxyDeckPrintPanel", () => {
     expect(markup).toContain("Browser print");
     expect(markup).toContain("Test Card");
     expect(markup).toContain("Red Unit");
-    expect(markup).toContain("RAM");
+    expect(markup).toContain("aria-label=\"Cost 2\"");
+    expect(markup).toContain("aria-label=\"RAM 1\"");
+    expect(markup).toContain("aria-label=\"Power 3\"");
     expect(markup).toContain("€$");
     expect(markup).toContain("PWR");
     expect(markup).toContain("{Play} Draw 1.");

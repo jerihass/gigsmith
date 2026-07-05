@@ -163,7 +163,15 @@ test("renders printable proxy cards without artwork", async ({ page }) => {
   await expect(printPanel.locator(".proxy-card")).toHaveCount(43);
   await expect(printPanel.locator(".proxy-sheet-page")).toHaveCount(8);
   await expect(printPanel.getByLabel("V — StreetKid proxy")).toContainText("Red Legend");
-  await expect(printPanel.getByLabel("Dum Dum — Maelstrom Triggerman proxy").first()).toContainText("Ability");
+  const longTitleProxy = printPanel.getByLabel("Dum Dum — Maelstrom Triggerman proxy").first();
+  await expect(longTitleProxy).toContainText("Ability");
+  const headerGap = await longTitleProxy.evaluate((proxy) => {
+    const title = proxy.querySelector(".proxy-card-header h3")?.getBoundingClientRect();
+    const header = proxy.querySelector(".proxy-card-header")?.getBoundingClientRect();
+    if (!title || !header) return 0;
+    return header.bottom - title.bottom;
+  });
+  expect(headerGap).toBeGreaterThan(4);
   await expect(printPanel.locator("img")).toHaveCount(0);
 
   const [download] = await Promise.all([

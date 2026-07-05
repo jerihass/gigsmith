@@ -63,10 +63,6 @@ export function proxyDeckCards(deck: Deck, cardDb: CardDatabase): { copies: Prox
   };
 }
 
-function proxyValue(label: string, value: string) {
-  return <div><dt>{label}</dt><dd>{value}</dd></div>;
-}
-
 function rulesDensity(card: Card): "standard" | "compact" | "dense" {
   const length = cardDetailText(card.rules_text, "No rules text.").length;
   if (length > 220) return "dense";
@@ -79,18 +75,19 @@ function ProxyCard({ copy }: { copy: ProxyCardCopy }) {
   return (
     <article className="proxy-card" data-color={card.color.toLowerCase()} aria-label={`${card.display_name} proxy`}>
       <header className="proxy-card-header">
-        <div>
+        <div className="proxy-corner-stat proxy-cost-stat" aria-label={`Cost ${displayPreviewNumber(card.cost)}`}>
+          <span>{eddieSymbol}</span>
+          <strong>{displayPreviewNumber(card.cost)}</strong>
+        </div>
+        <div className="proxy-title-block">
           <p>{card.color} {card.card_type}{isSellableCard(card) ? ` · Sell ${eddieSymbol}` : ""}</p>
           <h3>{card.display_name}</h3>
         </div>
-        <span>{card.print_number ?? card.set.code}</span>
+        <div className="proxy-corner-stat proxy-ram-stat" aria-label={`RAM ${displayPreviewNumber(card.ram)}`}>
+          <span>RAM</span>
+          <strong>{displayPreviewNumber(card.ram)}</strong>
+        </div>
       </header>
-
-      <dl className="proxy-card-stats" aria-label="Card stats">
-        {proxyValue("RAM", displayPreviewNumber(card.ram))}
-        {proxyValue(eddieSymbol, displayPreviewNumber(card.cost))}
-        {proxyValue("PWR", displayPreviewNumber(card.power))}
-      </dl>
 
       <section className="proxy-card-rules" data-density={rulesDensity(card)}>
         <h4>Ability</h4>
@@ -103,8 +100,14 @@ function ProxyCard({ copy }: { copy: ProxyCardCopy }) {
       </dl>
 
       <footer className="proxy-card-footer">
-        <span>{copy.deckSection} · {copy.copyNumber}/{copy.totalCopies}</span>
-        <span>{card.rarity ?? "Unknown rarity"}</span>
+        <div>
+          <span>{copy.deckSection} · {copy.copyNumber}/{copy.totalCopies}</span>
+          <span>{card.print_number ?? card.set.code} · {card.rarity ?? "Unknown rarity"}</span>
+        </div>
+        <div className="proxy-power-stat" aria-label={`Power ${displayPreviewNumber(card.power)}`}>
+          <span>PWR</span>
+          <strong>{displayPreviewNumber(card.power)}</strong>
+        </div>
       </footer>
     </article>
   );

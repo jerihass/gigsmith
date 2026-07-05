@@ -4,6 +4,7 @@ import type {
   DieType,
   GigConditionDemand,
   GigConditionId,
+  GigNextDieOption,
   GigMatchState,
   GigOddsReport,
   GigRequirementRegistry,
@@ -220,6 +221,21 @@ function compareRecommendedOrders(
   return 0;
 }
 
+function compareNextDieOptions(
+  left: GigNextDieOption,
+  right: GigNextDieOption,
+  demands: GigConditionDemand[],
+  recommendedOrder: DieType[]
+): number {
+  const fitDelta = right.deckFitScore - left.deckFitScore;
+  if (fitDelta !== 0) return fitDelta;
+
+  const demandDelta = deckTieBreakerScore(right.profile, demands) - deckTieBreakerScore(left.profile, demands);
+  if (demandDelta !== 0) return demandDelta;
+
+  return recommendedOrder.indexOf(left.dieType) - recommendedOrder.indexOf(right.dieType);
+}
+
 function buildDemands(deck: Deck, cardDb: CardDatabase, registry: GigRequirementRegistry): GigConditionDemand[] {
   const cards = new Map(cardDb.cards.map((card) => [card.id, card]));
   const requirements = new Map(registry.entries.map((entry) => [entry.externalCardId, entry]));
@@ -312,7 +328,7 @@ export function analyzeGigOdds(
   const nextDieOptions = remaining.map((gig) => {
     const profile = rollProfile([...fixedDomains, dieDomain(gig.dieType)], costs);
     return { dieType: gig.dieType, profile, deckFitScore: deckFitScore(profile, demands) };
-  }).sort((left, right) => right.deckFitScore - left.deckFitScore || left.dieType.localeCompare(right.dieType));
+  }).sort((left, right) => compareNextDieOptions(left, right, demands, recommendedOrder));
 
   return {
     registryVersion: registry.version,

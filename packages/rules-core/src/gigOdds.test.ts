@@ -97,6 +97,30 @@ describe("Gig odds analysis", () => {
     expect(report.demands[0]).toMatchObject({ condition: "minimum", supported: true });
   });
 
+  it("keeps initial next-die options aligned with the natural order", () => {
+    const match = createGigMatch(["player", "rival"], "player", cyberpunkRulesetV1Printable);
+    const streetCredReport = analyzeGigOdds(
+      {
+        ...deck([]),
+        legends: [{ cardId: cardId("cb-yorinobu-arasaka-embracing-destruction"), count: 1 }]
+      },
+      cyberpunkCardDb,
+      cyberpunkGigRequirements,
+      cyberpunkRulesetV1Printable,
+      match
+    );
+    const minimumReport = analyzeGigOdds(
+      deck([["cb-chrome-reverie", 3]]),
+      cyberpunkCardDb,
+      cyberpunkGigRequirements,
+      cyberpunkRulesetV1Printable,
+      match
+    );
+
+    expect(streetCredReport.nextDieOptions.map((option) => option.dieType)).toEqual(streetCredReport.recommendedOrder.slice(0, 5));
+    expect(minimumReport.nextDieOptions.map((option) => option.dieType)).toEqual(minimumReport.recommendedOrder.slice(0, 5));
+  });
+
   it("keeps Yellow different-value goals on high-variety dice instead of low-only tie breaking", () => {
     const report = analyzeGigOdds(
       deck([["cb-afterparty-at-lizzie-s", 3], ["cb-zetatech-faceplate", 1]]),

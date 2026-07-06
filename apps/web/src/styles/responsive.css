@@ -312,7 +312,10 @@
     border: 1px solid var(--border-strong);
     border-radius: 8px 8px 0 0;
     border-bottom: 0;
-    box-shadow: 0 -12px 28px var(--shadow);
+    box-shadow:
+      0 -16px 34px var(--mobile-dock-shadow),
+      0 0 24px var(--mobile-dock-glow),
+      inset 0 1px 0 color-mix(in srgb, var(--cyan) 36%, transparent);
     display: grid;
     gap: 8px;
     inset-block-end: 0;
@@ -383,7 +386,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .mobile-deck-dock-actions a {
+  .mobile-deck-dock-actions a,
+  .mobile-deck-dock-actions button {
     align-items: center;
     background: var(--surface-raised);
     border: 1px solid var(--border-strong);
@@ -396,8 +400,147 @@
     text-decoration: none;
   }
 
-  .mobile-deck-dock-actions a:active {
+  .mobile-deck-dock-actions a:active,
+  .mobile-deck-dock-actions button:active {
     background: var(--surface-hover);
+  }
+
+  .mobile-deck-drawer-backdrop {
+    background: color-mix(in srgb, var(--backdrop) 58%, transparent);
+    display: block;
+    inset: 0;
+    position: fixed;
+    z-index: 30;
+  }
+
+  .mobile-deck-drawer {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-block-end: 0;
+    border-radius: 8px 8px 0 0;
+    box-shadow:
+      0 -18px 40px var(--mobile-dock-shadow),
+      0 0 26px var(--mobile-dock-glow),
+      inset 0 1px 0 color-mix(in srgb, var(--cyan) 36%, transparent);
+    display: grid;
+    gap: 10px;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    inset-block-end: 0;
+    inset-inline: 0;
+    margin-inline: auto;
+    max-height: min(78dvh, 680px);
+    max-width: 560px;
+    overflow: hidden;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+    position: absolute;
+  }
+
+  .mobile-deck-drawer-header {
+    align-items: start;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  .mobile-deck-drawer-header h2 {
+    font-size: 1rem;
+    margin-bottom: 2px;
+  }
+
+  .mobile-deck-drawer-header span {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  .mobile-deck-drawer-meter {
+    background: var(--surface-control);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    height: 7px;
+    overflow: hidden;
+  }
+
+  .mobile-deck-drawer-meter span {
+    background: linear-gradient(90deg, var(--cyan), var(--accent-fill));
+    display: block;
+    height: 100%;
+    min-width: 6px;
+  }
+
+  .mobile-deck-drawer-body {
+    display: grid;
+    gap: 14px;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 6px;
+  }
+
+  .mobile-deck-drawer-body .deck-section-title {
+    margin-top: 0;
+  }
+
+  .mobile-deck-drawer-list {
+    display: grid;
+    gap: 7px;
+  }
+
+  .mobile-deck-drawer-row {
+    --card-accent: #aeb8bc;
+    --deck-surface: var(--surface-control);
+    align-items: center;
+    background: var(--deck-surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--card-accent);
+    border-radius: 4px;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 48px;
+    padding: 8px;
+  }
+
+  .mobile-deck-drawer-row[data-color="red"] {
+    --card-accent: #ff6670;
+    --deck-surface: #191214;
+  }
+
+  .mobile-deck-drawer-row[data-color="blue"] {
+    --card-accent: #4abcf0;
+    --deck-surface: #0e171c;
+  }
+
+  .mobile-deck-drawer-row[data-color="green"] {
+    --card-accent: #52d69a;
+    --deck-surface: #0f1915;
+  }
+
+  .mobile-deck-drawer-row[data-color="yellow"] {
+    --card-accent: #e9d743;
+    --deck-surface: #19180f;
+  }
+
+  .mobile-deck-drawer-row[data-color="colorless"] {
+    --card-accent: #aeb8bc;
+    --deck-surface: #151719;
+  }
+
+  .mobile-deck-drawer-row > span {
+    color: var(--text);
+    font-size: 0.84rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .mobile-deck-drawer-row > div {
+    align-items: center;
+    display: flex;
+    gap: 6px;
+  }
+
+  .mobile-deck-drawer-row .count-controls {
+    grid-template-columns: 34px 28px 34px;
   }
 
   .recovery-page {

@@ -27,6 +27,101 @@ The original `M0`-`M10` plan is complete. Current stabilization priorities:
 
 Each step should land as a focused commit with tests, typechecking, and a production build.
 
+## Mobile UX Candidates
+
+These are mobile-first improvements that would make Gigsmith faster on phones without changing the desktop workflow.
+
+### GS-MOB-001: Swipe Card Rows To Add Or Remove
+
+**Status:** Candidate.
+
+**Goal:** Make repeated deck tuning faster on touch devices.
+
+**Deliverables:**
+- Let mobile users swipe right on a card database row to add one main-deck copy.
+- Let mobile users swipe left to remove one copy when the card is already in the deck.
+- Keep explicit buttons available for accessibility and desktop use.
+
+**Acceptance Criteria:**
+- Swipe gestures do not interfere with vertical scrolling.
+- Blocked additions still surface the existing validation/edit notice.
+- Keyboard and pointer users keep the current controls.
+
+**Tests:**
+- Browser smoke check on a mobile viewport for add, remove, blocked add, and scroll behavior.
+
+### GS-MOB-002: Sticky Mobile Search And Filter Bar
+
+**Status:** Candidate.
+
+**Goal:** Keep card browsing controls reachable while scrolling long result lists.
+
+**Deliverables:**
+- Add a compact sticky card-search bar inside the Card Database panel on mobile.
+- Include result count and a filter toggle.
+- Preserve the existing full filter controls at the top of the panel.
+
+**Acceptance Criteria:**
+- Users can adjust search/filter state after scrolling into results.
+- Sticky controls do not cover the mobile deck dock or final result rows.
+
+**Tests:**
+- Mobile viewport smoke check for search, filter toggle, and bottom-of-list reachability.
+
+### GS-MOB-003: Bottom-Sheet Card Details
+
+**Status:** Candidate.
+
+**Goal:** Make card inspection feel native on phones.
+
+**Deliverables:**
+- Present card details as a mobile bottom sheet while keeping the desktop dialog.
+- Keep next/previous deck navigation in deck-detail context.
+- Preserve complete text-only details and external-art behavior.
+
+**Acceptance Criteria:**
+- Users can open, read, and dismiss details without losing browsing context.
+- The sheet fits safe areas and remains usable with long rules text.
+
+**Tests:**
+- Existing card-detail tests plus mobile visual smoke checks.
+
+### GS-MOB-004: One-Handed Quick Add Mode
+
+**Status:** Candidate.
+
+**Goal:** Reduce small-target tapping when building on a phone.
+
+**Deliverables:**
+- Add a mobile-only quick-add toggle.
+- In quick-add mode, tapping a card row adds a copy and long-press opens details.
+- Show clear feedback for max-copy, RAM, and deck-size blockers.
+
+**Acceptance Criteria:**
+- Quick-add mode is visibly distinct and easy to exit.
+- Long-press and row tap behavior do not break standard button interactions.
+
+**Tests:**
+- Mobile interaction smoke check for tap add, long-press details, and blocked additions.
+
+### GS-MOB-005: Deck Health Summary In Mobile Dock
+
+**Status:** Candidate.
+
+**Goal:** Surface the next deck issue without opening the full validation panel.
+
+**Deliverables:**
+- Extend the mobile dock with compact indicators for RAM, copies, deck size, and Legends.
+- Let users tap the warning area to jump to or open the first issue.
+- Keep the dock readable at common phone widths.
+
+**Acceptance Criteria:**
+- Legal decks remain quiet and compact.
+- Illegal decks expose the highest-priority issue without truncating core counts.
+
+**Tests:**
+- Mobile viewport smoke check for legal, deck-size, copy-limit, and RAM-warning decks.
+
 ## M0 - Repository, Data Contracts, And Snapshot Discipline
 
 ### GS-001: Document Card Snapshot Refresh Flow

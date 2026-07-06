@@ -303,6 +303,11 @@ textarea {
   display: none;
 }
 
+.mobile-deck-drawer-backdrop,
+.mobile-deck-drawer {
+  display: none;
+}
+
 .deck-list,
 .card-list,
 .issue-list,

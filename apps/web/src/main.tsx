@@ -197,6 +197,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [ramCompatibilityFilter, setRamCompatibilityFilter] = useState<RamCompatibilityFilter>("All");
   const [cardSort, setCardSort] = useState<CardSort>("Snapshot");
   const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
+  const [mobileDeckDrawerOpen, setMobileDeckDrawerOpen] = useState(false);
   const [theme, setTheme] = useState<AppTheme>(() => loadThemePreference(window.localStorage));
   const [deckEditNotice, setDeckEditNotice] = useState<ValidationIssue>();
   const [cardArtEnabled, setCardArtEnabled] = useState(() => loadCardArtPreference(window.localStorage));
@@ -427,7 +428,22 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
 
   useEffect(() => {
     setDeckEditNotice(undefined);
+    setMobileDeckDrawerOpen(false);
   }, [deck.id]);
+
+  useEffect(() => {
+    if (activeView !== "deck") setMobileDeckDrawerOpen(false);
+  }, [activeView]);
+
+  useEffect(() => {
+    if (!mobileDeckDrawerOpen) return;
+    function closeMobileDeckDrawer(event: KeyboardEvent) {
+      if (event.key === "Escape") setMobileDeckDrawerOpen(false);
+    }
+
+    window.addEventListener("keydown", closeMobileDeckDrawer);
+    return () => window.removeEventListener("keydown", closeMobileDeckDrawer);
+  }, [mobileDeckDrawerOpen]);
 
   useEffect(() => {
     if (!deckEditNotice) return;
@@ -1146,9 +1162,133 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           </div>
           <div className="mobile-deck-dock-actions">
             <a href="#deck-builder-search">Search</a>
-            <a href="#deck-builder-current">Deck</a>
+            <button
+              aria-controls="mobile-deck-drawer"
+              aria-expanded={mobileDeckDrawerOpen}
+              onClick={() => setMobileDeckDrawerOpen((open) => !open)}
+              type="button"
+            >
+              Deck
+            </button>
           </div>
         </nav>
+        {mobileDeckDrawerOpen && (
+          <div
+            className="mobile-deck-drawer-backdrop"
+            role="presentation"
+            onClick={() => setMobileDeckDrawerOpen(false)}
+          >
+            <aside
+              aria-label="Current deck"
+              aria-modal="true"
+              className="mobile-deck-drawer"
+              id="mobile-deck-drawer"
+              role="dialog"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <header className="mobile-deck-drawer-header">
+                <div>
+                  <h2>Current Deck</h2>
+                  <span>{entryCount(deck.legends)} / 3 Legends · {entryCount(deck.main)} / 40 main</span>
+                </div>
+                <button
+                  className="icon-button"
+                  aria-label="Close current deck"
+                  title="Close"
+                  onClick={() => setMobileDeckDrawerOpen(false)}
+                  type="button"
+                >
+                  <X size={18} aria-hidden="true" />
+                </button>
+              </header>
+              <div className="mobile-deck-drawer-meter" aria-hidden="true">
+                <span style={{ inlineSize: `${Math.min(100, (entryCount(deck.main) / 40) * 100)}%` }} />
+              </div>
+              <div className="mobile-deck-drawer-body">
+                <section>
+                  <div className="deck-section-title"><h3>Legends</h3><span>{entryCount(deck.legends)} / 3</span></div>
+                  <div aria-label="Current Legend cards" className="mobile-deck-drawer-list" role="list">
+                    {deck.legends.map((entry) => {
+                      const card = cardsById.get(entry.cardId);
+                      return (
+                        <div
+                          aria-label={card?.display_name ?? entry.cardId}
+                          className="deck-row mobile-deck-drawer-row"
+                          data-color={card?.color.toLowerCase()}
+                          key={entry.cardId}
+                          role="listitem"
+                        >
+                          <span>{card?.display_name ?? entry.cardId}</span>
+                          {card && (
+                            <div>
+                              <button
+                                className="icon-button"
+                                aria-label={`View details for ${card.display_name}`}
+                                title="Card details"
+                                onClick={(event) => openCardDetails(card, event.currentTarget, "deck")}
+                                type="button"
+                              ><Info size={17} aria-hidden="true" /></button>
+                              <button onClick={() => removeLegend(card)} type="button">Remove</button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+                <section>
+                  <div className="deck-section-title"><h3>Main</h3><span>{entryCount(deck.main)} / 40-50</span></div>
+                  <div aria-label="Current main deck cards" className="mobile-deck-drawer-list" role="list">
+                    {deck.main.map((entry) => {
+                      const card = cardsById.get(entry.cardId);
+                      const addition = card ? additionEvaluationById.get(card.id) : undefined;
+                      return (
+                        <div
+                          aria-label={`${card?.display_name ?? entry.cardId}, ${entry.count} ${entry.count === 1 ? "copy" : "copies"}`}
+                          className="deck-row mobile-deck-drawer-row"
+                          data-color={card?.color.toLowerCase()}
+                          key={entry.cardId}
+                          role="listitem"
+                        >
+                          <span>{card?.display_name ?? entry.cardId}</span>
+                          {card && (
+                            <div>
+                              <button
+                                className="icon-button"
+                                aria-label={`View details for ${card.display_name}`}
+                                title="Card details"
+                                onClick={(event) => openCardDetails(card, event.currentTarget, "deck")}
+                                type="button"
+                              ><Info size={17} aria-hidden="true" /></button>
+                              <div className="count-controls">
+                                <button
+                                  className="icon-button"
+                                  aria-label={`Remove one ${card.display_name}`}
+                                  title="Remove one"
+                                  onClick={() => adjustMainCard(card, -1)}
+                                  type="button"
+                                >−</button>
+                                <strong aria-label={`${entry.count} copies`}>{entry.count}</strong>
+                                <button
+                                  className="icon-button"
+                                  aria-label={addition?.blockers[0]?.message ?? `Add one ${card.display_name}`}
+                                  title={addition?.blockers[0]?.message ?? "Add one"}
+                                  disabled={!addition?.allowed}
+                                  onClick={() => adjustMainCard(card, 1)}
+                                  type="button"
+                                >+</button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              </div>
+            </aside>
+          </div>
+        )}
       </section>
 
       <section

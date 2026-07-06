@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Download, Printer } from "lucide-react";
-import type { Card, CardDatabase, Deck, DeckCardEntry } from "@gigsmith/data-contracts";
+import type { Card, CardDatabase, Deck, DeckCardEntry, DeckVersionSnapshot } from "@gigsmith/data-contracts";
 import { isSellableCard } from "@gigsmith/data-contracts";
 import { cardDetailTags, cardDetailText, displayPreviewNumber, eddieSymbol } from "../cardDetails";
 import { generateProxyDeckPdf, proxyPdfFileName } from "../proxyPdf";
 
 export type ProxyPrintTone = "bw" | "color";
+export type ProxyPrintContents = "full" | "changes";
 
 export interface ProxyCardCopy {
   card: Card;
@@ -18,6 +19,13 @@ export interface MissingProxyCard {
   cardId: string;
   deckSection: "Legend" | "Main";
   count: number;
+}
+
+export interface ProxyDeckCardsResult {
+  copies: ProxyCardCopy[];
+  missing: MissingProxyCard[];
+  baselineVersion?: DeckVersionSnapshot;
+  removedOrDecreasedCount: number;
 }
 
 const proxiesPerPrintedPage = 6;
@@ -53,13 +61,63 @@ function expandEntries(
   return { copies, missing };
 }
 
-export function proxyDeckCards(deck: Deck, cardDb: CardDatabase): { copies: ProxyCardCopy[]; missing: MissingProxyCard[] } {
+function countByCard(entries: DeckCardEntry[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const entry of entries) counts.set(entry.cardId, (counts.get(entry.cardId) ?? 0) + entry.count);
+  return counts;
+}
+
+function latestVersion(deck: Deck): DeckVersionSnapshot | undefined {
+  return [...(deck.versions ?? [])].sort((left, right) => {
+    const timeDelta = Date.parse(right.createdAt) - Date.parse(left.createdAt);
+    return timeDelta || right.createdAt.localeCompare(left.createdAt) || right.id.localeCompare(left.id);
+  })[0];
+}
+
+function positiveDeltaEntries(beforeEntries: DeckCardEntry[], afterEntries: DeckCardEntry[]): {
+  entries: DeckCardEntry[];
+  removedOrDecreasedCount: number;
+} {
+  const before = countByCard(beforeEntries);
+  const after = countByCard(afterEntries);
+  const cardIds = new Set([...before.keys(), ...after.keys()]);
+  const entries: DeckCardEntry[] = [];
+  let removedOrDecreasedCount = 0;
+
+  for (const cardId of cardIds) {
+    const beforeCount = before.get(cardId) ?? 0;
+    const afterCount = after.get(cardId) ?? 0;
+    const delta = afterCount - beforeCount;
+    if (delta > 0) entries.push({ cardId, count: delta });
+    else if (delta < 0) removedOrDecreasedCount += Math.abs(delta);
+  }
+
+  return {
+    entries: entries.sort((left, right) => left.cardId.localeCompare(right.cardId)),
+    removedOrDecreasedCount
+  };
+}
+
+export function proxyDeckCards(
+  deck: Deck,
+  cardDb: CardDatabase,
+  contents: ProxyPrintContents = "full"
+): ProxyDeckCardsResult {
   const cardsById = new Map(cardDb.cards.map((card) => [card.id, card]));
-  const legends = expandEntries(deck.legends, "Legend", cardsById);
-  const main = expandEntries(deck.main, "Main", cardsById);
+  const baselineVersion = contents === "changes" ? latestVersion(deck) : undefined;
+  const legendEntries = baselineVersion
+    ? positiveDeltaEntries(baselineVersion.legends, deck.legends)
+    : { entries: deck.legends, removedOrDecreasedCount: 0 };
+  const mainEntries = baselineVersion
+    ? positiveDeltaEntries(baselineVersion.main, deck.main)
+    : { entries: deck.main, removedOrDecreasedCount: 0 };
+  const legends = expandEntries(legendEntries.entries, "Legend", cardsById);
+  const main = expandEntries(mainEntries.entries, "Main", cardsById);
   return {
     copies: [...legends.copies, ...main.copies],
-    missing: [...legends.missing, ...main.missing]
+    missing: [...legends.missing, ...main.missing],
+    baselineVersion,
+    removedOrDecreasedCount: legendEntries.removedOrDecreasedCount + mainEntries.removedOrDecreasedCount
   };
 }
 
@@ -113,12 +171,15 @@ function ProxyCard({ copy }: { copy: ProxyCardCopy }) {
 }
 
 export function ProxyDeckPrintPanel({ deck, cardDb }: { deck: Deck; cardDb: CardDatabase }) {
-  const { copies, missing } = proxyDeckCards(deck, cardDb);
-  const pages = chunkProxyCopies(copies);
-  const mainCount = deck.main.reduce((total, entry) => total + entry.count, 0);
-  const legendCount = deck.legends.reduce((total, entry) => total + entry.count, 0);
   const [tone, setTone] = useState<ProxyPrintTone>("bw");
+  const [contents, setContents] = useState<ProxyPrintContents>("full");
   const [downloadStatus, setDownloadStatus] = useState("");
+  const hasVersions = (deck.versions?.length ?? 0) > 0;
+  const activeContents = contents === "changes" && hasVersions ? "changes" : "full";
+  const { copies, missing, baselineVersion, removedOrDecreasedCount } = proxyDeckCards(deck, cardDb, activeContents);
+  const pages = chunkProxyCopies(copies);
+  const mainCount = copies.filter((copy) => copy.deckSection === "Main").length;
+  const legendCount = copies.filter((copy) => copy.deckSection === "Legend").length;
 
   async function downloadPdf() {
     try {
@@ -149,10 +210,21 @@ export function ProxyDeckPrintPanel({ deck, cardDb }: { deck: Deck; cardDb: Card
         </div>
         <div className="proxy-print-controls">
           <label className="field compact-field">
-            <span>Print mode</span>
+            <span>Tone</span>
             <select aria-label="Proxy print mode" value={tone} onChange={(event) => setTone(event.target.value as ProxyPrintTone)}>
               <option value="bw">Black and white</option>
               <option value="color">Color accents</option>
+            </select>
+          </label>
+          <label className="field compact-field">
+            <span>Contents</span>
+            <select
+              aria-label="Proxy print contents"
+              value={activeContents}
+              onChange={(event) => setContents(event.target.value as ProxyPrintContents)}
+            >
+              <option value="full">Full current deck</option>
+              <option value="changes" disabled={!hasVersions}>Changes since latest version</option>
             </select>
           </label>
           <button className="primary" disabled={copies.length === 0} onClick={downloadPdf}><Download size={16} aria-hidden="true" /> Download 9-up PDF</button>
@@ -161,7 +233,10 @@ export function ProxyDeckPrintPanel({ deck, cardDb }: { deck: Deck; cardDb: Card
       </div>
 
       <p className="proxy-print-summary">
-        {copies.length} proxies: {legendCount} Legends and {mainCount} main-deck cards. PDF export prints 9 cards per Letter sheet at 2.5 by 3.5 inches with no artwork.
+        {copies.length} proxies: {legendCount} Legends and {mainCount} main-deck cards.
+        {baselineVersion ? ` Showing cards added or increased since ${baselineVersion.name}.` : " Printing the full current deck."}
+        {removedOrDecreasedCount > 0 ? ` ${removedOrDecreasedCount} removed/decreased slot${removedOrDecreasedCount === 1 ? "" : "s"} are not printed.` : ""}
+        {" "}PDF export prints 9 cards per Letter sheet at 2.5 by 3.5 inches with no artwork.
       </p>
       {downloadStatus && <p className="proxy-download-status" role="status">{downloadStatus}</p>}
 

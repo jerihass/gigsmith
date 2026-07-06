@@ -35,6 +35,8 @@ The same pass removed repeated deck expansion and card indexing from each mullig
 
 On July 5, 2026, read-only deck reports added print/report CSS and optional QR generation. The QR package is dynamically imported from the Print tab and emitted as a lazy chunk; initial JavaScript remains under the existing 130,000 B gzip budget. Lazy JavaScript gzip budget moved from 200,000 B to 215,000 B and CSS gzip from 12,000 B to 13,000 B after inspecting the production bundle.
 
+On July 6, 2026, proxy printing added an optional saved-version delta mode in the lazy Print tab chunk. Lazy JavaScript raw budget moved from 500,000 B to 510,000 B after inspecting the production bundle; initial JavaScript and lazy gzip budgets remained unchanged.
+
 ## Browser Method
 
 The `performance-chromium` Playwright project uses a Pixel 7 viewport and Chromium's 4x CPU throttling. It performs one deterministic path on the production preview:

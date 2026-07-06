@@ -7,6 +7,16 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.18",
+    date: "2026-07-06",
+    title: "Proxy Change Printing",
+    changes: [
+      "Added a proxy print contents option for printing only cards added or increased since the latest saved deck version.",
+      "Reported removed or decreased deck slots in the proxy print summary without generating unnecessary proxies.",
+      "Kept full-deck proxy printing as the default."
+    ]
+  },
+  {
     version: "0.1.17",
     date: "2026-07-05",
     title: "Card Database Refresh",

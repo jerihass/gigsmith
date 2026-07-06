@@ -73,6 +73,45 @@ describe("ProxyDeckPrintPanel", () => {
     expect(result.missing).toEqual([{ cardId: "missing", deckSection: "Main", count: 2 }]);
   });
 
+  it("prints only added or increased copies compared to the latest saved version", () => {
+    const baseDeck = deck({
+      versions: [
+        {
+          id: "older",
+          name: "Older",
+          createdAt: "2026-07-01T00:00:00.000Z",
+          deckName: "Proxy Test",
+          legends: [{ cardId: "legend-1", count: 1 }],
+          main: [{ cardId: "card-1", count: 2 }],
+          formatId: "casual",
+          rulesetVersion: "rules",
+          cardDataVersion: "cards-test"
+        },
+        {
+          id: "latest",
+          name: "Latest",
+          createdAt: "2026-07-02T00:00:00.000Z",
+          deckName: "Proxy Test",
+          legends: [{ cardId: "legend-1", count: 1 }],
+          main: [{ cardId: "card-1", count: 2 }, { cardId: "removed", count: 2 }],
+          formatId: "casual",
+          rulesetVersion: "rules",
+          cardDataVersion: "cards-test"
+        }
+      ],
+      main: [{ cardId: "card-1", count: 3 }, { cardId: "card-2", count: 2 }]
+    });
+    const result = proxyDeckCards(baseDeck, cardDb([
+      card({ id: "legend-1", display_name: "Legend", card_type: "Legend", cost: null, power: null, ram: 2 }),
+      card(),
+      card({ id: "card-2", external_id: "CP-002", display_name: "New Card", slug: "new-card" })
+    ]), "changes");
+
+    expect(result.baselineVersion?.id).toBe("latest");
+    expect(result.copies.map((copy) => copy.card.display_name)).toEqual(["Test Card", "New Card", "New Card"]);
+    expect(result.removedOrDecreasedCount).toBe(2);
+  });
+
   it("renders legible playable fields without artwork", () => {
     const markup = renderToStaticMarkup(<ProxyDeckPrintPanel deck={deck({ main: [{ cardId: "card-1", count: 6 }] })} cardDb={cardDb([
       card({ id: "legend-1", display_name: "Legend Card", card_type: "Legend", color: "Blue", cost: null, power: null, ram: 2 }),
@@ -81,6 +120,8 @@ describe("ProxyDeckPrintPanel", () => {
 
     expect(markup).toContain("Printable Proxy Deck");
     expect(markup).toContain("Black and white");
+    expect(markup).toContain("Full current deck");
+    expect(markup).toContain("Changes since latest version");
     expect(markup).toContain("Download 9-up PDF");
     expect(markup).toContain("Browser print");
     expect(markup).toContain("Test Card");

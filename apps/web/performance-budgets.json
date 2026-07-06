@@ -3,7 +3,7 @@
   "sizes": {
     "javascriptRawBytes": 450000,
     "javascriptGzipBytes": 130000,
-    "lazyJavascriptRawBytes": 500000,
+    "lazyJavascriptRawBytes": 510000,
     "lazyJavascriptGzipBytes": 215000,
     "cssRawBytes": 75000,
     "cssGzipBytes": 13000,

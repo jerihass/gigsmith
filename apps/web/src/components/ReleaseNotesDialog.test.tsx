@@ -7,9 +7,13 @@ describe("ReleaseNotesDialog", () => {
     const markup = renderToStaticMarkup(<ReleaseNotesDialog open onClose={() => undefined} />);
 
     expect(markup).toContain("Release Notes");
+    expect(markup).toContain("0.1.18");
+    expect(markup).toContain("Proxy Change Printing");
+    expect(markup).toContain("printing only cards added or increased");
+    expect(markup).toContain("0.1.17");
+    expect(markup).toContain("Card Database Refresh");
+    expect(markup).toContain("82 cards");
     expect(markup).toContain("0.1.16");
-    expect(markup).toContain("Gig Odds Performance");
-    expect(markup).toContain("exact Gig odds profiles");
     expect(markup).toContain("0.1.15");
     expect(markup).toContain("Gig Tracker and Proxy Polish");
     expect(markup).toContain("0.1.14");

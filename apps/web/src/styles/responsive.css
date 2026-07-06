@@ -251,6 +251,14 @@
 }
 
 @media (max-width: 560px) {
+  main {
+    padding: 14px 12px;
+  }
+
+  #app-panel-deck:not([hidden]) {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom));
+  }
+
   .header-context {
     display: grid;
     gap: 8px;
@@ -259,6 +267,137 @@
 
   .active-deck-context strong {
     max-width: 100%;
+  }
+
+  .deck-builder-workspace {
+    gap: 12px;
+  }
+
+  .deck-panel,
+  .card-database-panel {
+    scroll-margin-top: 8px;
+  }
+
+  .deck-panel .panel-title,
+  .card-database-panel .panel-title {
+    align-items: stretch;
+    display: grid;
+    gap: 10px;
+  }
+
+  .deck-panel .panel-actions,
+  .card-database-panel .panel-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    justify-content: stretch;
+  }
+
+  .deck-panel .panel-actions > .result-count,
+  .card-database-panel .panel-actions > .result-count {
+    align-self: center;
+  }
+
+  .deck-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .deck-list {
+    max-height: none;
+  }
+
+  .mobile-deck-dock {
+    backdrop-filter: blur(18px);
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px 8px 0 0;
+    border-bottom: 0;
+    box-shadow: 0 -12px 28px var(--shadow);
+    display: grid;
+    gap: 8px;
+    inset-block-end: 0;
+    inset-inline: 0;
+    margin-inline: auto;
+    max-width: 560px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    position: fixed;
+    z-index: 20;
+  }
+
+  .mobile-deck-dock-status {
+    align-items: center;
+    display: grid;
+    gap: 6px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+
+  .mobile-deck-dock-status span,
+  .mobile-deck-dock-status strong {
+    font-size: 0.76rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-deck-dock-status strong {
+    color: var(--text);
+  }
+
+  .mobile-deck-dock-status .legal,
+  .mobile-deck-dock-status .illegal {
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    justify-self: end;
+    padding: 4px 8px;
+  }
+
+  .mobile-deck-dock-status .legal {
+    background: var(--success-bg);
+    color: var(--success-text);
+  }
+
+  .mobile-deck-dock-status .illegal {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+  }
+
+  .mobile-deck-dock-meter {
+    background: var(--surface-control);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    height: 7px;
+    overflow: hidden;
+  }
+
+  .mobile-deck-dock-meter span {
+    background: linear-gradient(90deg, var(--cyan), var(--accent-fill));
+    display: block;
+    height: 100%;
+    min-width: 6px;
+  }
+
+  .mobile-deck-dock-actions {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mobile-deck-dock-actions a {
+    align-items: center;
+    background: var(--surface-raised);
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    color: var(--text);
+    display: inline-flex;
+    font-weight: 800;
+    justify-content: center;
+    min-height: 42px;
+    text-decoration: none;
+  }
+
+  .mobile-deck-dock-actions a:active {
+    background: var(--surface-hover);
   }
 
   .recovery-page {

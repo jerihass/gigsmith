@@ -294,6 +294,15 @@ textarea {
   align-self: end;
 }
 
+.deck-panel,
+.card-database-panel {
+  scroll-margin-top: 12px;
+}
+
+.mobile-deck-dock {
+  display: none;
+}
+
 .deck-list,
 .card-list,
 .issue-list,

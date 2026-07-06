@@ -771,8 +771,8 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         aria-labelledby="app-tab-deck"
         hidden={activeView !== "deck"}
       >
-        <div className="workspace">
-        <section className="panel deck-panel">
+        <div className="workspace deck-builder-workspace">
+        <section className="panel deck-panel" id="deck-builder-current">
           <div className="panel-title">
             <h2>Deck Editor</h2>
             <div className="panel-actions">
@@ -926,7 +926,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           </div>
         </section>
 
-        <section className="panel">
+        <section className="panel card-database-panel" id="deck-builder-search">
           <div className="panel-title">
             <h2>Card Database</h2>
             <div className="panel-actions card-database-actions">
@@ -1133,6 +1133,22 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           </section>
         </section>
         </div>
+        <nav className="mobile-deck-dock" aria-label="Mobile deck builder shortcuts">
+          <div className="mobile-deck-dock-status">
+            <span>{entryCount(deck.legends)} / 3 Legends</span>
+            <strong>{entryCount(deck.main)} / 40 main</strong>
+            <span className={validation.legal ? "legal" : "illegal"}>
+              {validation.legal ? "Legal" : `${validation.errors.length} issue${validation.errors.length === 1 ? "" : "s"}`}
+            </span>
+          </div>
+          <div className="mobile-deck-dock-meter" aria-hidden="true">
+            <span style={{ inlineSize: `${Math.min(100, (entryCount(deck.main) / 40) * 100)}%` }} />
+          </div>
+          <div className="mobile-deck-dock-actions">
+            <a href="#deck-builder-search">Search</a>
+            <a href="#deck-builder-current">Deck</a>
+          </div>
+        </nav>
       </section>
 
       <section

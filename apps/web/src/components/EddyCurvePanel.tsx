@@ -15,6 +15,17 @@ export const EddyCurvePanel = memo(function EddyCurvePanel({
   const maximumBucket = Math.max(1, ...report.mainDeckDemand.costBuckets.map((bucket) => bucket.cardCount));
   const percentSellable = Math.round(report.supply.sellableDensity * 100);
   const cardLabels = new Map(cards.map((card) => [card.id, card.display_name]));
+  const firstProjection = report.supply.turnProjections[0];
+  const readyLegendNote = firstProjection
+    ? `Ready Legend capacity on turn 1: ${firstProjection.firstPlayerLegendCapacity} going first, ${firstProjection.secondPlayerLegendCapacity} going second.`
+    : "Ready Legend capacity is folded into payment capacity.";
+
+  function affordableCount(paymentCapacity: number): number {
+    return report.mainDeckDemand.costBuckets.reduce(
+      (total, bucket) => total + (bucket.cost <= paymentCapacity ? bucket.cardCount : 0),
+      0
+    );
+  }
 
   return (
     <section className="panel eddy-panel">
@@ -74,21 +85,23 @@ export const EddyCurvePanel = memo(function EddyCurvePanel({
             <h3 id="eddy-projection-title">Expected Supply by Turn</h3>
             <span>{playerOrder === "first" ? "First player" : "Second player"}</span>
           </div>
+          <p className="projection-note">{readyLegendNote}</p>
           <div className="table-scroll" role="region" aria-label="Expected Eddy supply by turn" tabIndex={0}>
             <table>
               <thead>
-                <tr><th scope="col">Turn</th><th scope="col">Seen</th><th scope="col">Eddies</th><th scope="col">Legends</th><th scope="col">Capacity</th></tr>
+                <tr><th scope="col">Turn</th><th scope="col">Seen</th><th scope="col">Sellable seen</th><th scope="col">Eddies</th><th scope="col">Affordable</th><th scope="col">Capacity</th></tr>
               </thead>
               <tbody>
                 {report.supply.turnProjections.map((projection) => {
-                  const legendCapacity = playerOrder === "first" ? projection.firstPlayerLegendCapacity : projection.secondPlayerLegendCapacity;
                   const paymentCapacity = playerOrder === "first" ? projection.expectedFirstPlayerPaymentCapacity : projection.expectedSecondPlayerPaymentCapacity;
+                  const affordable = affordableCount(paymentCapacity);
                   return (
                     <tr key={projection.turn}>
                       <th scope="row">{projection.turn}</th>
                       <td>{projection.cardsSeen}</td>
+                      <td>{projection.expectedSellableCardsSeen.toFixed(1)}</td>
                       <td>{projection.expectedPersistentEddies.toFixed(1)}</td>
-                      <td>{legendCapacity}</td>
+                      <td>{affordable} / {report.mainDeckDemand.cardCount}</td>
                       <td><strong>{paymentCapacity.toFixed(1)}</strong></td>
                     </tr>
                   );

@@ -136,9 +136,11 @@ export const SampleHandPanel = memo(function SampleHandPanel({ deck, cardDb }: {
             <thead><tr><th scope="col">Metric</th><th scope="col">Current hand</th><th scope="col">Redraw average</th></tr></thead>
             <tbody>
               <tr><th scope="row">Playable cards</th><td>{report.currentMetrics.playableCardCount}</td><td>{report.expectedMulliganMetrics.playableCardCount.toFixed(1)}</td></tr>
+              <tr><th scope="row">Playable share</th><td>{Math.round(report.currentMetrics.playableDensity * 100)}%</td><td>{Math.round(report.expectedMulliganMetrics.playableDensity * 100)}%</td></tr>
               <tr><th scope="row">Sellable cards</th><td>{report.currentMetrics.sellableCount}</td><td>{report.expectedMulliganMetrics.sellableCount.toFixed(1)}</td></tr>
+              <tr><th scope="row">Sellable share</th><td>{Math.round(report.currentMetrics.sellableDensity * 100)}%</td><td>{Math.round(report.expectedMulliganMetrics.sellableDensity * 100)}%</td></tr>
               <tr><th scope="row">Average cost</th><td>{report.currentMetrics.averagePrintedCost?.toFixed(1) ?? "Unknown"}</td><td>{report.expectedMulliganMetrics.averagePrintedCost?.toFixed(1) ?? "Unknown"}</td></tr>
-              <tr><th scope="row">Gross capacity</th><td>{report.currentMetrics.firstTurnPaymentCapacity}</td><td>{report.expectedMulliganMetrics.firstTurnPaymentCapacity.toFixed(1)}</td></tr>
+              <tr><th scope="row">First-turn capacity</th><td>{report.currentMetrics.firstTurnPaymentCapacity}</td><td>{report.expectedMulliganMetrics.firstTurnPaymentCapacity.toFixed(1)}</td></tr>
             </tbody>
           </table>
         </div>

@@ -296,7 +296,7 @@ test("compares a hand with a full mulligan under visible assumptions", async ({ 
   await goal.selectOption("eddy-supply");
   await expect(goal).toHaveValue("eddy-supply");
 
-  const capacityRow = comparison.getByRole("row", { name: /Gross capacity/ });
+  const capacityRow = comparison.getByRole("row", { name: /First-turn capacity/ });
   const firstPlayerCapacity = await capacityRow.getByRole("cell").nth(0).textContent();
   await comparison.getByRole("button", { name: "Going second" }).click();
   await expect(capacityRow.getByRole("cell").nth(0)).not.toHaveText(firstPlayerCapacity ?? "");

@@ -372,6 +372,12 @@
   font-weight: 700;
 }
 
+.projection-note {
+  color: var(--muted-strong);
+  font-size: 0.82rem;
+  margin: -2px 0 12px;
+}
+
 .table-scroll {
   max-width: 100%;
   overflow-x: auto;
@@ -380,7 +386,7 @@
 .eddy-projection table {
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
-  min-width: 480px;
+  min-width: 560px;
   width: 100%;
 }
 

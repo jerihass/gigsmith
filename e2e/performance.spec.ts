@@ -42,7 +42,7 @@ test("keeps core phone workflows within measured response budgets", async ({ pag
 
     await page.getByRole("tab", { name: "Analysis", exact: true }).click();
     const comparison = page.getByRole("region", { name: "Mulligan Comparison" });
-    const capacity = comparison.getByRole("row", { name: /Gross capacity/ }).getByRole("cell").nth(0);
+    const capacity = comparison.getByRole("row", { name: /First-turn capacity/ }).getByRole("cell").nth(0);
     const firstPlayerCapacity = await capacity.textContent();
     startedAt = await pageTime(page);
     await comparison.getByRole("button", { name: "Going second", exact: true }).click();

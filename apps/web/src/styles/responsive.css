@@ -427,6 +427,10 @@
     gap: 5px;
   }
 
+  .controlled-zone .gig-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .gig-zone .empty-state {
     padding: 8px;
   }
@@ -472,6 +476,11 @@
     padding: 5px;
   }
 
+  .controlled-gig {
+    gap: 3px;
+    padding: 5px;
+  }
+
   .gig-value-editor,
   .gig-command {
     grid-column: 1 / -1;
@@ -483,14 +492,19 @@
 
   .gig-value-trigger {
     min-height: 30px;
+    padding: 4px 6px;
     width: 100%;
   }
 
   .gig-value-popover {
+    left: 50%;
     margin-top: 4px;
-    min-width: 0;
-    position: static;
-    width: 100%;
+    min-width: min(78vw, 212px);
+    position: absolute;
+    right: auto;
+    top: calc(100% + 4px);
+    transform: translateX(-50%);
+    width: min(78vw, 212px);
   }
 
   .gig-value-controls {
@@ -507,7 +521,8 @@
   }
 
   .gig-die span,
-  .gig-location strong {
+  .gig-location strong,
+  .controlled-gig .gig-location {
     display: none;
   }
 
@@ -525,6 +540,13 @@
   }
 
   .fixer-gig .gig-command {
+    padding-inline: 0.25rem;
+    white-space: normal;
+  }
+
+  .controlled-gig .gig-command {
+    font-size: 0.68rem;
+    min-height: 28px;
     padding-inline: 0.25rem;
     white-space: normal;
   }

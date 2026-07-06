@@ -135,7 +135,11 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
             </div>
           )}
         </div>
-        <button className="gig-command" aria-label={`Steal ${gig.dieType} for ${activeLabel}`} disabled={!rivalControlled || Boolean(match.winnerId)} onClick={() => apply(stealGig(match, gig.id, cyberpunkRulesetV1Printable))}>Steal for {activeLabel}</button>
+        {rivalControlled && !match.winnerId && (
+          <button className="gig-command" aria-label={`Steal ${gig.dieType} for ${activeLabel}`} onClick={() => apply(stealGig(match, gig.id, cyberpunkRulesetV1Printable))}>
+            Steal for {activeLabel}
+          </button>
+        )}
         {issue && <span className="gig-issue">{issue.message}</span>}
       </article>
     );

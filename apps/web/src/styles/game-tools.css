@@ -187,6 +187,41 @@
   grid-template-columns: 58px minmax(0, 1fr);
 }
 
+.controlled-zone .gig-list {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.controlled-gig {
+  align-content: start;
+  align-items: stretch;
+  gap: 6px;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
+}
+
+.controlled-gig .gig-die,
+.controlled-gig .gig-location,
+.controlled-gig .gig-value-editor,
+.controlled-gig .gig-command {
+  grid-column: 1;
+}
+
+.controlled-gig .gig-die {
+  padding-block: 5px;
+}
+
+.controlled-gig .gig-location {
+  text-align: center;
+}
+
+.controlled-gig .gig-location strong {
+  display: none;
+}
+
+.controlled-gig .gig-value-trigger {
+  width: 100%;
+}
+
 .fixer-gig .gig-command {
   grid-column: 1 / -1;
 }

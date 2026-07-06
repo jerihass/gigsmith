@@ -7,6 +7,16 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.19",
+    date: "2026-07-06",
+    title: "Compact Gig Tracker",
+    changes: [
+      "Condensed controlled Gig rows by showing rolled dice as value/max buttons such as 3/4.",
+      "Moved manual value changes, rerolls, and close controls into an on-demand value editor.",
+      "Kept the mobile Gig tracker focused on board state unless a die is being edited."
+    ]
+  },
+  {
     version: "0.1.18",
     date: "2026-07-06",
     title: "Proxy Change Printing",

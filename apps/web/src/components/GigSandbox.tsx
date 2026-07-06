@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Dices, Minus, Plus, RotateCcw, SkipForward } from "lucide-react";
+import { Dices, Minus, Plus, RotateCcw, SkipForward, X } from "lucide-react";
 import { cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Gig, GigMatchIssue, GigMatchState, GigMatchTransition } from "@gigsmith/data-contracts";
 import {
@@ -37,6 +37,7 @@ function randomRoll(gig: Gig): number {
 
 export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange: (match: GigMatchState) => void }) {
   const [issues, setIssues] = useState<GigMatchIssue[]>([]);
+  const [editingGigId, setEditingGigId] = useState<string | undefined>();
   const report = useMemo(() => reportGigMatch(match, cyberpunkRulesetV1Printable), [match]);
   const activeLabel = playerLabel(report.activePlayerId);
   const mustGainGig = !match.gainedGigThisTurn && report.availableGigIds.length > 0;
@@ -54,6 +55,7 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
   function reset(firstPlayerId = match.firstPlayerId) {
     onChange(createGigMatch(playerIds, firstPlayerId, cyberpunkRulesetV1Printable));
     setIssues([]);
+    setEditingGigId(undefined);
   }
 
   function updateValue(gig: Gig, value: number) {
@@ -92,6 +94,7 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
     const rivalControlled = Boolean(gig.controllerId && gig.controllerId !== match.activePlayerId);
     const issue = issues.find((candidate) => candidate.affectedGigIds.includes(gig.id));
     const maximum = gigDieMaximum(gig.dieType);
+    const editing = editingGigId === gig.id && !match.winnerId;
 
     return (
       <article className={`match-gig controlled-gig${issue ? " invalid" : ""}`} key={gig.id}>
@@ -101,14 +104,36 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
         </div>
         <div className="gig-location">
           <strong>{gigLocation(gig)}</strong>
-          <span>Value {gig.value}</span>
+          <span>Rolled value</span>
         </div>
 
-        <div className="gig-value-controls" aria-label={`Value controls for ${gig.dieType} owned by ${playerLabel(gig.ownerId ?? "")}`}>
-          <button className="icon-button" aria-label={`Decrease ${gig.dieType}`} title="Decrease value" disabled={gig.value <= 1 || Boolean(match.winnerId)} onClick={() => updateValue(gig, gig.value - 1)}><Minus size={16} /></button>
-          <input aria-label={`Value for ${gig.id}`} type="number" min="1" max={maximum} value={gig.value} disabled={Boolean(match.winnerId)} onChange={(event) => updateValue(gig, Number(event.target.value))} />
-          <button className="icon-button" aria-label={`Increase ${gig.dieType}`} title="Increase value" disabled={gig.value >= maximum || Boolean(match.winnerId)} onClick={() => updateValue(gig, gig.value + 1)}><Plus size={16} /></button>
-          <button className="icon-button" aria-label={`Reroll ${gig.dieType}`} title="Reroll" disabled={Boolean(match.winnerId)} onClick={() => updateValue(gig, randomRoll(gig))}><Dices size={16} /></button>
+        <div className="gig-value-editor">
+          <button
+            className="gig-value-trigger"
+            aria-expanded={editing}
+            aria-label={`Edit ${gig.dieType} value, currently ${gig.value} of ${maximum}`}
+            disabled={Boolean(match.winnerId)}
+            onClick={() => setEditingGigId(editing ? undefined : gig.id)}
+          >
+            <strong>{gig.value}</strong>
+            <span>/{maximum}</span>
+          </button>
+          {editing && (
+            <div className="gig-value-popover" role="dialog" aria-label={`Edit ${gig.dieType} value`}>
+              <div className="gig-value-popover-heading">
+                <strong>{gig.dieType} value</strong>
+                <button className="icon-button" aria-label={`Close ${gig.dieType} value editor`} title="Close" onClick={() => setEditingGigId(undefined)}>
+                  <X size={16} />
+                </button>
+              </div>
+              <div className="gig-value-controls" aria-label={`Value controls for ${gig.dieType} owned by ${playerLabel(gig.ownerId ?? "")}`}>
+                <button className="icon-button" aria-label={`Decrease ${gig.dieType}`} title="Decrease value" disabled={gig.value <= 1} onClick={() => updateValue(gig, gig.value - 1)}><Minus size={16} /></button>
+                <input aria-label={`Value for ${gig.id}`} type="number" min="1" max={maximum} value={gig.value} onChange={(event) => updateValue(gig, Number(event.target.value))} />
+                <button className="icon-button" aria-label={`Increase ${gig.dieType}`} title="Increase value" disabled={gig.value >= maximum} onClick={() => updateValue(gig, gig.value + 1)}><Plus size={16} /></button>
+                <button className="icon-button" aria-label={`Reroll ${gig.dieType}`} title="Reroll" onClick={() => updateValue(gig, randomRoll(gig))}><Dices size={16} /></button>
+              </div>
+            </div>
+          )}
         </div>
         <button className="gig-command" aria-label={`Steal ${gig.dieType} for ${activeLabel}`} disabled={!rivalControlled || Boolean(match.winnerId)} onClick={() => apply(stealGig(match, gig.id, cyberpunkRulesetV1Printable))}>Steal for {activeLabel}</button>
         {issue && <span className="gig-issue">{issue.message}</span>}

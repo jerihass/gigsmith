@@ -19,6 +19,10 @@ describe("GigSandbox", () => {
     expect(markup).toContain("Controlled Gigs");
     expect(markup).toContain("Roll &amp; gain");
     expect(markup).toContain("Steal for Rival");
+    expect(markup).toContain("Edit d4 value, currently 3 of 4");
+    expect(markup).toContain("<strong>3</strong><span>/4</span>");
+    expect(markup).not.toContain("Decrease d4");
+    expect(markup).not.toContain("Value for player:d4");
     expect(markup).not.toContain("original dice");
     expect(markup.indexOf("id=\"rival-board-title\"")).toBeLessThan(markup.indexOf("id=\"player-board-title\""));
     const firstBoard = markup.slice(markup.indexOf("id=\"rival-board-title\""));

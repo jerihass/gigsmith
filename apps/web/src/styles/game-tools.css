@@ -177,14 +177,14 @@
   border: 1px solid var(--border);
   border-radius: 6px;
   display: grid;
-  gap: 10px;
-  grid-template-columns: 68px minmax(120px, 1fr) auto auto;
-  min-height: 72px;
-  padding: 10px;
+  gap: 8px;
+  grid-template-columns: 58px minmax(110px, 1fr) auto auto;
+  min-height: 62px;
+  padding: 8px;
 }
 
 .fixer-gig {
-  grid-template-columns: 68px minmax(0, 1fr);
+  grid-template-columns: 58px minmax(0, 1fr);
 }
 
 .fixer-gig .gig-command {
@@ -205,7 +205,7 @@
 .gig-die {
   background: var(--surface-raised);
   border-radius: 5px;
-  padding: 8px;
+  padding: 7px;
   text-align: center;
 }
 
@@ -222,6 +222,62 @@
 
 .gig-location strong {
   overflow-wrap: anywhere;
+}
+
+.gig-value-editor {
+  position: relative;
+}
+
+.gig-value-trigger {
+  align-items: baseline;
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+  display: inline-flex;
+  gap: 1px;
+  justify-content: center;
+  min-height: 36px;
+  min-width: 58px;
+  padding: 6px 8px;
+}
+
+.gig-value-trigger strong {
+  color: var(--text);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.gig-value-trigger span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.gig-value-popover {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--shadow-color) 35%, transparent);
+  display: grid;
+  gap: 8px;
+  min-width: 204px;
+  padding: 8px;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 8;
+}
+
+.gig-value-popover-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.gig-value-popover-heading strong {
+  font-size: 0.78rem;
+  text-transform: uppercase;
 }
 
 .gig-value-controls {

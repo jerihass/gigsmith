@@ -472,9 +472,25 @@
     padding: 5px;
   }
 
-  .gig-value-controls,
+  .gig-value-editor,
   .gig-command {
     grid-column: 1 / -1;
+  }
+
+  .gig-value-editor {
+    display: grid;
+  }
+
+  .gig-value-trigger {
+    min-height: 30px;
+    width: 100%;
+  }
+
+  .gig-value-popover {
+    margin-top: 4px;
+    min-width: 0;
+    position: static;
+    width: 100%;
   }
 
   .gig-value-controls {

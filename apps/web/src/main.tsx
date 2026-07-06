@@ -1149,15 +1149,15 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           </section>
         </section>
         </div>
-        <nav className="mobile-deck-dock" aria-label="Mobile deck builder shortcuts">
+        <nav className="mobile-deck-sheet mobile-deck-dock" aria-label="Mobile deck builder shortcuts">
           <div className="mobile-deck-dock-status">
             <span>{entryCount(deck.legends)} / 3 Legends</span>
             <strong>{entryCount(deck.main)} / 40 main</strong>
-            <span className={validation.legal ? "legal" : "illegal"}>
+            <span className={`deck-pill ${validation.legal ? "legal" : "illegal"}`}>
               {validation.legal ? "Legal" : `${validation.errors.length} issue${validation.errors.length === 1 ? "" : "s"}`}
             </span>
           </div>
-          <div className="mobile-deck-dock-meter" aria-hidden="true">
+          <div className="mobile-deck-meter" aria-hidden="true">
             <span style={{ inlineSize: `${Math.min(100, (entryCount(deck.main) / 40) * 100)}%` }} />
           </div>
           <div className="mobile-deck-dock-actions">
@@ -1181,7 +1181,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
             <aside
               aria-label="Current deck"
               aria-modal="true"
-              className="mobile-deck-drawer"
+              className="mobile-deck-sheet mobile-deck-drawer"
               id="mobile-deck-drawer"
               role="dialog"
               onClick={(event) => event.stopPropagation()}
@@ -1201,13 +1201,13 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                   <X size={18} aria-hidden="true" />
                 </button>
               </header>
-              <div className="mobile-deck-drawer-meter" aria-hidden="true">
+              <div className="mobile-deck-meter" aria-hidden="true">
                 <span style={{ inlineSize: `${Math.min(100, (entryCount(deck.main) / 40) * 100)}%` }} />
               </div>
               <div className="mobile-deck-drawer-body">
                 <section>
                   <div className="deck-section-title"><h3>Legends</h3><span>{entryCount(deck.legends)} / 3</span></div>
-                  <div aria-label="Current Legend cards" className="mobile-deck-drawer-list" role="list">
+                  <div aria-label="Current Legend cards" className="deck-list mobile-deck-drawer-list" role="list">
                     {deck.legends.map((entry) => {
                       const card = cardsById.get(entry.cardId);
                       return (
@@ -1238,7 +1238,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                 </section>
                 <section>
                   <div className="deck-section-title"><h3>Main</h3><span>{entryCount(deck.main)} / 40-50</span></div>
-                  <div aria-label="Current main deck cards" className="mobile-deck-drawer-list" role="list">
+                  <div aria-label="Current main deck cards" className="deck-list mobile-deck-drawer-list" role="list">
                     {deck.main.map((entry) => {
                       const card = cardsById.get(entry.cardId);
                       const addition = card ? additionEvaluationById.get(card.id) : undefined;

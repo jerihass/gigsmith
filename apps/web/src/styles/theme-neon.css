@@ -1,20 +1,3 @@
-:root[data-theme="neon"] h1 {
-  text-shadow: 0 0 3px rgb(0 237 255 / 20%);
-}
-
-:root[data-theme="neon"] .app-header {
-  box-shadow: 0 -1px 8px rgb(0 237 255 / 10%);
-}
-
-:root[data-theme="neon"] .panel {
-  box-shadow: inset 0 1px 0 rgb(0 237 255 / 12%);
-}
-
-:root[data-theme="neon"] .theme-picker {
-  border-color: var(--neon-magenta);
-  box-shadow: 0 0 6px rgb(255 50 199 / 10%);
-}
-
 :root[data-theme="neon"] .deck-row[data-color="red"] {
   --card-accent: #ff396d;
   --deck-surface: #220812;
@@ -40,86 +23,27 @@
   --deck-surface: #1d0b25;
 }
 
-:root[data-theme="neon"] .card-row[data-color="red"] {
+:root[data-theme="neon"] :is(.card-row, .new-card-row)[data-color="red"] {
   --card-accent: #ff396d;
   --card-surface: #2b0816;
 }
 
-:root[data-theme="neon"] .new-card-row[data-color="red"] {
-  --card-accent: #ff396d;
-  --card-surface: #2b0816;
-}
-
-:root[data-theme="neon"] .card-row[data-color="blue"] {
+:root[data-theme="neon"] :is(.card-row, .new-card-row)[data-color="blue"] {
   --card-accent: #00dfff;
   --card-surface: #052635;
 }
 
-:root[data-theme="neon"] .new-card-row[data-color="blue"] {
-  --card-accent: #00dfff;
-  --card-surface: #052635;
-}
-
-:root[data-theme="neon"] .card-row[data-color="green"] {
+:root[data-theme="neon"] :is(.card-row, .new-card-row)[data-color="green"] {
   --card-accent: #39ff9c;
   --card-surface: #08291c;
 }
 
-:root[data-theme="neon"] .new-card-row[data-color="green"] {
-  --card-accent: #39ff9c;
-  --card-surface: #08291c;
-}
-
-:root[data-theme="neon"] .card-row[data-color="yellow"] {
+:root[data-theme="neon"] :is(.card-row, .new-card-row)[data-color="yellow"] {
   --card-accent: #f4ea00;
   --card-surface: #302b00;
 }
 
-:root[data-theme="neon"] .new-card-row[data-color="yellow"] {
-  --card-accent: #f4ea00;
-  --card-surface: #302b00;
-}
-
-:root[data-theme="neon"] .card-row[data-color="colorless"] {
+:root[data-theme="neon"] :is(.card-row, .new-card-row)[data-color="colorless"] {
   --card-accent: #d968ff;
   --card-surface: #27102f;
-}
-
-:root[data-theme="neon"] .new-card-row[data-color="colorless"] {
-  --card-accent: #d968ff;
-  --card-surface: #27102f;
-}
-
-:root[data-theme="neon"] .card-detail-dialog[data-color="red"] {
-  --detail-accent: #ff396d;
-  --detail-border: #a81d48;
-  --detail-surface: #1d0710;
-}
-
-:root[data-theme="neon"] .card-detail-dialog[data-color="blue"] {
-  --detail-accent: #00dfff;
-  --detail-border: #087a91;
-  --detail-surface: #041820;
-}
-
-:root[data-theme="neon"] .card-detail-dialog[data-color="green"] {
-  --detail-accent: #39ff9c;
-  --detail-border: #168655;
-  --detail-surface: #061a12;
-}
-
-:root[data-theme="neon"] .card-detail-dialog[data-color="yellow"] {
-  --detail-accent: #f4ea00;
-  --detail-border: #8f8700;
-  --detail-surface: #1c1900;
-}
-
-:root[data-theme="neon"] .card-detail-dialog[data-color="colorless"] {
-  --detail-accent: #d968ff;
-  --detail-border: #85419d;
-  --detail-surface: #19091f;
-}
-
-:root[data-theme="neon"] .card-detail-dialog {
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%), 0 0 12px rgb(255 50 199 / 10%);
 }

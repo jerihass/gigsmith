@@ -37,8 +37,6 @@
   --disabled: #777168;
   --backdrop: rgb(0 0 0 / 72%);
   --shadow: rgb(0 0 0 / 45%);
-  --mobile-dock-glow: rgb(69 216 232 / 22%);
-  --mobile-dock-shadow: rgb(0 0 0 / 62%);
   --selection-ink: #071012;
 }
 
@@ -80,8 +78,6 @@
   --disabled: #819094;
   --backdrop: rgb(4 14 16 / 48%);
   --shadow: rgb(34 61 65 / 24%);
-  --mobile-dock-glow: rgb(0 121 138 / 24%);
-  --mobile-dock-shadow: rgb(34 61 65 / 28%);
   --selection-ink: #ffffff;
 }
 
@@ -123,8 +119,6 @@
   --disabled: #776b7c;
   --backdrop: rgb(0 0 0 / 82%);
   --shadow: rgb(255 0 194 / 22%);
-  --mobile-dock-glow: rgb(255 50 199 / 30%);
-  --mobile-dock-shadow: rgb(0 0 0 / 72%);
   --selection-ink: #050008;
   --neon-magenta: #ff32c7;
 }

@@ -404,11 +404,6 @@ textarea {
   --deck-surface: #19180f;
 }
 
-.deck-row[data-color="colorless"] {
-  --card-accent: #aeb8bc;
-  --deck-surface: #151719;
-}
-
 .card-row {
   --card-accent: #aeb8bc;
   --card-surface: #15191b;
@@ -442,11 +437,6 @@ textarea {
 .card-row[data-color="yellow"] {
   --card-accent: #e9d743;
   --card-surface: #201e10;
-}
-
-.card-row[data-color="colorless"] {
-  --card-accent: #aeb8bc;
-  --card-surface: #171a1c;
 }
 
 .card-row .card-copy strong {

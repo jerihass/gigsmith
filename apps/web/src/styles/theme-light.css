@@ -23,86 +23,48 @@
   --deck-surface: #eef1f1;
 }
 
-:root[data-theme="light"] .card-row[data-color="red"] {
+:root[data-theme="light"] :is(.card-row, .new-card-row)[data-color="red"] {
   --card-accent: #c92f43;
   --card-surface: #f7dde1;
 }
 
-:root[data-theme="light"] .new-card-row[data-color="red"] {
-  --card-accent: #c92f43;
-  --card-surface: #f7dde1;
-}
-
-:root[data-theme="light"] .card-row[data-color="blue"] {
+:root[data-theme="light"] :is(.card-row, .new-card-row)[data-color="blue"] {
   --card-accent: #006f96;
   --card-surface: #d9edf6;
 }
 
-:root[data-theme="light"] .new-card-row[data-color="blue"] {
-  --card-accent: #006f96;
-  --card-surface: #d9edf6;
-}
-
-:root[data-theme="light"] .card-row[data-color="green"] {
+:root[data-theme="light"] :is(.card-row, .new-card-row)[data-color="green"] {
   --card-accent: #13744b;
   --card-surface: #d8eee2;
 }
 
-:root[data-theme="light"] .new-card-row[data-color="green"] {
-  --card-accent: #13744b;
-  --card-surface: #d8eee2;
-}
-
-:root[data-theme="light"] .card-row[data-color="yellow"] {
+:root[data-theme="light"] :is(.card-row, .new-card-row)[data-color="yellow"] {
   --card-accent: #756600;
   --card-surface: #f1e8b7;
 }
 
-:root[data-theme="light"] .new-card-row[data-color="yellow"] {
-  --card-accent: #756600;
-  --card-surface: #f1e8b7;
-}
-
-:root[data-theme="light"] .card-row[data-color="colorless"] {
-  --card-accent: #5c686c;
-  --card-surface: #e7ecec;
-}
-
-:root[data-theme="light"] .new-card-row[data-color="colorless"] {
+:root[data-theme="light"] :is(.card-row, .new-card-row)[data-color="colorless"] {
   --card-accent: #5c686c;
   --card-surface: #e7ecec;
 }
 
 :root[data-theme="light"] .card-detail-dialog[data-color="red"] {
   --detail-accent: #c92f43;
-  --detail-border: #c77c86;
-  --detail-surface: #fff4f5;
 }
 
 :root[data-theme="light"] .card-detail-dialog[data-color="blue"] {
   --detail-accent: #006f96;
-  --detail-border: #6eabc2;
-  --detail-surface: #f1f9fc;
 }
 
 :root[data-theme="light"] .card-detail-dialog[data-color="green"] {
   --detail-accent: #13744b;
-  --detail-border: #74ad91;
-  --detail-surface: #f1faf5;
 }
 
 :root[data-theme="light"] .card-detail-dialog[data-color="yellow"] {
   --detail-accent: #756600;
-  --detail-border: #b5a65d;
-  --detail-surface: #fffbee;
-}
-
-:root[data-theme="light"] .card-detail-dialog[data-color="colorless"] {
-  --detail-accent: #5c686c;
-  --detail-border: #929fa2;
-  --detail-surface: #f7f9f9;
 }
 
 :root[data-theme="light"] .card-detail-dialog {
-  box-shadow: inset 0 2px 0 rgb(255 255 255 / 70%);
+  --detail-border: var(--border-strong);
+  --detail-surface: var(--surface);
 }

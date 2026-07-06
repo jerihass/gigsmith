@@ -67,7 +67,7 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
     const issue = issues.find((candidate) => candidate.affectedGigIds.includes(gig.id));
 
     return (
-      <article className={`match-gig fixer-gig${issue ? " invalid" : ""}`} key={gig.id}>
+      <article className={`match-gig fixer-gig unrolled-gig${available ? " available" : ""}${issue ? " invalid" : ""}`} key={gig.id}>
         <div className="gig-die">
           <strong>{gig.dieType}</strong>
           <span>{gig.ownerId === "player" ? "Your die" : "Rival die"}</span>
@@ -97,7 +97,7 @@ export function GigSandbox({ match, onChange }: { match: GigMatchState; onChange
     const editing = editingGigId === gig.id && !match.winnerId;
 
     return (
-      <article className={`match-gig controlled-gig${issue ? " invalid" : ""}`} key={gig.id}>
+      <article className={`match-gig controlled-gig rolled-gig${issue ? " invalid" : ""}`} key={gig.id}>
         <div className="gig-die">
           <strong>{gig.dieType}</strong>
           <span>{gig.ownerId === "player" ? "Your die" : "Rival die"}</span>

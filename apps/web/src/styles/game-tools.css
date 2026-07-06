@@ -138,6 +138,17 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px;
+  position: relative;
+}
+
+.gig-player-board.active {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 13%, transparent), transparent 42%),
+    var(--surface);
+  border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
+  box-shadow:
+    inset 3px 0 0 var(--accent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .gig-player-heading {
@@ -152,6 +163,15 @@
 .gig-player-stats {
   display: grid;
   text-align: right;
+}
+
+.gig-player-board.active .gig-player-heading {
+  border-bottom-color: color-mix(in srgb, var(--accent) 34%, var(--border));
+}
+
+.gig-player-board.active .section-kicker,
+.gig-player-board.active .gig-player-stats strong {
+  color: var(--accent);
 }
 
 .gig-zone-grid {
@@ -183,6 +203,24 @@
   padding: 8px;
 }
 
+.rolled-gig {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--success-bg) 68%, transparent), transparent),
+    var(--surface-control);
+  border-color: color-mix(in srgb, var(--success-border) 76%, var(--border));
+}
+
+.unrolled-gig {
+  background: color-mix(in srgb, var(--surface-control) 78%, var(--surface) 22%);
+  border-color: color-mix(in srgb, var(--border) 76%, transparent);
+  opacity: 0.78;
+}
+
+.unrolled-gig.available {
+  border-color: color-mix(in srgb, var(--accent) 54%, var(--border));
+  opacity: 1;
+}
+
 .fixer-gig {
   grid-template-columns: 58px minmax(0, 1fr);
 }
@@ -207,6 +245,8 @@
 }
 
 .controlled-gig .gig-die {
+  background: color-mix(in srgb, var(--success-bg) 54%, var(--surface-raised));
+  border: 1px solid color-mix(in srgb, var(--success-border) 52%, transparent);
   padding-block: 5px;
 }
 
@@ -219,7 +259,30 @@
 }
 
 .controlled-gig .gig-value-trigger {
+  background: color-mix(in srgb, var(--success-bg) 42%, var(--surface-raised));
+  border-color: color-mix(in srgb, var(--success-border) 62%, var(--border-strong));
   width: 100%;
+}
+
+.controlled-gig .gig-value-trigger strong {
+  color: var(--success-text);
+}
+
+.fixer-gig .gig-die {
+  background: color-mix(in srgb, var(--surface-raised) 72%, var(--surface) 28%);
+}
+
+.fixer-gig.available .gig-die {
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, transparent);
+}
+
+.fixer-gig.available .gig-die strong {
+  color: var(--accent);
+}
+
+.fixer-gig:not(.available) .gig-die strong,
+.fixer-gig:not(.available) .gig-location strong {
+  color: var(--muted);
 }
 
 .fixer-gig .gig-command {

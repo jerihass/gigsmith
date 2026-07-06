@@ -213,12 +213,10 @@
 .unrolled-gig {
   background: color-mix(in srgb, var(--surface-control) 78%, var(--surface) 22%);
   border-color: color-mix(in srgb, var(--border) 76%, transparent);
-  opacity: 0.78;
 }
 
 .unrolled-gig.available {
   border-color: color-mix(in srgb, var(--accent) 54%, var(--border));
-  opacity: 1;
 }
 
 .fixer-gig {
@@ -280,11 +278,6 @@
   color: var(--accent);
 }
 
-.fixer-gig:not(.available) .gig-die strong,
-.fixer-gig:not(.available) .gig-location strong {
-  color: var(--muted);
-}
-
 .fixer-gig .gig-command {
   grid-column: 1 / -1;
 }
@@ -320,6 +313,13 @@
 
 .gig-location strong {
   overflow-wrap: anywhere;
+}
+
+.fixer-gig:not(.available) .gig-die strong,
+.fixer-gig:not(.available) .gig-die span,
+.fixer-gig:not(.available) .gig-location strong,
+.fixer-gig:not(.available) .gig-location span {
+  color: var(--muted-strong);
 }
 
 .gig-value-editor {

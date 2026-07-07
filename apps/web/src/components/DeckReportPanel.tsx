@@ -42,14 +42,14 @@ export const DeckReportPanel = memo(function DeckReportPanel({
     let cancelled = false;
     setQrCode("");
     setQrError("");
-    if (shareUrl.length > 1800) {
+    if (shareUrl.length > 1200) {
       setQrError("Share payload is too large for a practical QR code. Use text/JSON export instead.");
       return;
     }
 
     import("qrcode")
       .then((module) => module.toDataURL(shareUrl, {
-        errorCorrectionLevel: "M",
+        errorCorrectionLevel: "L",
         margin: 1,
         scale: 5,
         color: { dark: "#05070a", light: "#ffffff" }

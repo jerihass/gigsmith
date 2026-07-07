@@ -1,17 +1,25 @@
 import { describe, expect, it } from "vitest";
 import { createValidDeck } from "@gigsmith/test-fixtures";
+import { exportDeckJson } from "./deckJson";
 import { deckInputLimits } from "./limits";
 import { decodeDeckSharePayload, encodeDeckSharePayload } from "./sharePayload";
 
+function encodeLegacyFullDocument(deck: ReturnType<typeof createValidDeck>): string {
+  const bytes = new TextEncoder().encode(JSON.stringify(JSON.parse(exportDeckJson(deck)) as unknown));
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
 describe("deck share payload", () => {
-  it("round-trips a deck through URL-safe encoding", () => {
+  it("round-trips a deck through compact URL-safe encoding", () => {
     const deck = createValidDeck();
     const payload = encodeDeckSharePayload(deck, {
       exportedAt: "2026-06-19T12:00:00.000Z"
     });
     const result = decodeDeckSharePayload(payload);
 
-    expect(payload).toMatch(/^[A-Za-z0-9_-]+$/);
+    expect(payload).toMatch(/^g1\|/);
     expect(result.errors).toEqual([]);
     expect(result.document?.deck).toMatchObject({
       name: deck.name,
@@ -20,6 +28,36 @@ describe("deck share payload", () => {
       formatId: deck.formatId,
       rulesetVersion: deck.rulesetVersion,
       cardDataVersion: deck.cardDataVersion
+    });
+  });
+
+  it("keeps compact share payloads materially smaller than full deck documents", () => {
+    const deck = createValidDeck();
+    const compactPayload = encodeDeckSharePayload(deck);
+    const fullPayload = encodeLegacyFullDocument(deck);
+
+    expect(compactPayload.length).toBeLessThan(fullPayload.length * 0.5);
+  });
+
+  it("survives URL hash parsing", () => {
+    const deck = createValidDeck();
+    const url = new URL("https://example.test/gigsmith/");
+    url.hash = `deck=${encodeDeckSharePayload(deck)}`;
+    const payload = new URLSearchParams(url.hash.slice(1)).get("deck");
+
+    expect(payload).toBeTruthy();
+    expect(decodeDeckSharePayload(payload ?? "").document?.deck.name).toBe(deck.name);
+  });
+
+  it("continues to decode legacy full-document share payloads", () => {
+    const deck = createValidDeck();
+    const result = decodeDeckSharePayload(encodeLegacyFullDocument(deck));
+
+    expect(result.errors).toEqual([]);
+    expect(result.document?.deck).toMatchObject({
+      name: deck.name,
+      legends: deck.legends,
+      main: deck.main
     });
   });
 

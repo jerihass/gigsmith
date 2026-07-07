@@ -290,6 +290,10 @@ textarea {
   display: none;
 }
 
+.mobile-card-search-bar {
+  display: none;
+}
+
 .filter-clear {
   align-self: end;
 }

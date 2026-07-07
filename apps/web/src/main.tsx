@@ -271,6 +271,14 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     setSellableFilter("Any");
     setRamCompatibilityFilter("All");
   };
+  const openAdvancedFiltersFromMobileSearch = () => {
+    setAdvancedFiltersOpen(true);
+    window.requestAnimationFrame(() => document.getElementById(advancedFiltersId)?.scrollIntoView({ block: "nearest" }));
+  };
+  const focusMobileCardSearch = () => {
+    document.getElementById("deck-builder-search")?.scrollIntoView({ block: "start" });
+    window.requestAnimationFrame(() => document.getElementById("mobile-card-search-input")?.focus());
+  };
   const deckDetailCards = useMemo(() => {
     const seen = new Set<string>();
     const cards: Card[] = [];
@@ -962,6 +970,27 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               <span className="result-count">{filteredCards.length} cards</span>
             </div>
           </div>
+          <div className="mobile-card-search-bar" role="search" aria-label="Card search">
+            <label>
+              <span>Search</span>
+              <input
+                id="mobile-card-search-input"
+                aria-label="Search cards"
+                placeholder="Name, text, faction..."
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+            </label>
+            <button
+              aria-controls={advancedFiltersId}
+              aria-expanded={advancedFiltersOpen}
+              onClick={openAdvancedFiltersFromMobileSearch}
+              type="button"
+            >
+              Filters{activeAdvancedFilterCount > 0 ? ` ${activeAdvancedFilterCount}` : ""}
+            </button>
+            <span aria-live="polite">{filteredCards.length}</span>
+          </div>
           <div className="filter-grid">
             <label className="field search-field">
               <span>Search</span>
@@ -1161,7 +1190,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
             <span style={{ inlineSize: `${Math.min(100, (entryCount(deck.main) / 40) * 100)}%` }} />
           </div>
           <div className="mobile-deck-dock-actions">
-            <a href="#deck-builder-search">Search</a>
+            <button onClick={focusMobileCardSearch} type="button">Search</button>
             <button
               aria-controls="mobile-deck-drawer"
               aria-expanded={mobileDeckDrawerOpen}

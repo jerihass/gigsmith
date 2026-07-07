@@ -52,7 +52,7 @@ These are mobile-first improvements that would make Gigsmith faster on phones wi
 
 ### GS-MOB-002: Sticky Mobile Search And Filter Bar
 
-**Status:** Candidate.
+**Status:** Done.
 
 **Goal:** Keep card browsing controls reachable while scrolling long result lists.
 

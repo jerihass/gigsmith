@@ -7,9 +7,11 @@ describe("ReleaseNotesDialog", () => {
     const markup = renderToStaticMarkup(<ReleaseNotesDialog open onClose={() => undefined} />);
 
     expect(markup).toContain("Release Notes");
+    expect(markup).toContain("0.1.20");
+    expect(markup).toContain("Mobile Card Detail Polish");
+    expect(markup).toContain("mobile bottom sheet");
     expect(markup).toContain("0.1.19");
     expect(markup).toContain("Compact Gig Tracker");
-    expect(markup).toContain("value/max buttons");
     expect(markup).toContain("0.1.18");
     expect(markup).toContain("Proxy Change Printing");
     expect(markup).toContain("printing only cards added or increased");

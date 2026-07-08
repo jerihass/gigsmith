@@ -7,6 +7,17 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.20",
+    date: "2026-07-07",
+    title: "Mobile Card Detail Polish",
+    changes: [
+      "Turned card details into a mobile bottom sheet with safer scrolling and spacing.",
+      "Highlighted rule-text keywords with shaped chips for faster card reading.",
+      "Cleaned up card detail metadata and improved wrapping for long values.",
+      "Adjusted the mobile deck dock search action to scroll directly to card search."
+    ]
+  },
+  {
     version: "0.1.19",
     date: "2026-07-06",
     title: "Compact Gig Tracker",

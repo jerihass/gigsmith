@@ -275,9 +275,8 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     setAdvancedFiltersOpen(true);
     window.requestAnimationFrame(() => document.getElementById(advancedFiltersId)?.scrollIntoView({ block: "nearest" }));
   };
-  const focusMobileCardSearch = () => {
-    document.getElementById("deck-builder-search")?.scrollIntoView({ block: "start" });
-    window.requestAnimationFrame(() => document.getElementById("mobile-card-search-input")?.focus());
+  const scrollToMobileCardSearch = () => {
+    document.getElementById("mobile-card-search-input")?.scrollIntoView({ block: "start" });
   };
   const deckDetailCards = useMemo(() => {
     const seen = new Set<string>();
@@ -1190,7 +1189,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
             <span style={{ inlineSize: `${Math.min(100, (entryCount(deck.main) / 40) * 100)}%` }} />
           </div>
           <div className="mobile-deck-dock-actions">
-            <button onClick={focusMobileCardSearch} type="button">Search</button>
+            <button onClick={scrollToMobileCardSearch} type="button">Search</button>
             <button
               aria-controls="mobile-deck-drawer"
               aria-expanded={mobileDeckDrawerOpen}

@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { Card } from "@gigsmith/data-contracts";
-import { cardDetailStats, cardDetailTags, cardDetailText, displayPreviewNumber } from "./cardDetails";
+import {
+  cardDetailKeywordPresentation,
+  cardDetailStats,
+  cardDetailTags,
+  cardDetailText,
+  cardDetailTextParts,
+  displayPreviewNumber
+} from "./cardDetails";
 
 function card(overrides: Partial<Card> = {}): Card {
   return {
@@ -53,5 +60,24 @@ describe("card detail formatting", () => {
     expect(cardDetailText("   ", "None")).toBe("None");
     expect(cardDetailTags(["Arasaka", "Solo"])).toBe("Arasaka · Solo");
     expect(cardDetailTags([])).toBe("None");
+  });
+
+  it("splits rules text brace keywords for card detail rendering", () => {
+    expect(cardDetailTextParts("{Call} Trash 3.\n{Go Solo} reminder", "None")).toEqual([
+      { kind: "keyword", text: "Call", shape: "convex", tone: "yellow" },
+      { kind: "text", text: " Trash 3.\n" },
+      { kind: "keyword", text: "Go Solo", shape: "concave", tone: "yellow" },
+      { kind: "text", text: " reminder" }
+    ]);
+    expect(cardDetailTextParts("   ", "None")).toEqual([{ kind: "text", text: "None" }]);
+  });
+
+  it("maps rulebook timing triggers and keywords to chip presentations", () => {
+    expect(cardDetailKeywordPresentation("Play")).toEqual({ shape: "convex", tone: "yellow" });
+    expect(cardDetailKeywordPresentation("Attack")).toEqual({ shape: "convex", tone: "green" });
+    expect(cardDetailKeywordPresentation("Defeated")).toEqual({ shape: "convex", tone: "red" });
+    expect(cardDetailKeywordPresentation("Quick")).toEqual({ shape: "concave", tone: "pink" });
+    expect(cardDetailKeywordPresentation("Blocker")).toEqual({ shape: "concave", tone: "pink" });
+    expect(cardDetailKeywordPresentation("Spend")).toEqual({ shape: "concave", tone: "neutral" });
   });
 });

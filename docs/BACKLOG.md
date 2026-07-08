@@ -70,7 +70,7 @@ These are mobile-first improvements that would make Gigsmith faster on phones wi
 
 ### GS-MOB-003: Bottom-Sheet Card Details
 
-**Status:** Candidate.
+**Status:** Done.
 
 **Goal:** Make card inspection feel native on phones.
 

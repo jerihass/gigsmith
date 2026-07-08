@@ -269,6 +269,41 @@
     max-width: 100%;
   }
 
+  .card-detail-dialog {
+    border-block-end: 0;
+    border-radius: 10px 10px 0 0;
+    box-shadow:
+      0 -18px 40px var(--shadow),
+      0 0 24px color-mix(in srgb, var(--detail-accent) 22%, transparent);
+    max-height: min(92dvh, 760px);
+    max-width: 560px;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .card-detail-dialog[open] {
+    inset-block-end: 0;
+    inset-block-start: auto;
+    inset-inline: 0;
+    margin: auto auto 0;
+  }
+
+  .card-detail-content {
+    max-height: inherit;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 12px 16px calc(18px + env(safe-area-inset-bottom));
+  }
+
+  .card-detail-content::before {
+    background: color-mix(in srgb, var(--detail-accent) 58%, var(--border));
+    border-radius: 999px;
+    content: "";
+    height: 4px;
+    justify-self: center;
+    width: 44px;
+  }
+
   .deck-builder-workspace {
     gap: 12px;
   }
@@ -382,10 +417,13 @@
   }
 
   .mobile-deck-dock {
+    bottom: 0;
     display: grid;
     gap: 8px;
+    left: 0;
     padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
     position: fixed;
+    right: 0;
     z-index: 20;
   }
 

@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Card } from "@gigsmith/data-contracts";
 import { isSellableCard } from "@gigsmith/data-contracts";
-import { cardDetailStats, cardDetailTags, cardDetailText } from "../cardDetails";
+import { cardDetailStats, cardDetailTags, cardDetailTextParts } from "../cardDetails";
 import { CardArt } from "./CardArt";
 
 export function CardDetailDialog({
@@ -70,7 +70,6 @@ export function CardDetailDialog({
             <div>
               <p>{card.color} {card.card_type}</p>
               <h2 id="card-detail-title">{card.display_name}</h2>
-              <code>{card.external_id}</code>
             </div>
             <button className="icon-button" ref={closeRef} aria-label="Close card details" title="Close" onClick={onClose}>
               <X size={18} aria-hidden="true" />
@@ -99,13 +98,31 @@ export function CardDetailDialog({
           <dl className="card-detail-stats">
             {cardDetailStats(card).map((stat) => <div key={stat.label}><dt>{stat.label}</dt><dd>{stat.value}</dd></div>)}
           </dl>
-          <section className="card-detail-section"><h3>Rules</h3><p className="rules-text">{cardDetailText(card.rules_text, "No rules text.")}</p></section>
+          <section className="card-detail-section">
+            <h3>Rules</h3>
+            <p className="rules-text">
+              {cardDetailTextParts(card.rules_text, "No rules text.").map((part, index) => (
+                part.kind === "keyword"
+                  ? (
+                    <span
+                      className="rules-keyword"
+                      data-shape={part.shape}
+                      data-tone={part.tone}
+                      key={`${part.text}-${index}`}
+                    >
+                      {part.text}
+                    </span>
+                  )
+                  : <span key={index}>{part.text}</span>
+              ))}
+            </p>
+          </section>
           {card.flavor_text && <section className="card-detail-section"><h3>Flavor</h3><p className="flavor-text">{card.flavor_text}</p></section>}
           <dl className="card-detail-taxonomy">
             <div><dt>Keywords</dt><dd>{cardDetailTags(card.keywords)}</dd></div>
             <div><dt>Economy</dt><dd>{isSellableCard(card) ? "Sellable" : "Not sellable"}</dd></div>
             <div><dt>Classifications</dt><dd>{cardDetailTags(card.classifications)}</dd></div>
-            <div><dt>Set</dt><dd>{card.set.name} ({card.set.code})</dd></div>
+            <div><dt>Set</dt><dd>{card.set.name}</dd></div>
             <div><dt>Printing</dt><dd>{card.print_number ?? card.printing_id}</dd></div>
           </dl>
           <footer className="card-detail-footer">

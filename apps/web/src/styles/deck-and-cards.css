@@ -868,6 +868,7 @@ textarea {
   background: var(--surface-control);
   border: 1px solid var(--border);
   border-radius: 6px;
+  min-width: 0;
   padding: 10px;
 }
 
@@ -882,6 +883,7 @@ textarea {
 .card-detail-stats dd,
 .card-detail-taxonomy dd {
   margin: 5px 0 0;
+  overflow-wrap: anywhere;
 }
 
 .card-detail-stats dd {
@@ -902,6 +904,76 @@ textarea {
   line-height: 1.55;
   margin-bottom: 0;
   white-space: pre-line;
+}
+
+.rules-keyword {
+  --rules-chip-tone: var(--detail-accent);
+  --rules-chip-ink: #101214;
+  background: color-mix(in srgb, var(--rules-chip-tone) 16%, var(--surface-control));
+  border: 1.5px solid color-mix(in srgb, var(--rules-chip-tone) 72%, var(--border));
+  border-radius: 4px;
+  color: var(--rules-chip-ink);
+  display: inline-flex;
+  font-size: 0.84em;
+  font-weight: 800;
+  line-height: 1;
+  margin: 0 0.18em 0.08em 0;
+  padding: 0.3em 0.62em;
+  position: relative;
+  vertical-align: 0.08em;
+}
+
+.rules-keyword[data-tone="yellow"] {
+  --rules-chip-tone: #f4e600;
+}
+
+.rules-keyword[data-tone="green"] {
+  --rules-chip-tone: #4dd46d;
+}
+
+.rules-keyword[data-tone="red"] {
+  --rules-chip-tone: #ff3f54;
+}
+
+.rules-keyword[data-tone="pink"] {
+  --rules-chip-tone: #ff3aa7;
+}
+
+.rules-keyword[data-tone="neutral"] {
+  --rules-chip-tone: var(--muted);
+  --rules-chip-ink: var(--text);
+}
+
+.rules-keyword[data-shape="convex"] {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--rules-chip-tone) 92%, white),
+      var(--rules-chip-tone)
+    );
+  clip-path: polygon(0.5em 0, calc(100% - 0.5em) 0, 100% 50%, calc(100% - 0.5em) 100%, 0.5em 100%, 0 50%);
+  padding-inline: 0.82em;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 22%),
+    inset 0 -1px 0 rgb(0 0 0 / 28%),
+    0 1px 0 color-mix(in srgb, var(--rules-chip-tone) 36%, transparent);
+}
+
+.rules-keyword[data-shape="concave"] {
+  background:
+    radial-gradient(circle at left center, transparent 0 0.38em, color-mix(in srgb, var(--rules-chip-tone) 88%, white) 0.4em),
+    radial-gradient(circle at right center, transparent 0 0.38em, color-mix(in srgb, var(--rules-chip-tone) 88%, white) 0.4em);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 1px 4px rgb(0 0 0 / 28%),
+    inset 0 -1px 0 rgb(255 255 255 / 36%);
+  padding-inline: 0.95em;
+}
+
+.rules-keyword[data-shape="concave"][data-tone="neutral"] {
+  background:
+    radial-gradient(circle at left center, transparent 0 0.38em, color-mix(in srgb, var(--rules-chip-tone) 20%, var(--surface-control)) 0.4em),
+    radial-gradient(circle at right center, transparent 0 0.38em, color-mix(in srgb, var(--rules-chip-tone) 20%, var(--surface-control)) 0.4em);
 }
 
 .flavor-text {

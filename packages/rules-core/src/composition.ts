@@ -14,7 +14,7 @@ import type {
 } from "@gigsmith/data-contracts";
 import { isSellableCard } from "@gigsmith/data-contracts";
 
-export const compositionRoleRegistryVersion = "composition-roles.v1";
+export const compositionRoleRegistryVersion = "composition-roles.v2";
 
 interface RoleDefinition {
   id: string;
@@ -23,42 +23,65 @@ interface RoleDefinition {
   matches(card: Card): boolean;
 }
 
+function roleText(card: Card): string {
+  return (card.rules_text ?? "").replace(/\([^)]*\)/g, " ");
+}
+
 const roleDefinitions: RoleDefinition[] = [
   {
     id: "economy",
     label: "Economy",
     description: "Sellable cards or text that references selling, Eddies, or €$ costs.",
-    matches: (card) => isSellableCard(card) || /\b(?:sell|edd(?:y|ie|ies)|€\$)\b/i.test(card.rules_text ?? "")
+    matches: (card) => isSellableCard(card) || /\b(?:sell|edd(?:y|ie|ies)|€\$)\b/i.test(roleText(card))
   },
   {
     id: "draw-search",
     label: "Draw / Search",
     description: "Text that draws cards, searches cards, or adds cards to hand.",
-    matches: (card) => /\b(?:draw|search|add\b.*\bhand)\b/i.test(card.rules_text ?? "")
+    matches: (card) => /\b(?:draw|search|add\b.*\bhand)\b/i.test(roleText(card))
   },
   {
     id: "interaction",
     label: "Interaction",
     description: "Text that defeats, spends, discards, or otherwise disrupts rival cards.",
-    matches: (card) => /\b(?:defeat|spend a rival|rival unit|discard)\b/i.test(card.rules_text ?? "")
+    matches: (card) => {
+      const text = roleText(card);
+      return /\bdefeat (?:a |an |all other )?(?:rival|spent rival|unit|units|all other units)\b/i.test(text)
+        || /\bgive an equipped unit\b[\s\S]*\bdefeat it\b/i.test(text)
+        || /\bspend (?:a |this unit and a )?rival unit\b/i.test(text)
+        || /\bbottom-deck a rival\b/i.test(text)
+        || /\brival unit (?:can't|must) attack\b/i.test(text)
+        || /\bgive a rival unit -\d+ power\b/i.test(text)
+        || /\brival unit steals? 1 fewer gig\b/i.test(text)
+        || /\b(?:a )?rival discards?\b/i.test(text);
+    }
   },
   {
     id: "protection",
     label: "Protection",
     description: "Blocker or text that reduces stealing or redirects attacks.",
-    matches: (card) => card.keywords.includes("Blocker") || /\b(?:blocker|steals? 1 fewer|redirect)\b/i.test(card.rules_text ?? "")
+    matches: (card) => {
+      const text = roleText(card);
+      return card.keywords.includes("Blocker")
+        || /\b(?:blocker|steals? 1 fewer|redirect)\b/i.test(text)
+        || /\bdoesn't defeat the opposing friendly unit\b/i.test(text);
+    }
   },
   {
     id: "gig-control",
     label: "Gig Control",
     description: "Text that adjusts, sets, swaps, increases, or steals Gigs.",
-    matches: (card) => /\bgig/i.test(card.rules_text ?? "") && /\b(?:adjust|set|swap|increase|steal)\b/i.test(card.rules_text ?? "")
+    matches: (card) => {
+      const text = roleText(card);
+      return /\b(?:adjust|set|swap|increase|decrease) (?:a |friendly )?gig\b/i.test(text)
+        || /\bsteal a rival gig\b/i.test(text);
+    }
   },
   {
-    id: "combat-power",
-    label: "Combat Power",
-    description: "Text that references power changes or combat scaling.",
-    matches: (card) => /\b(?:power|\+\d+)\b/i.test(card.rules_text ?? "")
+    id: "power-effects",
+    label: "Power Effects",
+    description: "Text that changes power, checks power thresholds, or uses power to resolve an effect.",
+    matches: (card) => /\b(?:power|\+\d+|-\d+)\b/i.test(roleText(card))
   }
 ];
 

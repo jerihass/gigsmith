@@ -4,6 +4,16 @@ import { cardBySlug, createValidDeck } from "@gigsmith/test-fixtures";
 import { analyzeDeckComposition, compositionRoleRegistryVersion } from "./composition";
 
 describe("analyzeDeckComposition", () => {
+  function roleIdsForSlugs(slugs: string[]): string[] {
+    const report = analyzeDeckComposition(
+      createValidDeck({
+        main: slugs.map((slug) => ({ cardId: cardBySlug(slug).id, count: 1 }))
+      }),
+      cyberpunkCardDb
+    );
+    return report.main.roleBuckets.map((bucket) => bucket.roleId).sort();
+  }
+
   it("reports field distributions and role buckets for the golden deck", () => {
     const report = analyzeDeckComposition(createValidDeck(), cyberpunkCardDb);
 
@@ -75,5 +85,20 @@ describe("analyzeDeckComposition", () => {
       legendCardDelta: 0
     });
     expect(report.versionComparisons[0].typeDeltas.some((delta) => delta.label === "Program")).toBe(true);
+  });
+
+  it("does not derive roles from reminder text or baseline Gig stealing", () => {
+    expect(roleIdsForSlugs(["secondhand-bombus"])).toEqual(["protection"]);
+    expect(roleIdsForSlugs(["sketchy-ripper"])).toEqual(["draw-search"]);
+    expect(roleIdsForSlugs(["evelyn-parker-scheming-siren"])).toEqual(["draw-search"]);
+  });
+
+  it("separates rival disruption, protection, Gig control, and power effects", () => {
+    expect(roleIdsForSlugs(["satori-sword-of-saburo"])).toEqual(["draw-search", "economy"]);
+    expect(roleIdsForSlugs(["reboot-optics"])).toEqual(["economy", "protection"]);
+    expect(roleIdsForSlugs(["chrome-reverie"])).toEqual(["economy", "interaction"]);
+    expect(roleIdsForSlugs(["take-control"])).toEqual(["draw-search", "economy", "interaction", "protection"]);
+    expect(roleIdsForSlugs(["cyberpsychosis"])).toEqual(["economy", "interaction", "power-effects"]);
+    expect(roleIdsForSlugs(["over-the-edge"])).toEqual(["economy", "interaction", "power-effects"]);
   });
 });

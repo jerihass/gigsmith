@@ -256,7 +256,7 @@
   }
 
   #app-panel-deck:not([hidden]) {
-    padding-bottom: calc(112px + env(safe-area-inset-bottom));
+    padding-bottom: calc(210px + env(safe-area-inset-bottom));
   }
 
   .header-context {
@@ -419,9 +419,9 @@
   .mobile-deck-dock {
     bottom: 0;
     display: grid;
-    gap: 8px;
+    gap: 7px;
     left: 0;
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    padding: 9px 12px calc(9px + env(safe-area-inset-bottom));
     position: fixed;
     right: 0;
     z-index: 20;
@@ -453,6 +453,104 @@
     padding: 4px 8px;
   }
 
+  .mobile-deck-health {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .mobile-deck-health-chip {
+    align-items: center;
+    background: var(--surface-subtle);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    gap: 4px;
+    justify-content: space-between;
+    min-width: 0;
+    padding: 5px 6px;
+  }
+
+  .mobile-deck-health-chip > span,
+  .mobile-deck-health-chip > strong {
+    font-size: 0.68rem;
+    line-height: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-deck-health-chip > span {
+    color: var(--muted);
+    font-weight: 800;
+  }
+
+  .mobile-deck-health-chip > strong {
+    color: var(--success);
+  }
+
+  .mobile-deck-health-chip[data-state="warning"] {
+    background: var(--warning-bg);
+    border-color: var(--warning-border);
+  }
+
+  .mobile-deck-health-chip[data-state="warning"] > strong {
+    color: var(--warning-text);
+  }
+
+  .mobile-deck-health-chip[data-state="error"] {
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+  }
+
+  .mobile-deck-health-chip[data-state="error"] > strong {
+    color: var(--danger);
+  }
+
+  .mobile-deck-health-issue {
+    align-items: center;
+    background: var(--surface-raised);
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    color: var(--text);
+    display: grid;
+    gap: 2px;
+    justify-items: start;
+    min-height: 42px;
+    padding: 7px 9px;
+    text-align: start;
+  }
+
+  .mobile-deck-health-issue[data-severity="error"] {
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+  }
+
+  .mobile-deck-health-issue[data-severity="warning"] {
+    background: var(--warning-bg);
+    border-color: var(--warning-border);
+  }
+
+  .mobile-deck-health-issue > span,
+  .mobile-deck-health-issue > strong {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-deck-health-issue > span {
+    color: var(--muted-strong);
+    font-size: 0.68rem;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .mobile-deck-health-issue > strong {
+    font-size: 0.78rem;
+  }
+
   .mobile-deck-meter {
     background: var(--surface-control);
     border: 1px solid var(--border);
@@ -482,6 +580,7 @@
     border-radius: 4px;
     color: var(--text);
     display: inline-flex;
+    gap: 6px;
     font-weight: 800;
     justify-content: center;
     min-height: 42px;

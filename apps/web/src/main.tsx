@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { Info, Palette, Redo2, Undo2, X } from "lucide-react";
+import { Info, Layers, Palette, Redo2, Search, Undo2, X } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, CardDatabase, Deck, DeckCardEntry, DeckDocumentV1, GigMatchState, ValidationIssue } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload, deckInputLimits } from "@gigsmith/deck-io";
@@ -80,8 +80,9 @@ import {
 import { createDefaultGigMatch, loadGigMatch, saveGigMatch } from "./gigMatchStorage";
 import { mergeBackupDeckLibrary, type PortableBackupV1 } from "./portableBackup";
 import { measurePerformance } from "./performanceInstrumentation";
+import { summarizeMobileDeckHealth } from "./mobileDeckHealth";
 import { createEmptyPlaytestJournal, loadPlaytestJournal, savePlaytestJournal, type PlaytestJournal } from "./playtestJournal";
-import { groupValidationResult } from "./validationGroups";
+import { groupValidationResult, validationGroupAnchorId } from "./validationGroups";
 import {
   applyThemePreference,
   loadThemePreference,
@@ -305,6 +306,18 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     () => groupValidationResult(validation, cardDb.cards),
     [cardDb, validation]
   );
+  const mobileDeckHealth = useMemo(
+    () => summarizeMobileDeckHealth(validationGroups, validation.legal),
+    [validationGroups, validation.legal]
+  );
+  const openMobileDeckHealthIssue = () => {
+    const issue = mobileDeckHealth.topIssue;
+    if (!issue) return;
+    setActiveView("analysis");
+    window.requestAnimationFrame(() => {
+      document.getElementById(validationGroupAnchorId(issue.groupId))?.scrollIntoView({ block: "start" });
+    });
+  };
   const ram = useMemo(() => calculateRamLimits(deck.legends, cardDb, cyberpunkRulesetV1Printable), [cardDb, deck.legends]);
   const ramCompatibilityById = useMemo(
     () => new Map(cardDb.cards.map((card) => [card.id, evaluateCardRamCompatibility(card, ram)])),
@@ -1185,17 +1198,37 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               {validation.legal ? "Legal" : `${validation.errors.length} issue${validation.errors.length === 1 ? "" : "s"}`}
             </span>
           </div>
+          <div className="mobile-deck-health" aria-label="Deck health summary">
+            {mobileDeckHealth.metrics.map((metric) => (
+              <span className="mobile-deck-health-chip" data-state={metric.state} key={metric.id}>
+                <span>{metric.label}</span>
+                <strong>{metric.issueCount === 0 ? "OK" : metric.issueCount}</strong>
+              </span>
+            ))}
+          </div>
+          {mobileDeckHealth.topIssue && (
+            <button
+              className="mobile-deck-health-issue"
+              data-severity={mobileDeckHealth.topIssue.severity}
+              onClick={openMobileDeckHealthIssue}
+              type="button"
+            >
+              <span>{mobileDeckHealth.topIssue.title}</span>
+              <strong>{mobileDeckHealth.topIssue.message}</strong>
+            </button>
+          )}
           <div className="mobile-deck-meter" aria-hidden="true">
             <span style={{ inlineSize: `${Math.min(100, (entryCount(deck.main) / 40) * 100)}%` }} />
           </div>
           <div className="mobile-deck-dock-actions">
-            <button onClick={scrollToMobileCardSearch} type="button">Search</button>
+            <button onClick={scrollToMobileCardSearch} type="button"><Search size={17} aria-hidden="true" />Search</button>
             <button
               aria-controls="mobile-deck-drawer"
               aria-expanded={mobileDeckDrawerOpen}
               onClick={() => setMobileDeckDrawerOpen((open) => !open)}
               type="button"
             >
+              <Layers size={17} aria-hidden="true" />
               Deck
             </button>
           </div>

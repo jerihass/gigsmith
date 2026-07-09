@@ -106,7 +106,7 @@ These are mobile-first improvements that would make Gigsmith faster on phones wi
 
 ### GS-MOB-005: Deck Health Summary In Mobile Dock
 
-**Status:** Candidate.
+**Status:** Done.
 
 **Goal:** Surface the next deck issue without opening the full validation panel.
 

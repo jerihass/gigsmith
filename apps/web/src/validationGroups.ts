@@ -43,6 +43,10 @@ const codeToGroup = new Map(
   groupDefinitions.flatMap((group) => group.codes.map((code) => [code, group.id] as const))
 );
 
+export function validationGroupAnchorId(groupId: ValidationGroupId): string {
+  return `validation-group-${groupId}`;
+}
+
 export function groupValidationResult(result: ValidationResult, cards: Card[]): ValidationGroup[] {
   const cardNames = new Map(cards.map((card) => [card.id, card.display_name]));
   const grouped = new Map<ValidationGroupId, DisplayValidationIssue[]>();

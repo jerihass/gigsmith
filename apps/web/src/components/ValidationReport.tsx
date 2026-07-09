@@ -1,5 +1,5 @@
 import { memo } from "react";
-import type { ValidationGroup } from "../validationGroups";
+import { validationGroupAnchorId, type ValidationGroup } from "../validationGroups";
 
 export const ValidationReport = memo(function ValidationReport({ groups }: { groups: ValidationGroup[] }) {
   const issueCount = groups.reduce((sum, group) => sum + group.issues.length, 0);
@@ -11,7 +11,7 @@ export const ValidationReport = memo(function ValidationReport({ groups }: { gro
       </div>
       <div className="validation-groups">
         {groups.map((group) => (
-          <section className="validation-group" key={group.id}>
+          <section className="validation-group" id={validationGroupAnchorId(group.id)} key={group.id}>
             <h3>{group.title}</h3>
             <div className="issue-list">
               {group.issues.map((issue, index) => (

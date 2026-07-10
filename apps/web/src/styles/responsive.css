@@ -876,14 +876,18 @@
   }
 
   .gig-value-popover {
-    left: 50%;
+    bottom: calc(12px + env(safe-area-inset-bottom));
     margin-top: 4px;
+    margin-inline: auto;
+    max-width: 360px;
     min-width: min(78vw, 212px);
-    position: absolute;
-    right: auto;
-    top: calc(100% + 4px);
-    transform: translateX(-50%);
-    width: min(78vw, 212px);
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    top: auto;
+    transform: none;
+    width: auto;
+    z-index: 40;
   }
 
   .gig-value-controls {

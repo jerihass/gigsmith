@@ -199,6 +199,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [cardSort, setCardSort] = useState<CardSort>("Snapshot");
   const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
   const [mobileDeckDrawerOpen, setMobileDeckDrawerOpen] = useState(false);
+  const [mobileQuickAddEnabled, setMobileQuickAddEnabled] = useState(false);
   const [theme, setTheme] = useState<AppTheme>(() => loadThemePreference(window.localStorage));
   const [deckEditNotice, setDeckEditNotice] = useState<ValidationIssue>();
   const [cardArtEnabled, setCardArtEnabled] = useState(() => loadCardArtPreference(window.localStorage));
@@ -214,6 +215,8 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
   const detailTriggerRef = useRef<HTMLButtonElement>();
   const releaseNotesTriggerRef = useRef<HTMLButtonElement>();
+  const quickAddLongPressRef = useRef<number>();
+  const quickAddSuppressClickRef = useRef(false);
   const libraryPersistence = useRef(
     createDeferredPersistence<DeckLibrary>((next) =>
       measurePerformance(
@@ -403,6 +406,10 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   useEffect(() => {
     applyThemePreference(theme);
   }, [theme]);
+
+  useEffect(() => {
+    return () => window.clearTimeout(quickAddLongPressRef.current);
+  }, []);
 
   useEffect(() => {
     if (!cardArtEnabled) {
@@ -670,7 +677,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     setPendingDelete(false);
   }
 
-  function openCardDetails(card: Card, trigger: HTMLButtonElement, context: "database" | "deck" = "database") {
+  function openCardDetails(card: Card, trigger?: HTMLButtonElement, context: "database" | "deck" = "database") {
     detailTriggerRef.current = trigger;
     setDetailNavigationContext(context);
     setDetailCardId(card.id);
@@ -716,6 +723,36 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
       setDeckEditNotice(undefined);
     }
     persist({ ...deck, main: adjustDeckEntry(deck.main, card.id, delta) });
+  }
+
+  function quickAddTargetAllowed(card: Card, target: EventTarget | null): boolean {
+    return mobileQuickAddEnabled &&
+      card.card_type !== "Legend" &&
+      target instanceof Element &&
+      !target.closest("button, a, input, select, textarea");
+  }
+
+  function handleQuickAddRowClick(card: Card, event: React.MouseEvent<HTMLElement>) {
+    if (!quickAddTargetAllowed(card, event.target)) return;
+    if (quickAddSuppressClickRef.current) {
+      quickAddSuppressClickRef.current = false;
+      return;
+    }
+    adjustMainCard(card, 1);
+  }
+
+  function beginQuickAddLongPress(card: Card, event: React.TouchEvent<HTMLElement>) {
+    if (!quickAddTargetAllowed(card, event.target)) return;
+    window.clearTimeout(quickAddLongPressRef.current);
+    quickAddSuppressClickRef.current = false;
+    quickAddLongPressRef.current = window.setTimeout(() => {
+      quickAddSuppressClickRef.current = true;
+      openCardDetails(card, undefined);
+    }, 480);
+  }
+
+  function cancelQuickAddLongPress() {
+    window.clearTimeout(quickAddLongPressRef.current);
   }
 
   function removeLegend(card: Card) {
@@ -1001,6 +1038,14 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
             >
               Filters{activeAdvancedFilterCount > 0 ? ` ${activeAdvancedFilterCount}` : ""}
             </button>
+            <button
+              aria-pressed={mobileQuickAddEnabled}
+              className="mobile-quick-add-toggle"
+              onClick={() => setMobileQuickAddEnabled((enabled) => !enabled)}
+              type="button"
+            >
+              Quick
+            </button>
             <span aria-live="polite">{filteredCards.length}</span>
           </div>
           <div className="filter-grid">
@@ -1118,7 +1163,17 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               const addition = additionEvaluationById.get(card.id);
               const atCopyLimit = addition?.blockers.some((blocker) => blocker.code === "max-copies") ?? false;
               return (
-                <article aria-label={card.display_name} className="card-row" data-color={card.color.toLowerCase()} key={card.id}>
+                <article
+                  aria-label={card.display_name}
+                  className={`card-row${mobileQuickAddEnabled && card.card_type !== "Legend" ? " quick-add-enabled" : ""}`}
+                  data-color={card.color.toLowerCase()}
+                  key={card.id}
+                  onClick={(event) => handleQuickAddRowClick(card, event)}
+                  onTouchCancel={cancelQuickAddLongPress}
+                  onTouchEnd={cancelQuickAddLongPress}
+                  onTouchMove={cancelQuickAddLongPress}
+                  onTouchStart={(event) => beginQuickAddLongPress(card, event)}
+                >
                   <CardArt
                     card={card}
                     enabled={cardArtEnabled}

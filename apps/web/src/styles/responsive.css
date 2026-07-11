@@ -199,6 +199,15 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .card-row.quick-add-enabled {
+    border-left-color: var(--success);
+    cursor: pointer;
+  }
+
+  .card-row.quick-add-enabled:active {
+    background: var(--success-bg);
+  }
+
   .card-row .card-art.thumbnail {
     align-self: flex-start;
     grid-column: 1;
@@ -323,7 +332,7 @@
   .deck-panel .panel-actions,
   .card-database-panel .panel-actions {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
     justify-content: stretch;
   }
 
@@ -382,6 +391,12 @@
   .mobile-card-search-bar button {
     min-height: 38px;
     white-space: nowrap;
+  }
+
+  .mobile-card-search-bar .mobile-quick-add-toggle[aria-pressed="true"] {
+    background: var(--success-bg);
+    border-color: var(--success-border);
+    color: var(--success-text);
   }
 
   .mobile-card-search-bar > span {

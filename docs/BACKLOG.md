@@ -88,7 +88,7 @@ These are mobile-first improvements that would make Gigsmith faster on phones wi
 
 ### GS-MOB-004: One-Handed Quick Add Mode
 
-**Status:** Done.
+**Status:** Candidate.
 
 **Goal:** Reduce small-target tapping when building on a phone.
 

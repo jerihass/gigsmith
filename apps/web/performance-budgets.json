@@ -6,7 +6,7 @@
     "lazyJavascriptRawBytes": 510000,
     "lazyJavascriptGzipBytes": 215000,
     "cssRawBytes": 80000,
-    "cssGzipBytes": 14000,
+    "cssGzipBytes": 14250,
     "serviceWorkerRawBytes": 12000,
     "serviceWorkerGzipBytes": 5000,
     "cardSnapshotRawBytes": 400000,

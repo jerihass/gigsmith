@@ -37,6 +37,8 @@ On July 5, 2026, read-only deck reports added print/report CSS and optional QR g
 
 On July 6, 2026, proxy printing added an optional saved-version delta mode in the lazy Print tab chunk. Lazy JavaScript raw budget moved from 500,000 B to 510,000 B after inspecting the production bundle; initial JavaScript and lazy gzip budgets remained unchanged.
 
+On July 18, 2026, proxy printing added a mobile-ready selected-card picker with per-card quantity controls. CSS gzip budget moved from 14,000 B to 14,250 B after inspecting the production bundle; raw CSS and all JavaScript budgets remained unchanged.
+
 ## Browser Method
 
 The `performance-chromium` Playwright project uses a Pixel 7 viewport and Chromium's 4x CPU throttling. It performs one deterministic path on the production preview:

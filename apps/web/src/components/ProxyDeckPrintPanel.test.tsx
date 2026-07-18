@@ -112,6 +112,28 @@ describe("ProxyDeckPrintPanel", () => {
     expect(result.removedOrDecreasedCount).toBe(2);
   });
 
+  it("prints only explicitly selected cards at their requested quantities", () => {
+    const result = proxyDeckCards(deck(), cardDb([
+      card({ id: "legend-1", display_name: "Legend", card_type: "Legend", cost: null, power: null, ram: 2 }),
+      card()
+    ]), "selected", [
+      { cardId: "legend-1", deckSection: "Legend", count: 2 },
+      { cardId: "card-1", deckSection: "Main", count: 4 }
+    ]);
+
+    expect(result.copies).toHaveLength(6);
+    expect(result.copies.map((copy) => `${copy.deckSection}:${copy.card.display_name}`)).toEqual([
+      "Legend:Legend",
+      "Legend:Legend",
+      "Main:Test Card",
+      "Main:Test Card",
+      "Main:Test Card",
+      "Main:Test Card"
+    ]);
+    expect(result.copies.map((copy) => copy.totalCopies)).toEqual([2, 2, 4, 4, 4, 4]);
+    expect(result.baselineVersion).toBeUndefined();
+  });
+
   it("renders legible playable fields without artwork", () => {
     const markup = renderToStaticMarkup(<ProxyDeckPrintPanel deck={deck({ main: [{ cardId: "card-1", count: 6 }] })} cardDb={cardDb([
       card({ id: "legend-1", display_name: "Legend Card", card_type: "Legend", color: "Blue", cost: null, power: null, ram: 2 }),
@@ -121,6 +143,7 @@ describe("ProxyDeckPrintPanel", () => {
     expect(markup).toContain("Printable Proxy Deck");
     expect(markup).toContain("Black and white");
     expect(markup).toContain("Full current deck");
+    expect(markup).toContain("Selected cards");
     expect(markup).toContain("Changes since latest version");
     expect(markup).toContain("Download 9-up PDF");
     expect(markup).toContain("Browser print");

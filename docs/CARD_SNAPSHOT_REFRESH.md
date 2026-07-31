@@ -30,8 +30,13 @@ one `source-check` issue when changes are detected.
 1. Fetch the current Netdeck payload:
 
    ```sh
-   curl -L https://api.netdeck.gg/api/cards/cyberpunk -o /tmp/netdeck-cyberpunk.json
+   curl -L 'https://api.netdeck.gg/api/cards/cyberpunk?limit=100&offset=0' -o /tmp/netdeck-cyberpunk-page-0.json
    ```
+
+   Netdeck caps responses at 100 cards. Compare the response's `total` with the
+   number of `items`, then fetch additional pages with `offset=100`, `offset=200`,
+   and so on until all cards are present. Do not assume that requesting a larger
+   `limit` bypasses the server cap.
 
 2. Convert the payload into `packages/card-data/src/cyberpunk-snapshot.json`.
 
@@ -93,7 +98,8 @@ Fix the snapshot or update the domain contracts deliberately. Do not work around
 
 The PWA also supports a user-forced refresh from the Transfer tab. That path:
 
-- fetches `https://api.netdeck.gg/api/cards/cyberpunk?limit=1000` only after the user clicks refresh;
+- fetches Netdeck's 100-card pages in sequence only after the user clicks refresh;
+- verifies that the assembled card count matches Netdeck's reported `total` before storing it;
 - normalizes Netdeck `items` into the same `CardSnapshot` shape as the bundled file;
 - strips transient signed `image_url` values and stores only stable metadata;
 - validates the downloaded snapshot before accepting it;

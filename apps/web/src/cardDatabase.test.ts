@@ -46,6 +46,50 @@ describe("cardDatabase refresh", () => {
     expect(snapshot.cards[0].keywords).toEqual(expect.arrayContaining(["Go Solo", "Trash"]));
   });
 
+  it("fetches every page when Netdeck caps responses at 100 cards", async () => {
+    const template = cyberpunkCardSnapshot.cards[0];
+    const cards = Array.from({ length: 104 }, (_, index) => ({
+      ...template,
+      id: `card-${index}`,
+      external_id: `external-${index}`,
+      name: `card-${index}`,
+      display_name: `Card ${index}`,
+      slug: `card-${index}`,
+      printing_id: String(index)
+    }));
+    const fetcher = vi.fn((input: RequestInfo | URL) => {
+      const offset = Number(new URL(String(input)).searchParams.get("offset") ?? 0);
+      return Promise.resolve(mockResponse({
+        total: cards.length,
+        limit: 100,
+        offset,
+        items: cards.slice(offset, offset + 100)
+      }));
+    });
+
+    const snapshot = await fetchCardDatabaseSnapshot("https://api.netdeck.gg/api/cards/cyberpunk", undefined, fetcher as unknown as typeof fetch);
+
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(new URL(String(fetcher.mock.calls[1][0])).searchParams.get("offset")).toBe("100");
+    expect(snapshot.metadata.sourceCardCount).toBe(104);
+    expect(snapshot.cards).toHaveLength(104);
+    expect(snapshot.cards.at(-1)?.id).toBe("card-103");
+  });
+
+  it("reports an incomplete paginated response clearly", async () => {
+    const card = cyberpunkCardSnapshot.cards[0];
+    const fetcher = vi.fn((input: RequestInfo | URL) => {
+      const offset = Number(new URL(String(input)).searchParams.get("offset") ?? 0);
+      return Promise.resolve(mockResponse({ total: 101, limit: 100, offset, items: offset === 0 ? [card] : [] }));
+    });
+
+    await expect(fetchCardDatabaseSnapshot(
+      "https://api.netdeck.gg/api/cards/cyberpunk",
+      undefined,
+      fetcher as unknown as typeof fetch
+    )).rejects.toThrow("stopped after 1 of 101 cards");
+  });
+
   it("saves a valid refreshed snapshot and reloads it", async () => {
     const storage = createStorage();
     const card = cyberpunkCardSnapshot.cards[0];

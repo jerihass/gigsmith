@@ -156,13 +156,38 @@ function readRulesSourceUrl(source) {
   return match[1];
 }
 
-async function fetchJson(url) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`GET ${url} failed with ${response.status}`);
+export async function fetchCardSource(url, fetcher = fetch) {
+  const endpoint = new URL(url);
+  endpoint.searchParams.set("limit", "100");
+  endpoint.searchParams.set("offset", "0");
+
+  const fetchPage = async () => {
+    const response = await fetcher(endpoint);
+    if (!response.ok) throw new Error(`GET ${endpoint} failed with ${response.status}`);
+    return {
+      payload: await response.json(),
+      etag: response.headers.get("etag"),
+      lastModified: response.headers.get("last-modified")
+    };
+  };
+
+  const firstPage = await fetchPage();
+  if (!Array.isArray(firstPage.payload?.items) || !Number.isInteger(firstPage.payload?.total)) return firstPage;
+  if (firstPage.payload.total > 5000) throw new Error(`Card source reported an unexpected ${firstPage.payload.total} cards.`);
+
+  const items = [...firstPage.payload.items];
+  while (items.length < firstPage.payload.total) {
+    const previousCount = items.length;
+    endpoint.searchParams.set("offset", String(previousCount));
+    const nextPage = await fetchPage();
+    if (!Array.isArray(nextPage.payload?.items)) throw new Error(`Card source returned an invalid page at offset ${previousCount}.`);
+    items.push(...nextPage.payload.items);
+    if (items.length === previousCount) throw new Error(`Card source stopped after ${items.length} of ${firstPage.payload.total} cards.`);
+  }
+
   return {
-    payload: await response.json(),
-    etag: response.headers.get("etag"),
-    lastModified: response.headers.get("last-modified")
+    ...firstPage,
+    payload: { ...firstPage.payload, items }
   };
 }
 
@@ -186,11 +211,11 @@ export async function runSourceCheck({
 } = {}) {
   const localSnapshot = JSON.parse(await readFile(snapshotPath, "utf8"));
   const rulesSource = await readFile(rulesetPath, "utf8");
-  const cardUrl = cardSourceUrl ?? `${localSnapshot.metadata.sourceUrl}?limit=1000`;
+  const cardUrl = cardSourceUrl ?? localSnapshot.metadata.sourceUrl;
   const rulesUrl = rulesSourceUrl ?? readRulesSourceUrl(rulesSource);
   const localRulesHash = sha256(await readFile(resolve(repoRoot, "docs/sources/printable-gameplay-guide-2026-06-20.pdf")));
 
-  const remoteCards = await fetchJson(cardUrl);
+  const remoteCards = await fetchCardSource(cardUrl);
   const remoteRules = await fetchBytes(rulesUrl);
   const cards = compareCardSources(localSnapshot, remoteCards.payload, now);
   const rules = compareRulesSource({

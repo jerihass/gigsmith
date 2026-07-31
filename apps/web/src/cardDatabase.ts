@@ -9,7 +9,8 @@ import {
 import type { Card, CardDatabase, CardSnapshot } from "@gigsmith/data-contracts";
 
 export const cardDatabaseOverrideStorageKey = "gigsmith.card-database.override.v1";
-const defaultFetchLimit = 1000;
+const defaultFetchLimit = 100;
+const maximumSourceCardCount = 5000;
 const knownCyberpunkKeywords = cyberpunkRulesetV1Printable.keywords.map((keyword) => keyword.name);
 
 export interface CardDatabaseLoadResult {
@@ -127,22 +128,69 @@ function normalizeFetchedSnapshot(payload: unknown, sourceUrl: string, etag: str
   }));
 }
 
-export async function fetchCardDatabaseSnapshot(
-  sourceUrl: string,
-  signal?: AbortSignal,
-  fetcher: typeof fetch = fetch
-): Promise<CardSnapshot> {
-  const endpoint = new URL(sourceUrl);
-  endpoint.searchParams.set("limit", String(defaultFetchLimit));
+async function fetchSourcePage(
+  endpoint: URL,
+  signal: AbortSignal | undefined,
+  fetcher: typeof fetch
+): Promise<{ payload: unknown; etag: string | null }> {
   const response = await fetcher(endpoint, {
     credentials: "omit",
     referrerPolicy: "no-referrer",
     signal
   });
   if (!response.ok) throw new Error(`Card database source returned ${response.status}.`);
+  return {
+    payload: await response.json() as unknown,
+    etag: response.headers.get("etag")
+  };
+}
 
-  const payload = await response.json() as unknown;
-  const snapshot = normalizeFetchedSnapshot(payload, sourceUrl, response.headers.get("etag"));
+async function fetchCompleteSourcePayload(
+  sourceUrl: string,
+  signal: AbortSignal | undefined,
+  fetcher: typeof fetch
+): Promise<{ payload: unknown; etag: string | null }> {
+  const endpoint = new URL(sourceUrl);
+  endpoint.searchParams.set("limit", String(defaultFetchLimit));
+  endpoint.searchParams.set("offset", "0");
+
+  const firstPage = await fetchSourcePage(endpoint, signal, fetcher);
+  if (!isRecord(firstPage.payload) || !Array.isArray(firstPage.payload.items)) return firstPage;
+
+  const reportedTotal = firstPage.payload.total;
+  if (!Number.isInteger(reportedTotal) || Number(reportedTotal) < 0) return firstPage;
+  const total = Number(reportedTotal);
+  if (total > maximumSourceCardCount) {
+    throw new Error(`Card database source reported an unexpected ${total} cards.`);
+  }
+
+  const items = [...firstPage.payload.items];
+  while (items.length < total) {
+    const previousCount = items.length;
+    endpoint.searchParams.set("offset", String(previousCount));
+    const nextPage = await fetchSourcePage(endpoint, signal, fetcher);
+    if (!isRecord(nextPage.payload) || !Array.isArray(nextPage.payload.items)) {
+      throw new Error(`Card database source returned an invalid page at offset ${previousCount}.`);
+    }
+    items.push(...nextPage.payload.items);
+    if (items.length === previousCount) {
+      throw new Error(`Card database source stopped after ${items.length} of ${total} cards.`);
+    }
+  }
+
+  return {
+    payload: { ...firstPage.payload, items },
+    etag: firstPage.etag
+  };
+}
+
+export async function fetchCardDatabaseSnapshot(
+  sourceUrl: string,
+  signal?: AbortSignal,
+  fetcher: typeof fetch = fetch
+): Promise<CardSnapshot> {
+  const { payload, etag } = await fetchCompleteSourcePayload(sourceUrl, signal, fetcher);
+  const snapshot = normalizeFetchedSnapshot(payload, sourceUrl, etag);
   const validation = validateCardSnapshot(snapshot);
   if (!validation.valid) {
     const firstError = validation.errors[0];

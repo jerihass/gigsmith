@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   compareCardSources,
   compareRulesSource,
+  fetchCardSource,
   renderSourceChangeMarkdown
 } from "./check-source-changes.mjs";
 
@@ -16,6 +17,24 @@ function localSnapshot() {
 }
 
 describe("source change reporting", () => {
+  it("assembles paginated card source responses", async () => {
+    const cards = Array.from({ length: 104 }, (_, index) => ({ external_id: String(index) }));
+    const fetcher = async (input) => {
+      const offset = Number(new URL(String(input)).searchParams.get("offset"));
+      return new Response(JSON.stringify({
+        total: cards.length,
+        limit: 100,
+        offset,
+        items: cards.slice(offset, offset + 100)
+      }), { headers: { "content-type": "application/json" } });
+    };
+
+    const result = await fetchCardSource("https://api.netdeck.gg/api/cards/cyberpunk", fetcher);
+
+    expect(result.payload.items).toHaveLength(104);
+    expect(result.payload.items.at(-1).external_id).toBe("103");
+  });
+
   it("reports unchanged card sources", () => {
     const report = compareCardSources(localSnapshot(), { total: 2, items: localSnapshot().cards }, "2026-07-05T00:00:00Z");
 

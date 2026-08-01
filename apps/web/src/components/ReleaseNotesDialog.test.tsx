@@ -7,6 +7,9 @@ describe("ReleaseNotesDialog", () => {
     const markup = renderToStaticMarkup(<ReleaseNotesDialog open onClose={() => undefined} />);
 
     expect(markup).toContain("Release Notes");
+    expect(markup).toContain("0.1.21");
+    expect(markup).toContain("Expanded Card Database");
+    expect(markup).toContain("104 cards");
     expect(markup).toContain("0.1.20");
     expect(markup).toContain("Mobile Card Detail Polish");
     expect(markup).toContain("mobile bottom sheet");

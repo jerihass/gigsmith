@@ -1,7 +1,7 @@
 {
   "name": "gigsmith",
   "private": true,
-  "version": "0.1.19",
+  "version": "0.1.21",
   "type": "module",
   "workspaces": [
     "apps/*",
@@ -16,6 +16,7 @@
     "test:performance-budgets": "node apps/web/scripts/check-performance-budgets.mjs",
     "test:pwa-builds": "node apps/web/scripts/test-pwa-builds.mjs",
     "check:sources": "node scripts/check-source-changes.mjs",
+    "refresh:cards": "node scripts/refresh-card-snapshot.mjs",
     "typecheck": "tsc -b"
   },
   "dependencies": {

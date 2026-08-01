@@ -3,10 +3,10 @@
     "game": "cyberpunk",
     "sourceName": "Netdeck",
     "sourceUrl": "https://api.netdeck.gg/api/cards/cyberpunk",
-    "sourceRetrievedAt": "2026-07-05T21:34:38Z",
-    "cardDataVersion": "netdeck-cyberpunk-2026-07-05",
-    "sourceCardCount": 82,
-    "notes": "82-card text metadata snapshot for offline development. External image URLs are stored as references only; images are not bundled."
+    "sourceRetrievedAt": "2026-08-01T00:02:12.101Z",
+    "cardDataVersion": "netdeck-cyberpunk-2026-08-01",
+    "sourceCardCount": 104,
+    "notes": "104-card text metadata snapshot for offline use. External image URLs are stored as stable references only; images are not bundled. Source ETag: W/\"23165-DgBjq8eK2BlnqtzyzvM8qtLRMnM\""
   },
   "cards": [
     {
@@ -108,6 +108,40 @@
       "legality": "legal"
     },
     {
+      "id": "56947a14-0b1e-4c3d-89e0-17839bcf4280",
+      "external_id": "cb-johnny-silverhand-rocking-renegade",
+      "name": "Johnny Silverhand — Rocking Renegade",
+      "subname": null,
+      "display_name": "Johnny Silverhand — Rocking Renegade",
+      "slug": "johnny-silverhand-rocking-renegade",
+      "rules_text": "2 €$, {Spend} A friendly Unit can attack spent rival Units the turn it's played. If it's a ROCKER Unit, also give it +2 power this turn. This effect costs -1 €$ for each friendly Gig with 8+ value.",
+      "flavor_text": null,
+      "printing_id": "a8a7d286-0c66-4f01-aca7-45570474d9e4",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Secret",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/a8a7d286-0c66-4f01-aca7-45570474d9e4/render-mpvmpqtq.webp",
+      "color": "Red",
+      "card_type": "Legend",
+      "is_eddiable": true,
+      "classifications": [
+        "Merc",
+        "Rocker",
+        "Samurai"
+      ],
+      "keywords": [],
+      "cost": null,
+      "power": null,
+      "ram": 2,
+      "artist": "Daniel Valaisis",
+      "print_number": "003",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
       "id": "4acee220-f0ae-4bdc-85c9-f8e70ba99673",
       "external_id": "cb-rebecca-having-a-moment",
       "name": "Rebecca — Having a Moment",
@@ -166,6 +200,38 @@
       "ram": 2,
       "artist": "ADIA",
       "print_number": "001",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "e8b0432c-4d2d-4464-9a00-f3626917a7f0",
+      "external_id": "cb-japantown-jonin",
+      "name": "Japantown Jonin",
+      "subname": null,
+      "display_name": "Japantown Jonin",
+      "slug": "japantown-jonin",
+      "rules_text": "{Play} Give a friendly Unit +2 power this turn.\n(Units with power 0 don't steal Gigs.)",
+      "flavor_text": null,
+      "printing_id": "30619097-d9d7-42fe-bf4c-cd4ae822792d",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Common",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/30619097-d9d7-42fe-bf4c-cd4ae822792d/render-mpvlsow6.webp",
+      "color": "Red",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "Tyger Claws"
+      ],
+      "keywords": [],
+      "cost": 2,
+      "power": 0,
+      "ram": 2,
+      "artist": "Michał Dziekan",
+      "print_number": "010",
       "printings": [],
       "selected_printing_id": null,
       "legality": "legal"
@@ -468,6 +534,40 @@
       "legality": "legal"
     },
     {
+      "id": "4c098450-e3ae-47e5-98d4-d51a2ab132ce",
+      "external_id": "cb-octant",
+      "name": "Octant",
+      "subname": null,
+      "display_name": "Octant",
+      "slug": "octant",
+      "rules_text": "Play this Unit for -1 €$ for each friendly Gig with 8+ value, to a minimum of 1 €$.",
+      "flavor_text": null,
+      "printing_id": "089df0e6-0000-4e6c-b6d3-d9119466b624",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Common",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/089df0e6-0000-4e6c-b6d3-d9119466b624/render-mpvlto0j.webp",
+      "color": "Red",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "Drone",
+        "Militech",
+        "Zetatech"
+      ],
+      "keywords": [],
+      "cost": 7,
+      "power": 8,
+      "ram": 4,
+      "artist": "CD Projekt Red",
+      "print_number": "015",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
       "id": "6cf6456d-d020-4c6c-9041-66d503a01a0a",
       "external_id": "cb-yorinobu-arasaka-steel-dragon",
       "name": "Yorinobu Arasaka — Steel Dragon",
@@ -626,6 +726,70 @@
       "ram": 1,
       "artist": "Alexander Dudar",
       "print_number": "033",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "59ddecca-1501-492a-b8b1-d4b38d4486c9",
+      "external_id": "cb-appetite-for-destruction",
+      "name": "Appetite for Destruction",
+      "subname": null,
+      "display_name": "Appetite for Destruction",
+      "slug": "appetite-for-destruction",
+      "rules_text": "The next time a friendly Unit wins a fight by 3+ power this turn, it also steals a Gig.",
+      "flavor_text": null,
+      "printing_id": "f274789d-69f2-4acf-a511-f728c67d1a13",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Uncommon",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/f274789d-69f2-4acf-a511-f728c67d1a13/render-mpvmf46g.webp",
+      "color": "Red",
+      "card_type": "Program",
+      "is_eddiable": true,
+      "classifications": [
+        "Ganger"
+      ],
+      "keywords": [],
+      "cost": 3,
+      "power": null,
+      "ram": 4,
+      "artist": "Miguel Valderrama & Jason Wordie",
+      "print_number": "028",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "3eb0f8bf-afb9-42a7-a4fa-710e2eb5c89c",
+      "external_id": "cb-bonnie-and-clyde",
+      "name": "Bonnie and Clyde",
+      "subname": null,
+      "display_name": "Bonnie and Clyde",
+      "slug": "bonnie-and-clyde",
+      "rules_text": "Defeat a rival Unit with power 4 or less. You may defeat 2 instead if a Rival controls at least 2 Gigs more than you.",
+      "flavor_text": null,
+      "printing_id": "26d60270-1b43-4af3-a8b7-1c3db9675cfa",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Uncommon",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/26d60270-1b43-4af3-a8b7-1c3db9675cfa/render-mpvmfxjg.webp",
+      "color": "Red",
+      "card_type": "Program",
+      "is_eddiable": true,
+      "classifications": [
+        "Braindance"
+      ],
+      "keywords": [],
+      "cost": 3,
+      "power": null,
+      "ram": 3,
+      "artist": "Rion Chow",
+      "print_number": "029",
       "printings": [],
       "selected_printing_id": null,
       "legality": "legal"
@@ -1156,6 +1320,38 @@
       "legality": "legal"
     },
     {
+      "id": "95840ebd-d00a-49ff-b4e5-e2064cfc13a9",
+      "external_id": "cb-maxtac-suppression-team",
+      "name": "MaxTac Suppression Team",
+      "subname": null,
+      "display_name": "MaxTac Suppression Team",
+      "slug": "maxtac-suppression-team",
+      "rules_text": "Rival Units can't attack the turn they're played.",
+      "flavor_text": null,
+      "printing_id": "47f55164-e5da-494e-9d55-02bd0b7f97c1",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Common",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/47f55164-e5da-494e-9d55-02bd0b7f97c1/render-mpvlzqaa.webp",
+      "color": "Yellow",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "NCPD"
+      ],
+      "keywords": [],
+      "cost": 5,
+      "power": 7,
+      "ram": 1,
+      "artist": "ADIA",
+      "print_number": "050",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
       "id": "b665e103-456b-4c51-9551-95b0bc87212a",
       "external_id": "cb-jackie-welles-ride-or-die-choom",
       "name": "Jackie Welles — Ride or Die Choom",
@@ -1184,6 +1380,39 @@
       "ram": 2,
       "artist": "Ilya Kuvshinov",
       "print_number": "048",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "858e95f5-2efb-460e-b890-e8a5140e11c9",
+      "external_id": "cb-alt-cunningham-mother-of-daemons",
+      "name": "Alt Cunningham — Mother of Daemons",
+      "subname": null,
+      "display_name": "Alt Cunningham — Mother of Daemons",
+      "slug": "alt-cunningham-mother-of-daemons",
+      "rules_text": "When a friendly equipped Unit or Legend is spent, draw 1.\nWhen a rival Unit would steal a Gig, you may discard 1 with cost equal to that Gig's value. If you do, the Gig isn't stolen.",
+      "flavor_text": null,
+      "printing_id": "e782dd02-a136-4bf8-b04b-328c65b84f19",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Rare",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/e782dd02-a136-4bf8-b04b-328c65b84f19/render-mpvm7csv.webp",
+      "color": "Yellow",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "Merc",
+        "Netrunner"
+      ],
+      "keywords": [],
+      "cost": 7,
+      "power": 8,
+      "ram": 3,
+      "artist": "Mooncolony",
+      "print_number": "042",
       "printings": [],
       "selected_printing_id": null,
       "legality": "legal"
@@ -1351,6 +1580,39 @@
       "legality": "legal"
     },
     {
+      "id": "1263e2bf-bc15-4550-ad07-b028602d1354",
+      "external_id": "cb-the-relic-experimental-biochip",
+      "name": "The Relic — Experimental Biochip",
+      "subname": null,
+      "display_name": "The Relic — Experimental Biochip",
+      "slug": "the-relic-experimental-biochip",
+      "rules_text": "{Defeated} Play another Unit with cost 9 or less from your trash for free. Then, bottom-deck this Unit.",
+      "flavor_text": null,
+      "printing_id": "38d14168-c182-4a34-a3b2-1b8380ab6635",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Epic",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/38d14168-c182-4a34-a3b2-1b8380ab6635/render-mpvn1f8f.webp",
+      "color": "Yellow",
+      "card_type": "Gear",
+      "is_eddiable": true,
+      "classifications": [
+        "Arasaka",
+        "Cyberware"
+      ],
+      "keywords": [],
+      "cost": 5,
+      "power": 3,
+      "ram": 4,
+      "artist": "Dardo Studios",
+      "print_number": "063",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
       "id": "d039e4b3-9b83-40da-8d8f-b1dfb1f172f1",
       "external_id": "cb-afterparty-at-lizzie-s",
       "name": "Afterparty at Lizzie's",
@@ -1384,6 +1646,38 @@
       "legality": "legal"
     },
     {
+      "id": "5ea00b3a-7e85-4c7d-91ad-90e0cf370c27",
+      "external_id": "cb-the-heist",
+      "name": "The Heist",
+      "subname": null,
+      "display_name": "The Heist",
+      "slug": "the-heist",
+      "rules_text": "Trash 4. Add a Gear from among them to your hand. If that Gear's cost equals the value of a friendly Gig, you may play it for free instead.",
+      "flavor_text": null,
+      "printing_id": "a1e2c25e-fb27-458f-984d-df422f879664",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Uncommon",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/a1e2c25e-fb27-458f-984d-df422f879664/render-mpvmgkup.webp",
+      "color": "Yellow",
+      "card_type": "Program",
+      "is_eddiable": true,
+      "classifications": [
+        "Merc"
+      ],
+      "keywords": [],
+      "cost": 2,
+      "power": null,
+      "ram": 2,
+      "artist": "Dilara Özden",
+      "print_number": "070",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
       "id": "87e001dd-8604-4523-af6e-d768118ccf98",
       "external_id": "cb-cyberpsychosis",
       "name": "Cyberpsychosis",
@@ -1411,6 +1705,38 @@
       "ram": 2,
       "artist": "Michal Ivan",
       "print_number": "067",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "793d9650-0a59-4c89-9d85-05a9d6873d2e",
+      "external_id": "cb-live-with-the-aftermath",
+      "name": "Live with the Aftermath",
+      "subname": null,
+      "display_name": "Live with the Aftermath",
+      "slug": "live-with-the-aftermath",
+      "rules_text": "Each player defeats one of their Units.",
+      "flavor_text": null,
+      "printing_id": "f931c82e-a382-4f60-808c-5910ac9850be",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Common",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/f931c82e-a382-4f60-808c-5910ac9850be/render-mpvmctmr.webp",
+      "color": "Yellow",
+      "card_type": "Program",
+      "is_eddiable": true,
+      "classifications": [
+        "Plan"
+      ],
+      "keywords": [],
+      "cost": 3,
+      "power": null,
+      "ram": 3,
+      "artist": "DOFRESH",
+      "print_number": "068",
       "printings": [],
       "selected_printing_id": null,
       "legality": "legal"
@@ -1481,6 +1807,38 @@
       "legality": "legal"
     },
     {
+      "id": "04a82ebf-eba1-4888-a95d-f01b9bbd0167",
+      "external_id": "cb-jackie-welles-mama-s-favorite",
+      "name": "Jackie Welles — Mama's Favorite",
+      "subname": null,
+      "display_name": "Jackie Welles — Mama's Favorite",
+      "slug": "jackie-welles-mama-s-favorite",
+      "rules_text": "{Go Solo} (Pay this Legend's cost to play it as a ready Unit. It can attack this turn. If it leaves the field, remove it from the game.)\nIf a friendly Unit would be defeated, you may spend 1 €$ to defeat this Legend instead. (Remove it from the game.)",
+      "flavor_text": null,
+      "printing_id": "9f61ebda-53fd-4b23-8383-d0e0bd32b847",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Rare",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/9f61ebda-53fd-4b23-8383-d0e0bd32b847/render-mpvmloq3.webp",
+      "color": "Green",
+      "card_type": "Legend",
+      "is_eddiable": true,
+      "classifications": [
+        "Merc"
+      ],
+      "keywords": [],
+      "cost": 6,
+      "power": 8,
+      "ram": 2,
+      "artist": "Daniel Valaisis",
+      "print_number": "073",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
       "id": "424c9c0f-cc01-40ec-8404-75957985c7f8",
       "external_id": "cb-goro-takemura-vengeful-bodyguard",
       "name": "Goro Takemura — Vengeful Bodyguard",
@@ -1509,6 +1867,40 @@
       "ram": 2,
       "artist": "Daniel Valaisis",
       "print_number": "071",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "380b5e52-2651-4cde-8222-1db2ae6469e2",
+      "external_id": "cb-hanako-arasaka-daughter-of-the-emperor",
+      "name": "Hanako Arasaka — Daughter of the Emperor",
+      "subname": null,
+      "display_name": "Hanako Arasaka — Daughter of the Emperor",
+      "slug": "hanako-arasaka-daughter-of-the-emperor",
+      "rules_text": "{Spend} Swap a friendly Gig with a rival Gig.\nAt the start of your turn, draw 1 for each friendly value-pair of Gigs.",
+      "flavor_text": null,
+      "printing_id": "2c4a77e8-0fda-4ec1-9519-1d15e0f172b3",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Rare",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/2c4a77e8-0fda-4ec1-9519-1d15e0f172b3/render-mpvmk5xh.webp",
+      "color": "Green",
+      "card_type": "Legend",
+      "is_eddiable": true,
+      "classifications": [
+        "Arasaka",
+        "Corpo",
+        "Netrunner"
+      ],
+      "keywords": [],
+      "cost": null,
+      "power": null,
+      "ram": 2,
+      "artist": "Daniel Valaisis",
+      "print_number": "072",
       "printings": [],
       "selected_printing_id": null,
       "legality": "legal"
@@ -1681,6 +2073,39 @@
       "legality": "legal"
     },
     {
+      "id": "5d6afeed-1532-4a01-bb40-a011030a7785",
+      "external_id": "cb-valentino-street-racer",
+      "name": "Valentino Street Racer",
+      "subname": null,
+      "display_name": "Valentino Street Racer",
+      "slug": "valentino-street-racer",
+      "rules_text": "{Play} Give another friendly Unit with cost 5 or less {Adrenaline} this turn. (A Unit with Adrenaline can attack the turn it's played.)",
+      "flavor_text": null,
+      "printing_id": "dc15db71-3443-4de0-b988-c62601bae5e1",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Common",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/dc15db71-3443-4de0-b988-c62601bae5e1/render-mpvlvw95.webp",
+      "color": "Green",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "Valentino",
+        "Vehicle"
+      ],
+      "keywords": [],
+      "cost": 3,
+      "power": 3,
+      "ram": 2,
+      "artist": "Michał Dziekan",
+      "print_number": "091",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
       "id": "08e6a687-56b7-4ac1-982f-8a8d6d0c0bc5",
       "external_id": "cb-goro-takemura-losing-his-way",
       "name": "Goro Takemura — Losing His Way",
@@ -1709,6 +2134,103 @@
       "ram": 3,
       "artist": "Ilya Kuvshinov",
       "print_number": "017",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "35c1fda3-60f9-4779-b690-30b283d52297",
+      "external_id": "cb-maelstrom-zealots",
+      "name": "Maelstrom Zealots",
+      "subname": null,
+      "display_name": "Maelstrom Zealots",
+      "slug": "maelstrom-zealots",
+      "rules_text": "When this Unit loses a fight, defeat the opposing rival Unit.\n(Units with power 0 don't steal Gigs.)",
+      "flavor_text": null,
+      "printing_id": "43e5568f-a609-4eff-8502-e81ba9134d2c",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Common",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/43e5568f-a609-4eff-8502-e81ba9134d2c/render-mpvm0z4g.webp",
+      "color": "Green",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "Ganger",
+        "Maelstrom"
+      ],
+      "keywords": [],
+      "cost": 4,
+      "power": 0,
+      "ram": 1,
+      "artist": "Michał Dziekan",
+      "print_number": "079",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "c4ef7be4-4817-4fae-9016-582e999d4996",
+      "external_id": "cb-pacifica-netrunner",
+      "name": "Pacifica Netrunner",
+      "subname": null,
+      "display_name": "Pacifica Netrunner",
+      "slug": "pacifica-netrunner",
+      "rules_text": "{Play} If your ☆ (Street Cred) is an even number, a rival Unit can't ready until your next turn.",
+      "flavor_text": null,
+      "printing_id": "b43f5006-7388-4189-81ff-343b5428305b",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Common",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/b43f5006-7388-4189-81ff-343b5428305b/render-mpvlxt79.webp",
+      "color": "Green",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "Netrunner"
+      ],
+      "keywords": [],
+      "cost": 4,
+      "power": 1,
+      "ram": 2,
+      "artist": "ADIA",
+      "print_number": "084",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "0974a7af-dcd7-44d9-b57a-b6a4719afcd6",
+      "external_id": "cb-pepe-najarro-working-doubles",
+      "name": "Pepe Najarro — Working Doubles",
+      "subname": null,
+      "display_name": "Pepe Najarro — Working Doubles",
+      "slug": "pepe-najarro-working-doubles",
+      "rules_text": "{Attack} If you control a value-pair of Gigs, ready up to 2 MERC Legends in your Legends area.",
+      "flavor_text": null,
+      "printing_id": "0de81196-f1d3-4fd0-ae6a-062dae3f3f2c",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Uncommon",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/0de81196-f1d3-4fd0-ae6a-062dae3f3f2c/render-mpvm610y.webp",
+      "color": "Green",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "Valentino"
+      ],
+      "keywords": [],
+      "cost": 4,
+      "power": 6,
+      "ram": 2,
+      "artist": "TOPDOG Entertainment",
+      "print_number": "086",
       "printings": [],
       "selected_printing_id": null,
       "legality": "legal"
@@ -2007,6 +2529,38 @@
       "legality": "legal"
     },
     {
+      "id": "c5d2fed1-1470-4ac5-9f84-bf66705901ce",
+      "external_id": "cb-fool-on-the-hill",
+      "name": "Fool on the Hill",
+      "subname": null,
+      "display_name": "Fool on the Hill",
+      "slug": "fool-on-the-hill",
+      "rules_text": "Reveal the top 2 cards of your deck. A Rival chooses whether you add them to your hand or trash them. If you trash them, draw 2.",
+      "flavor_text": null,
+      "printing_id": "7751b719-978b-44b1-a82f-b2881d3a416e",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Rare",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/7751b719-978b-44b1-a82f-b2881d3a416e/render-mpvmiefg.webp",
+      "color": "Green",
+      "card_type": "Program",
+      "is_eddiable": true,
+      "classifications": [
+        "Merc"
+      ],
+      "keywords": [],
+      "cost": 2,
+      "power": null,
+      "ram": 3,
+      "artist": "DOFRESH",
+      "print_number": "099",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
       "id": "1535c19d-54e5-4289-9cb7-15ab429c0092",
       "external_id": "cb-take-control",
       "name": "Take Control",
@@ -2198,6 +2752,40 @@
       "ram": 2,
       "artist": "Envar",
       "print_number": "011",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "4560f3d0-5f63-466b-93b7-fc9d822a556e",
+      "external_id": "cb-judy-a-lvarez-braindance-maestro",
+      "name": "Judy Álvarez — Braindance Maestro",
+      "subname": null,
+      "display_name": "Judy Álvarez — Braindance Maestro",
+      "slug": "judy-a-lvarez-braindance-maestro",
+      "rules_text": "When you play a BRAINDANCE Program, give a friendly Unit +1 power this turn.\n{Spend} Trash the top card of your deck. If it's a Program, you may add it to your hand.",
+      "flavor_text": null,
+      "printing_id": "8d0ad645-ac9a-4ecb-93d0-4c2061a4c477",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Epic",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/8d0ad645-ac9a-4ecb-93d0-4c2061a4c477/render-mpvmp40n.webp",
+      "color": "Blue",
+      "card_type": "Legend",
+      "is_eddiable": true,
+      "classifications": [
+        "Ganger",
+        "Mox",
+        "Techie"
+      ],
+      "keywords": [],
+      "cost": null,
+      "power": null,
+      "ram": 2,
+      "artist": "Gautier Viller",
+      "print_number": "108",
       "printings": [],
       "selected_printing_id": null,
       "legality": "legal"
@@ -2397,6 +2985,39 @@
       "legality": "legal"
     },
     {
+      "id": "65a14367-da52-4578-8162-3c4bac11007d",
+      "external_id": "cb-rita-wheeler-no-stupid-questions",
+      "name": "Rita Wheeler — No Stupid Questions",
+      "subname": null,
+      "display_name": "Rita Wheeler — No Stupid Questions",
+      "slug": "rita-wheeler-no-stupid-questions",
+      "rules_text": "{Blocker} (You may spend this Unit to redirect a rival Unit's attack to it instead.)\nThe first time this Unit is spent each turn, draw 1, then discard 1.",
+      "flavor_text": null,
+      "printing_id": "5d795b32-9ad8-4c94-abd4-d01e389db389",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Common",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/5d795b32-9ad8-4c94-abd4-d01e389db389/render-mpvm1o1g.webp",
+      "color": "Blue",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "Ganger",
+        "Mox"
+      ],
+      "keywords": [],
+      "cost": 4,
+      "power": 4,
+      "ram": 2,
+      "artist": "TOPDOG Entertainment",
+      "print_number": "125",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
       "id": "6b078eff-4cef-4beb-a299-ed388a72ce45",
       "external_id": "cb-lizzy-wizzy-delicate-weapon",
       "name": "Lizzy Wizzy — Delicate Weapon",
@@ -2435,7 +3056,7 @@
       "subname": null,
       "display_name": "Maman Brigitte — Spirit of Death",
       "slug": "maman-brigitte-spirit-of-death",
-      "rules_text": "{Play} You may discard 2 Programs. If you do, bottom-deck a rival unequipped Unit.",
+      "rules_text": "{Play} You may discard 2 Programs. If you do, bottom-deck an unequipped rival Unit.",
       "flavor_text": null,
       "printing_id": "8a7131eb-e1dd-46d6-84f6-2de315aee975",
       "set": {
@@ -2491,6 +3112,40 @@
       "ram": 3,
       "artist": "Federico Sabbatini",
       "print_number": "015",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "cb7f8d05-87cc-4606-ad71-a9283f2f4b20",
+      "external_id": "cb-judy-a-lvarez-nothing-to-doubt",
+      "name": "Judy Álvarez — Nothing to Doubt",
+      "subname": null,
+      "display_name": "Judy Álvarez — Nothing to Doubt",
+      "slug": "judy-a-lvarez-nothing-to-doubt",
+      "rules_text": "1 €$, {Spend} Reveal the top card of your deck. You may play it for free. Otherwise, add it to your hand.",
+      "flavor_text": null,
+      "printing_id": "dcfe8370-9abf-4395-b50b-efea505609ba",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Secret",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/dcfe8370-9abf-4395-b50b-efea505609ba/render-mpvlolwq.webp",
+      "color": "Blue",
+      "card_type": "Unit",
+      "is_eddiable": false,
+      "classifications": [
+        "Ganger",
+        "Mox",
+        "Techie"
+      ],
+      "keywords": [],
+      "cost": 6,
+      "power": 6,
+      "ram": 5,
+      "artist": "Ilya Kushinov",
+      "print_number": "116",
       "printings": [],
       "selected_printing_id": null,
       "legality": "legal"
@@ -2629,6 +3284,38 @@
       "legality": "legal"
     },
     {
+      "id": "ec857ab0-995e-4c32-84b6-7ba57b2f6137",
+      "external_id": "cb-trust-no-one",
+      "name": "Trust No One",
+      "subname": null,
+      "display_name": "Trust No One",
+      "slug": "trust-no-one",
+      "rules_text": "Decrease a Gig by up to 3. Then, if you control a min Gig, draw 1.",
+      "flavor_text": null,
+      "printing_id": "70a2a18e-05c2-4a49-9236-e33b2c9819a5",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Common",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/70a2a18e-05c2-4a49-9236-e33b2c9819a5/render-mpvmdh2r.webp",
+      "color": "Blue",
+      "card_type": "Program",
+      "is_eddiable": true,
+      "classifications": [
+        "Braindance"
+      ],
+      "keywords": [],
+      "cost": 1,
+      "power": null,
+      "ram": 1,
+      "artist": "Jesús Hervás",
+      "print_number": "139",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
       "id": "ad13a7bc-c49d-4166-8a9c-965e7bfa9b8f",
       "external_id": "cb-reboot-optics",
       "name": "Reboot Optics",
@@ -2688,6 +3375,38 @@
       "ram": 1,
       "artist": "ADIA",
       "print_number": "131",
+      "printings": [],
+      "selected_printing_id": null,
+      "legality": "legal"
+    },
+    {
+      "id": "7977a175-0516-478e-b166-3edb035849a4",
+      "external_id": "cb-pyramid-song",
+      "name": "Pyramid Song",
+      "subname": null,
+      "display_name": "Pyramid Song",
+      "slug": "pyramid-song",
+      "rules_text": "Choose one effect. If a friendly d4 is a min Gig, choose both instead.\nGive a rival Unit -5 power this turn. // Bottom-deck a rival Unit with power 0.",
+      "flavor_text": null,
+      "printing_id": "3b1d0570-bb8e-4ea5-9ec7-c698d9c9f94d",
+      "set": {
+        "code": "welcometonightcityretail",
+        "name": "Welcome to Night City — Retail"
+      },
+      "rarity": "Rare",
+      "source_image_url": "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/3b1d0570-bb8e-4ea5-9ec7-c698d9c9f94d/render-mpvmi5k3.webp",
+      "color": "Blue",
+      "card_type": "Program",
+      "is_eddiable": true,
+      "classifications": [
+        "Braindance"
+      ],
+      "keywords": [],
+      "cost": 3,
+      "power": null,
+      "ram": 3,
+      "artist": "Elizaveta Kazakova",
+      "print_number": "135",
       "printings": [],
       "selected_printing_id": null,
       "legality": "legal"

@@ -6,12 +6,14 @@ describe("validateCardSnapshot", () => {
   it("accepts the bundled Cyberpunk card snapshot", () => {
     const result = validateCardSnapshot(cyberpunkCardSnapshot);
     expect(result).toEqual({ valid: true, errors: [] });
-    expect(cyberpunkCardSnapshot.metadata.sourceCardCount).toBe(82);
+    expect(cyberpunkCardSnapshot.metadata.sourceCardCount).toBe(104);
     expect(cyberpunkCardSnapshot.cards.map((card) => card.external_id)).toEqual(
       expect.arrayContaining([
         "cb-6th-street-recruits",
         "cb-sketchy-ripper",
-        "cb-lizzy-wizzy-delicate-weapon"
+        "cb-lizzy-wizzy-delicate-weapon",
+        "cb-alt-cunningham-mother-of-daemons",
+        "cb-pyramid-song"
       ])
     );
   });

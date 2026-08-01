@@ -6,7 +6,7 @@ This backlog is organized by milestone. Each task must preserve the development 
 
 - Initial TypeScript monorepo exists.
 - Web shell renders a local deck editor, card browser, RAM summary, validation report, and text import/export.
-- Card data snapshot is `netdeck-cyberpunk-2026-07-05` with 82 Netdeck cards.
+- Card data snapshot is `netdeck-cyberpunk-2026-08-01` with 104 Netdeck cards.
 - Rules baseline is `ruleset.v1-printable-2026-06-19`.
 - Static GitHub Pages deployment is configured with root/subpath PWA build verification and deployment documentation.
 - Weekly source-change reporting is implemented; snapshot and rules updates remain explicit reviewed commits.

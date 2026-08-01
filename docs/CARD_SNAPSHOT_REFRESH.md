@@ -7,7 +7,7 @@ Gigsmith is local-first. The app should not require live Netdeck access at runti
 - Preferred source: `https://api.netdeck.gg/api/cards/cyberpunk`
 - Human reference page: `https://netdeck.gg/cards/cyberpunk`
 - Current snapshot: `packages/card-data/src/cyberpunk-snapshot.json`
-- Current version: `netdeck-cyberpunk-2026-07-05`
+- Current version: `netdeck-cyberpunk-2026-08-01`
 
 Do not bundle card art. The snapshot may preserve stable `source_image_url` references, but images are not app assets and should not be redistributed by this repository. Never persist Netdeck's signed `image_url` field: its `Expires`, `Signature`, and related query parameters are transient.
 
@@ -26,6 +26,16 @@ This compares Netdeck and the official printable rules source against the review
 repository baselines. It does not write repository data or refresh snapshots.
 The scheduled GitHub workflow performs the same check weekly and opens or updates
 one `source-check` issue when changes are detected.
+
+After reviewing the report, update the bundled snapshot with:
+
+```sh
+npm run refresh:cards
+```
+
+The refresh command follows all Netdeck pages, removes transient signed image
+URLs, preserves stable external artwork references, and writes the versioned
+snapshot. Review the resulting diff before committing it.
 
 1. Fetch the current Netdeck payload:
 

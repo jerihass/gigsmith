@@ -2,8 +2,10 @@ import type { Card } from "@gigsmith/data-contracts";
 
 const allowedArtworkHost = "dstcynss47vun.cloudfront.net";
 const externalCardArtCacheSchema = "gigsmith.card-art-url-cache";
-const externalCardArtCacheVersion = 2;
+const externalCardArtCacheVersion = 3;
 const externalCardArtCacheTtlMs = 12 * 60 * 60 * 1000;
+const externalCardArtFetchLimit = 100;
+const maximumSourceCardCount = 5000;
 
 export const externalCardArtCacheStorageKey = "gigsmith.card-art.urls.v1";
 
@@ -20,6 +22,7 @@ interface ExternalCardArtCacheDocument {
   schema: typeof externalCardArtCacheSchema;
   version: typeof externalCardArtCacheVersion;
   sourceUrl: string;
+  cardDataIdentity: string;
   cachedAt: string;
   expiresAt: string;
   urls: Array<[string, string]>;
@@ -62,13 +65,18 @@ function addArtUrlKey(urls: Map<string, string>, key: unknown, artworkUrl: strin
   if (typeof key === "string" && key.length > 0) urls.set(key, artworkUrl);
 }
 
-function cacheDocumentFromStorage(value: string | null, sourceUrl: string, nowMs: number): ExternalCardArtCacheDocument | undefined {
+function cacheDocumentFromStorage(
+  value: string | null,
+  sourceUrl: string,
+  nowMs: number,
+  cardDataIdentity: string
+): ExternalCardArtCacheDocument | undefined {
   if (!value) return undefined;
   try {
     const parsed = JSON.parse(value) as unknown;
     if (!isRecord(parsed)) return undefined;
     if (parsed.schema !== externalCardArtCacheSchema || parsed.version !== externalCardArtCacheVersion) return undefined;
-    if (parsed.sourceUrl !== sourceUrl || typeof parsed.expiresAt !== "string") return undefined;
+    if (parsed.sourceUrl !== sourceUrl || parsed.cardDataIdentity !== cardDataIdentity || typeof parsed.expiresAt !== "string") return undefined;
     if (Date.parse(parsed.expiresAt) <= nowMs) return undefined;
     if (!Array.isArray(parsed.urls)) return undefined;
 
@@ -85,6 +93,7 @@ function cacheDocumentFromStorage(value: string | null, sourceUrl: string, nowMs
       schema: externalCardArtCacheSchema,
       version: externalCardArtCacheVersion,
       sourceUrl,
+      cardDataIdentity,
       cachedAt: typeof parsed.cachedAt === "string" ? parsed.cachedAt : new Date(nowMs).toISOString(),
       expiresAt: parsed.expiresAt,
       urls
@@ -100,19 +109,47 @@ export async function fetchExternalCardArtUrls(
   fetcher: typeof fetch = fetch
 ): Promise<ReadonlyMap<string, string>> {
   const endpoint = new URL(sourceUrl);
-  endpoint.searchParams.set("limit", "1000");
-  const response = await fetcher(endpoint, {
-    credentials: "omit",
-    referrerPolicy: "no-referrer",
-    signal
-  });
-  if (!response.ok) throw new Error(`Card artwork source returned ${response.status}.`);
+  endpoint.searchParams.set("limit", String(externalCardArtFetchLimit));
+  endpoint.searchParams.set("offset", "0");
 
-  const payload = await response.json() as { items?: unknown };
-  if (!Array.isArray(payload.items)) throw new Error("Card artwork source returned an invalid payload.");
+  async function fetchPage(): Promise<Record<string, unknown>> {
+    const response = await fetcher(endpoint, {
+      credentials: "omit",
+      referrerPolicy: "no-referrer",
+      signal
+    });
+    if (!response.ok) throw new Error(`Card artwork source returned ${response.status}.`);
+    const payload = await response.json() as unknown;
+    if (!isRecord(payload) || !Array.isArray(payload.items)) {
+      throw new Error("Card artwork source returned an invalid payload.");
+    }
+    return payload;
+  }
+
+  const firstPage = await fetchPage();
+  const reportedTotal = firstPage.total;
+  const items = [...firstPage.items as ExternalCardRecord[]];
+  if (Number.isInteger(reportedTotal)) {
+    const total = Number(reportedTotal);
+    if (total < 0 || total > maximumSourceCardCount) {
+      throw new Error(`Card artwork source reported an unexpected ${total} cards.`);
+    }
+    while (items.length < total) {
+      const previousCount = items.length;
+      endpoint.searchParams.set("offset", String(previousCount));
+      const nextPage = await fetchPage();
+      items.push(...nextPage.items as ExternalCardRecord[]);
+      if (items.length === previousCount) {
+        throw new Error(`Card artwork source stopped after ${items.length} of ${total} cards.`);
+      }
+    }
+    if (items.length !== total) {
+      throw new Error(`Card artwork source returned ${items.length} records for a reported total of ${total}.`);
+    }
+  }
 
   const urls = new Map<string, string>();
-  for (const item of payload.items as ExternalCardRecord[]) {
+  for (const item of items) {
     const artworkUrl = signedArtworkUrl(item.image_url);
     if (!artworkUrl) continue;
     addArtUrlKey(urls, item.id, artworkUrl);
@@ -128,7 +165,8 @@ export async function fetchExternalCardArtUrls(
 export function loadCachedExternalCardArtUrls(
   storage: Storage,
   sourceUrl: string,
-  nowMs = Date.now()
+  nowMs = Date.now(),
+  cardDataIdentity = ""
 ): ReadonlyMap<string, string> | undefined {
   let stored: string | null;
   try {
@@ -136,7 +174,7 @@ export function loadCachedExternalCardArtUrls(
   } catch {
     return undefined;
   }
-  const document = cacheDocumentFromStorage(stored, sourceUrl, nowMs);
+  const document = cacheDocumentFromStorage(stored, sourceUrl, nowMs, cardDataIdentity);
   return document ? new Map(document.urls) : undefined;
 }
 
@@ -144,7 +182,8 @@ export function saveCachedExternalCardArtUrls(
   storage: Storage,
   sourceUrl: string,
   urls: ReadonlyMap<string, string>,
-  nowMs = Date.now()
+  nowMs = Date.now(),
+  cardDataIdentity = ""
 ): void {
   const entries = [...urls].filter(([key, url]) => key && signedArtworkUrl(url));
   if (entries.length === 0) return;
@@ -153,6 +192,7 @@ export function saveCachedExternalCardArtUrls(
     schema: externalCardArtCacheSchema,
     version: externalCardArtCacheVersion,
     sourceUrl,
+    cardDataIdentity,
     cachedAt: new Date(nowMs).toISOString(),
     expiresAt: new Date(nowMs + externalCardArtCacheTtlMs).toISOString(),
     urls: entries
@@ -169,13 +209,14 @@ export async function loadExternalCardArtUrls(
   sourceUrl: string,
   signal?: AbortSignal,
   fetcher: typeof fetch = fetch,
-  nowMs = Date.now()
+  nowMs = Date.now(),
+  cardDataIdentity = ""
 ): Promise<ExternalCardArtUrlResult> {
-  const cached = loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs);
+  const cached = loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs, cardDataIdentity);
   if (cached) return { urls: cached, source: "cache" };
 
   const urls = await fetchExternalCardArtUrls(sourceUrl, signal, fetcher);
-  saveCachedExternalCardArtUrls(storage, sourceUrl, urls, nowMs);
+  saveCachedExternalCardArtUrls(storage, sourceUrl, urls, nowMs, cardDataIdentity);
   return { urls, source: "network" };
 }
 

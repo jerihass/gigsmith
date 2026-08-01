@@ -40,7 +40,7 @@ describe("external card art", () => {
     const urls = await fetchExternalCardArtUrls(sourceUrl, undefined, fetchMock as unknown as typeof fetch);
 
     expect(fetchMock).toHaveBeenCalledOnce();
-    expect(String(fetchMock.mock.calls[0]?.[0])).toBe(`${sourceUrl}?limit=1000`);
+    expect(String(fetchMock.mock.calls[0]?.[0])).toBe(`${sourceUrl}?limit=100&offset=0`);
     expect(selectExternalCardArtUrl({
       id: "card-1",
       external_id: "CP-001",
@@ -48,6 +48,45 @@ describe("external card art", () => {
       printing_id: "print-1",
       source_image_url: "https://dstcynss47vun.cloudfront.net/card.webp"
     }, urls)).toBe(signedUrl);
+  });
+
+  it("fetches signed artwork URLs beyond Netdeck's 100-card page cap", async () => {
+    const cards = Array.from({ length: 104 }, (_, index) => ({
+      id: `card-${index}`,
+      external_id: `CP-${index}`,
+      image_url: `https://dstcynss47vun.cloudfront.net/card-${index}.webp?Expires=123&Signature=test`
+    }));
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const offset = Number(new URL(String(input)).searchParams.get("offset") ?? 0);
+      return new Response(JSON.stringify({
+        total: cards.length,
+        limit: 100,
+        offset,
+        items: cards.slice(offset, offset + 100)
+      }), { status: 200 });
+    });
+
+    const urls = await fetchExternalCardArtUrls(sourceUrl, undefined, fetchMock as unknown as typeof fetch);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(new URL(String(fetchMock.mock.calls[1]?.[0])).searchParams.get("offset")).toBe("100");
+    expect(urls.get("card-103")).toContain("card-103.webp");
+  });
+
+  it("rejects an incomplete artwork page sequence", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const offset = Number(new URL(String(input)).searchParams.get("offset") ?? 0);
+      return new Response(JSON.stringify({
+        total: 101,
+        items: offset === 0 ? [{ id: "card-1", image_url: signedUrl }] : []
+      }), { status: 200 });
+    });
+
+    await expect(fetchExternalCardArtUrls(
+      sourceUrl,
+      undefined,
+      fetchMock as unknown as typeof fetch
+    )).rejects.toThrow("stopped after 1 of 101 cards");
   });
 
   it("selects art by stable card fields when local IDs differ from the live art source", async () => {
@@ -119,6 +158,14 @@ describe("external card art", () => {
       urls: [["card-1", "https://images.example/card.webp?Signature=test"]]
     }));
     expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs)).toBeUndefined();
+  });
+
+  it("invalidates artwork caches when the card-data identity changes", () => {
+    const storage = createStorage();
+    saveCachedExternalCardArtUrls(storage, sourceUrl, new Map([["card-1", signedUrl]]), nowMs, "snapshot:100");
+
+    expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs + 60_000, "snapshot:100")?.get("card-1")).toBe(signedUrl);
+    expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs + 60_000, "snapshot:104")).toBeUndefined();
   });
 
   it("uses a valid cache before fetching and caches network results", async () => {

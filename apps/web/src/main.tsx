@@ -413,7 +413,15 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
 
     const controller = new AbortController();
     setCardArtSourceStatus("loading");
-    loadExternalCardArtUrls(window.localStorage, cardDb.metadata.sourceUrl, controller.signal)
+    const cardDataIdentity = `${cardDb.metadata.cardDataVersion}:${cardDb.metadata.sourceCardCount}`;
+    loadExternalCardArtUrls(
+      window.localStorage,
+      cardDb.metadata.sourceUrl,
+      controller.signal,
+      fetch,
+      Date.now(),
+      cardDataIdentity
+    )
       .then(({ urls }) => {
         setCardArtUrls(urls);
         setCardArtSourceStatus("ready");
@@ -424,7 +432,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         setCardArtSourceStatus("unavailable");
       });
     return () => controller.abort();
-  }, [cardArtEnabled, cardDb.metadata.sourceUrl]);
+  }, [cardArtEnabled, cardDb.metadata.cardDataVersion, cardDb.metadata.sourceCardCount, cardDb.metadata.sourceUrl]);
 
   function flushDeferredPersistence() {
     libraryPersistence.flush();

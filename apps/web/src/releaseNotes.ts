@@ -8,7 +8,7 @@ export type ReleaseNoteEntry = {
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
     version: "0.1.21",
-    date: "2026-07-31",
+    date: "2026-08-01",
     title: "Expanded Card Database",
     changes: [
       "Expanded the bundled Cyberpunk card database from 82 to 104 cards.",

@@ -11,9 +11,24 @@ function mainDeckCard(page: Page, name: string) {
   return page.getByRole("list", { name: "Main deck cards" }).getByRole("listitem", { name: new RegExp(`^${name},`) });
 }
 
+async function cardSearch(page: Page) {
+  const mobileSearch = page.getByRole("search", { name: "Card search" }).getByRole("textbox", { name: "Search cards" });
+  return await mobileSearch.isVisible()
+    ? mobileSearch
+    : page.getByRole("textbox", { name: "Search", exact: true });
+}
+
 async function showAdvancedCardFilters(page: Page) {
-  const toggle = page.getByRole("button", { name: /^Filters/ });
-  if ((await toggle.isVisible()) && (await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
+  const mobileToggle = page.getByRole("search", { name: "Card search" }).getByRole("button", { name: /^Filters/ });
+  if (await mobileToggle.isVisible()) {
+    if ((await mobileToggle.getAttribute("aria-expanded")) !== "true") await mobileToggle.click();
+    return;
+  }
+
+  const desktopToggle = page.locator(".card-database-panel .filter-toggle");
+  if ((await desktopToggle.isVisible()) && (await desktopToggle.getAttribute("aria-expanded")) !== "true") {
+    await desktopToggle.click();
+  }
 }
 
 test.beforeEach(async ({ page }) => {
@@ -25,14 +40,14 @@ test("creates and edits a deck with immediate validation", async ({ page }) => {
   await expect(page.getByLabel("Deck name", { exact: true })).toHaveValue("Untitled Deck");
   await expect(page.locator(".status")).toContainText("issue");
 
-  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
+  await (await cardSearch(page)).fill("Chrome Reverie");
   await page.getByRole("button", { name: "+ Main", exact: true }).click();
   await expect(page.getByText("1 / 40-50", { exact: true })).toBeVisible();
   await expect(cardResult(page, "Chrome Reverie").getByLabel("1 copy in deck")).toBeVisible();
 });
 
 test("prevents a fourth copy through deck editing controls", async ({ page }) => {
-  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Swordwise Huscle");
+  await (await cardSearch(page)).fill("Swordwise Huscle");
   const card = page.getByRole("article").filter({ hasText: "Swordwise Huscle" });
   await expect(card.getByRole("button", { name: "Max 3" })).toBeDisabled();
   await expect(page.getByRole("button", { name: /Swordwise Huscle already has the maximum 3 copies/ })).toBeDisabled();
@@ -75,18 +90,18 @@ test("filters by Legend RAM fit and allows a warned incompatible addition", asyn
 test("clears stale RAM warnings after Legends make the card compatible", async ({ page }) => {
   await page.getByRole("button", { name: "New", exact: true }).click();
 
-  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Wraith Marauders");
+  await (await cardSearch(page)).fill("Wraith Marauders");
   await cardResult(page, "Wraith Marauders").getByRole("button", { name: "+ Main" }).click();
   await expect(page.locator(".deck-edit-notice")).toContainText("requires 2 Green RAM");
 
-  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Goro Takemura — Vengeful Bodyguard");
+  await (await cardSearch(page)).fill("Goro Takemura — Vengeful Bodyguard");
   await cardResult(page, "Goro Takemura — Vengeful Bodyguard").getByRole("button", { name: "Add Legend" }).click();
   await expect(page.locator(".deck-edit-notice")).toBeHidden();
   await expect(mainDeckCard(page, "Wraith Marauders").getByText("Over RAM", { exact: false })).toHaveCount(0);
 });
 
 test("undoes and redoes an active-deck card edit", async ({ page }) => {
-  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
+  await (await cardSearch(page)).fill("Chrome Reverie");
   await page.getByRole("button", { name: "+ Main", exact: true }).click();
   await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
 
@@ -101,7 +116,7 @@ test("saves, compares, restores, and exports deck versions explicitly", async ({
   await page.getByRole("button", { name: "Save version" }).click();
   await expect(page.getByRole("combobox", { name: "Saved deck version" })).toContainText("Before Chrome");
 
-  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
+  await (await cardSearch(page)).fill("Chrome Reverie");
   await page.getByRole("button", { name: "+ Main", exact: true }).click();
 
   await expect(page.getByLabel("Version comparison summary")).toContainText("40");
@@ -186,7 +201,7 @@ test("renders printable proxy cards without artwork", async ({ page }) => {
 });
 
 test("opens card details and restores focus when dismissed", async ({ page }) => {
-  await page.getByRole("textbox", { name: "Search", exact: true }).fill("Chrome Reverie");
+  await (await cardSearch(page)).fill("Chrome Reverie");
   const card = page.getByRole("article").filter({ hasText: "Chrome Reverie" });
   const details = card.getByRole("button", { name: "Details", exact: true });
   await details.click();
@@ -208,7 +223,8 @@ test("navigates Legend-first card details from the deck editor", async ({ page }
   expect(dialogBox).not.toBeNull();
   expect(viewport).not.toBeNull();
   expect(dialogBox!.y).toBeGreaterThanOrEqual(8);
-  expect(dialogBox!.y + dialogBox!.height).toBeLessThanOrEqual(viewport!.height - 8);
+  const expectedBottom = viewport!.width <= 720 ? viewport!.height : viewport!.height - 8;
+  expect(dialogBox!.y + dialogBox!.height).toBeLessThanOrEqual(expectedBottom);
   await expect(page.getByText(/1 of \d+ in deck/)).toBeVisible();
 
   await page.getByRole("button", { name: "Next card: Dum Dum — Maelstrom Triggerman" }).click();

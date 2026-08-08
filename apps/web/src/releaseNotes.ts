@@ -7,6 +7,17 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.22",
+    date: "2026-08-08",
+    title: "Artwork Loading Feedback",
+    changes: [
+      "Added artwork coverage reporting so partial card-image results are visible.",
+      "Added a cache-bypassing retry control for incomplete or failed artwork loads.",
+      "Added per-card loading glimmers and clear unavailable-art fallbacks.",
+      "Kept loading feedback static when reduced motion is enabled."
+    ]
+  },
+  {
     version: "0.1.21",
     date: "2026-08-01",
     title: "Expanded Card Database",
@@ -14,7 +25,6 @@ export const releaseNotes: ReleaseNoteEntry[] = [
       "Expanded the bundled Cyberpunk card database from 82 to 104 cards.",
       "Added paginated Netdeck refresh support for card databases larger than 100 cards.",
       "Fixed missing external artwork for cards beyond Netdeck's first 100 results.",
-      "Added artwork coverage, retry controls, and a loading glimmer for card images.",
       "Kept external artwork as optional stable references without bundling image files."
     ]
   },

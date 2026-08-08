@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  calculateExternalCardArtCoverage,
+  clearCachedExternalCardArtUrls,
   externalCardArtCacheStorageKey,
   fetchExternalCardArtUrls,
   loadCachedExternalCardArtUrls,
@@ -166,6 +168,20 @@ describe("external card art", () => {
 
     expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs + 60_000, "snapshot:100")?.get("card-1")).toBe(signedUrl);
     expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs + 60_000, "snapshot:104")).toBeUndefined();
+  });
+
+  it("reports card-level artwork coverage and clears cached URLs for retries", () => {
+    const storage = createStorage();
+    const urls = new Map([["card-1", signedUrl]]);
+    saveCachedExternalCardArtUrls(storage, sourceUrl, urls, nowMs);
+
+    expect(calculateExternalCardArtCoverage([
+      { id: "card-1", external_id: "one", slug: "one", printing_id: "print-1" },
+      { id: "card-2", external_id: "two", slug: "two", printing_id: "print-2" }
+    ], urls)).toEqual({ available: 1, total: 2 });
+
+    clearCachedExternalCardArtUrls(storage);
+    expect(storage.getItem(externalCardArtCacheStorageKey)).toBeNull();
   });
 
   it("uses a valid cache before fetching and caches network results", async () => {

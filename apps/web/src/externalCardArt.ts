@@ -33,6 +33,11 @@ export interface ExternalCardArtUrlResult {
   source: "cache" | "network";
 }
 
+export interface ExternalCardArtCoverage {
+  available: number;
+  total: number;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -204,6 +209,14 @@ export function saveCachedExternalCardArtUrls(
   }
 }
 
+export function clearCachedExternalCardArtUrls(storage: Storage): void {
+  try {
+    storage.removeItem(externalCardArtCacheStorageKey);
+  } catch {
+    // A retry can still use the network when browser storage is unavailable.
+  }
+}
+
 export async function loadExternalCardArtUrls(
   storage: Storage,
   sourceUrl: string,
@@ -230,4 +243,14 @@ export function selectExternalCardArtUrl(
     urls.get(card.slug) ??
     urls.get(card.printing_id) ??
     (sourceImageUrl ? urls.get(sourceImageUrl) : undefined);
+}
+
+export function calculateExternalCardArtCoverage(
+  cards: ReadonlyArray<Pick<Card, "id" | "external_id" | "slug" | "printing_id" | "source_image_url">>,
+  urls: ReadonlyMap<string, string>
+): ExternalCardArtCoverage {
+  return {
+    available: cards.reduce((count, card) => count + (selectExternalCardArtUrl(card, urls) ? 1 : 0), 0),
+    total: cards.length
+  };
 }

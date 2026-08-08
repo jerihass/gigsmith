@@ -26,7 +26,7 @@ export function CardArt({
   if (!source) {
     return (
       <div
-        className={`card-art ${variant} unavailable`}
+        className={`card-art ${variant} unavailable${sourcePending ? " pending" : ""}`}
         role="img"
         aria-label={`${sourcePending ? "Loading artwork" : "Artwork unavailable"} for ${card.display_name}`}
       >

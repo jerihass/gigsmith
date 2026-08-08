@@ -680,6 +680,27 @@ textarea {
   opacity: 1;
 }
 
+.card-art:is(.loading, .pending)::after {
+  animation: card-art-glimmer 1.4s linear infinite;
+  background: linear-gradient(105deg, transparent, var(--cyan), transparent);
+  content: "";
+  inset: 0;
+  opacity: 0.18;
+  position: absolute;
+  transform: translateX(-100%);
+}
+
+@keyframes card-art-glimmer {
+  to { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-art:is(.loading, .pending)::after {
+    animation: none;
+    transform: none;
+  }
+}
+
 .card-art-status,
 .card-art.unavailable > span {
   font-size: 0.68rem;
@@ -693,6 +714,7 @@ textarea {
   top: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
+  z-index: 1;
 }
 
 .card-art.detail .card-art-status,

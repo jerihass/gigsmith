@@ -14,6 +14,7 @@ export const releaseNotes: ReleaseNoteEntry[] = [
       "Expanded the bundled Cyberpunk card database from 82 to 104 cards.",
       "Added paginated Netdeck refresh support for card databases larger than 100 cards.",
       "Fixed missing external artwork for cards beyond Netdeck's first 100 results.",
+      "Added artwork coverage, retry controls, and a loading glimmer for card images.",
       "Kept external artwork as optional stable references without bundling image files."
     ]
   },

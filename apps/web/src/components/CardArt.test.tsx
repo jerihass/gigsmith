@@ -51,6 +51,7 @@ describe("CardArt", () => {
     const unavailable = renderToStaticMarkup(<CardArt card={card()} enabled variant="thumbnail" />);
 
     expect(pending).toContain("Loading art source");
+    expect(pending).toContain("card-art thumbnail unavailable pending");
     expect(unavailable).not.toContain("<img");
     expect(unavailable).toContain("Art unavailable");
     expect(unavailable).toContain("Artwork unavailable for Test Card");

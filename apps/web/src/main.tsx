@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { Info, Layers, Palette, Redo2, Search, Undo2, X } from "lucide-react";
+import { Info, Layers, Palette, Redo2, RefreshCw, Search, Undo2, X } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, CardDatabase, Deck, DeckCardEntry, DeckDocumentV1, GigMatchState, ValidationIssue } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload, deckInputLimits } from "@gigsmith/deck-io";
@@ -57,7 +57,12 @@ import {
   type CardDatabaseLoadResult
 } from "./cardDatabase";
 import { loadCardArtPreference, saveCardArtPreference } from "./cardArtPreference";
-import { loadExternalCardArtUrls, selectExternalCardArtUrl } from "./externalCardArt";
+import {
+  calculateExternalCardArtCoverage,
+  clearCachedExternalCardArtUrls,
+  loadExternalCardArtUrls,
+  selectExternalCardArtUrl
+} from "./externalCardArt";
 import {
   dropDeckHistory,
   getDeckHistory,
@@ -204,6 +209,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [cardArtEnabled, setCardArtEnabled] = useState(() => loadCardArtPreference(window.localStorage));
   const [cardArtUrls, setCardArtUrls] = useState<ReadonlyMap<string, string>>(() => new Map());
   const [cardArtSourceStatus, setCardArtSourceStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
+  const [cardArtRequestVersion, setCardArtRequestVersion] = useState(0);
   const [gigMatch, setGigMatch] = useState<GigMatchState>(() => loadGigMatch(window.localStorage));
   const [playtestJournal, setPlaytestJournal] = useState<PlaytestJournal>(() => loadPlaytestJournal(window.localStorage));
   const [eddyPlayerOrder, setEddyPlayerOrder] = useState<"first" | "second">("first");
@@ -246,6 +252,10 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const deck = getActiveDeck(library);
   const activeHistory = getDeckHistory(deckHistories, deck.id);
   const cardsById = useMemo(() => new Map(cardDb.cards.map((card) => [card.id, card])), [cardDb]);
+  const cardArtCoverage = useMemo(
+    () => calculateExternalCardArtCoverage(cardDb.cards, cardArtUrls),
+    [cardArtUrls, cardDb.cards]
+  );
   const detailCard = detailCardId ? cardsById.get(detailCardId) : undefined;
   const ramOptions = useMemo(() => numberFilterOptions(cardDb.cards, "ram"), [cardDb]);
   const costOptions = useMemo(() => numberFilterOptions(cardDb.cards, "cost"), [cardDb]);
@@ -432,7 +442,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         setCardArtSourceStatus("unavailable");
       });
     return () => controller.abort();
-  }, [cardArtEnabled, cardDb.metadata.cardDataVersion, cardDb.metadata.sourceCardCount, cardDb.metadata.sourceUrl]);
+  }, [cardArtEnabled, cardArtRequestVersion, cardDb.metadata.cardDataVersion, cardDb.metadata.sourceCardCount, cardDb.metadata.sourceUrl]);
 
   function flushDeferredPersistence() {
     libraryPersistence.flush();
@@ -572,6 +582,13 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   function handleCardArtPreference(enabled: boolean) {
     setCardArtEnabled(enabled);
     saveCardArtPreference(window.localStorage, enabled);
+  }
+
+  function retryExternalCardArt() {
+    clearCachedExternalCardArtUrls(window.localStorage);
+    setCardArtUrls(new Map());
+    setCardArtSourceStatus("loading");
+    setCardArtRequestVersion((version) => version + 1);
   }
 
   function handleThemeChange(nextTheme: AppTheme) {
@@ -982,10 +999,26 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                 />
                 <span>External art</span>
               </label>
-              {cardArtEnabled && cardArtSourceStatus !== "ready" && (
+              {cardArtEnabled && (
                 <span className="result-count" aria-live="polite">
-                  {cardArtSourceStatus === "loading" ? "Loading art" : "Art unavailable"}
+                  {cardArtSourceStatus === "ready"
+                    ? `${cardArtCoverage.available} / ${cardArtCoverage.total} art`
+                    : cardArtSourceStatus === "loading" ? "Loading art" : "Art unavailable"}
                 </span>
+              )}
+              {cardArtEnabled && (
+                cardArtSourceStatus === "unavailable" ||
+                (cardArtSourceStatus === "ready" && cardArtCoverage.available < cardArtCoverage.total)
+              ) && (
+                <button
+                  aria-label="Retry external artwork"
+                  className="icon-button"
+                  onClick={retryExternalCardArt}
+                  title="Retry external artwork"
+                  type="button"
+                >
+                  <RefreshCw size={16} aria-hidden="true" />
+                </button>
               )}
               <span className="result-count">{filteredCards.length} cards</span>
             </div>

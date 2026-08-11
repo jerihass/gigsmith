@@ -28,7 +28,9 @@ test("keeps core phone workflows within measured response budgets", async ({ pag
     await expect(page.getByRole("heading", { name: "Gigsmith" })).toBeVisible();
     const initialRenderMs = await pageTime(page);
 
-    const search = page.getByRole("textbox", { name: "Search", exact: true });
+    const search = page
+      .getByRole("search", { name: "Card search" })
+      .getByRole("textbox", { name: "Search cards" });
     let startedAt = await pageTime(page);
     await search.fill("Chrome Reverie");
     const filteredCard = page.getByRole("article").filter({ hasText: "Chrome Reverie" });

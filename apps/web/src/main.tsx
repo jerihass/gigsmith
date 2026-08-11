@@ -1,4 +1,5 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { Info, Layers, Palette, Redo2, RefreshCw, Search, Undo2, X } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
@@ -1231,6 +1232,8 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           </section>
         </section>
         </div>
+        {activeView === "deck" && createPortal(
+          <>
         <nav className="mobile-deck-sheet mobile-deck-dock" aria-label="Mobile deck builder shortcuts">
           <div className="mobile-deck-dock-status">
             <span>{entryCount(deck.legends)} / 3 Legends</span>
@@ -1390,6 +1393,9 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               </div>
             </aside>
           </div>
+        )}
+          </>,
+          document.body
         )}
       </section>
 

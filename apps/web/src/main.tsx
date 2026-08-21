@@ -17,10 +17,12 @@ import {
 import { loadAppView, saveAppView, type AppView } from "./appViews";
 import {
   browseCards,
+  cardSetFilterOptions,
   numberFilterOptions,
   textListFilterOptions,
   type CardSort,
   type CardColorFilter,
+  type CardSetFilter,
   type CardTypeFilter,
   type DeckMembershipFilter,
   type NumberFilter,
@@ -197,6 +199,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [typeFilter, setTypeFilter] = useState<CardTypeFilter>("Any");
   const [ramFilter, setRamFilter] = useState<NumberFilter>("Any");
   const [costFilter, setCostFilter] = useState<NumberFilter>("Any");
+  const [setFilter, setSetFilter] = useState<CardSetFilter>("Any");
   const [classificationFilter, setClassificationFilter] = useState<TextListFilter>("Any");
   const [keywordFilter, setKeywordFilter] = useState<TextListFilter>("Any");
   const [sellableFilter, setSellableFilter] = useState<SellableFilter>("Any");
@@ -260,6 +263,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const detailCard = detailCardId ? cardsById.get(detailCardId) : undefined;
   const ramOptions = useMemo(() => numberFilterOptions(cardDb.cards, "ram"), [cardDb]);
   const costOptions = useMemo(() => numberFilterOptions(cardDb.cards, "cost"), [cardDb]);
+  const setOptions = useMemo(() => cardSetFilterOptions(cardDb.cards), [cardDb]);
   const classificationOptions = useMemo(() => textListFilterOptions(cardDb.cards, "classifications"), [cardDb]);
   const keywordOptions = useMemo(() => textListFilterOptions(cardDb.cards, "keywords"), [cardDb]);
   const activeAdvancedFilterChips = [
@@ -267,6 +271,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     typeFilter !== "Any" ? { key: "type", label: typeFilter, clear: () => setTypeFilter("Any") } : undefined,
     ramFilter !== "Any" ? { key: "ram", label: `RAM ${ramFilter === "none" ? "None" : ramFilter}`, clear: () => setRamFilter("Any") } : undefined,
     costFilter !== "Any" ? { key: "cost", label: `Cost ${costFilter === "none" ? "None" : costFilter}`, clear: () => setCostFilter("Any") } : undefined,
+    setFilter !== "Any" ? { key: "set", label: setOptions.find((option) => option.value === setFilter)?.label ?? setFilter, clear: () => setSetFilter("Any") } : undefined,
     classificationFilter !== "Any" ? { key: "classification", label: classificationFilter, clear: () => setClassificationFilter("Any") } : undefined,
     keywordFilter !== "Any" ? { key: "keyword", label: keywordFilter, clear: () => setKeywordFilter("Any") } : undefined,
     sellableFilter !== "Any" ? { key: "sellable", label: sellableFilter, clear: () => setSellableFilter("Any") } : undefined,
@@ -278,6 +283,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     setTypeFilter("Any");
     setRamFilter("Any");
     setCostFilter("Any");
+    setSetFilter("Any");
     setClassificationFilter("Any");
     setKeywordFilter("Any");
     setSellableFilter("Any");
@@ -380,6 +386,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           type: typeFilter,
           ram: ramFilter,
           cost: costFilter,
+          set: setFilter,
           classification: classificationFilter,
           keyword: keywordFilter,
           sellable: sellableFilter
@@ -407,6 +414,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     ramCompatibilityById,
     ramCompatibilityFilter,
     ramFilter,
+    setFilter,
     sellableFilter,
     typeFilter
   ]);
@@ -1092,6 +1100,12 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                 <span>Type</span>
                 <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as CardTypeFilter)}>
                   {typeOptions.map((option) => <option key={option}>{option}</option>)}
+                </select>
+              </label>
+              <label className="field">
+                <span>Set</span>
+                <select value={setFilter} onChange={(event) => setSetFilter(event.target.value as CardSetFilter)}>
+                  {setOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </select>
               </label>
               <label className="field">

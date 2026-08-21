@@ -5,10 +5,16 @@ export type CardColorFilter = "Any" | CardColor;
 export type CardTypeFilter = "Any" | CardType;
 export type NumberFilter = "Any" | string;
 export type TextListFilter = "Any" | string;
+export type CardSetFilter = "Any" | string;
 export type SellableFilter = "Any" | "Sellable" | "Not Sellable";
 export type DeckMembershipFilter = "All" | "In Deck" | "Not In Deck";
 export type RamCompatibilityFilter = "All" | "Compatible" | "Incompatible";
 export type CardSort = "Snapshot" | "Name" | "Cost" | "RAM" | "Power" | "Color" | "Type";
+
+export interface CardSetFilterOption {
+  value: CardSetFilter;
+  label: string;
+}
 
 export interface CardFilters {
   query: string;
@@ -16,6 +22,7 @@ export interface CardFilters {
   type: CardTypeFilter;
   ram: NumberFilter;
   cost: NumberFilter;
+  set: CardSetFilter;
   classification: TextListFilter;
   keyword: TextListFilter;
   sellable: SellableFilter;
@@ -51,6 +58,20 @@ export function textListFilterOptions(
     for (const value of card[field]) values.add(value);
   }
   return ["Any", ...[...values].sort((left, right) => left.localeCompare(right))];
+}
+
+export function cardSetFilterOptions(cards: Card[]): CardSetFilterOption[] {
+  const sets = new Map<string, string>();
+  for (const card of cards) {
+    if (!sets.has(card.set.code)) sets.set(card.set.code, card.set.name);
+  }
+
+  return [
+    { value: "Any", label: "Any" },
+    ...[...sets.entries()]
+      .sort((left, right) => left[1].localeCompare(right[1]) || left[0].localeCompare(right[0]))
+      .map(([value, label]) => ({ value, label }))
+  ];
 }
 
 function normalize(value: string): string {
@@ -98,6 +119,7 @@ export function filterCards(cards: Card[], filters: CardFilters): Card[] {
     if (filters.type !== "Any" && card.card_type !== filters.type) return false;
     if (!fieldMatchesNumberFilter(card.ram, filters.ram)) return false;
     if (!fieldMatchesNumberFilter(card.cost, filters.cost)) return false;
+    if (filters.set !== "Any" && card.set.code !== filters.set) return false;
     if (filters.classification !== "Any" && !card.classifications.includes(filters.classification)) return false;
     if (filters.keyword !== "Any" && !card.keywords.includes(filters.keyword)) return false;
     if (filters.sellable === "Sellable" && !isSellableCard(card)) return false;

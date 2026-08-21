@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb } from "@gigsmith/card-data";
 import { isSellableCard } from "@gigsmith/data-contracts";
 import budgets from "../performance-budgets.json" with { type: "json" };
-import { browseCards, filterCards, filterCardsByRamCompatibility, numberFilterOptions, textListFilterOptions } from "./cardFilters";
+import { browseCards, cardSetFilterOptions, filterCards, filterCardsByRamCompatibility, numberFilterOptions, textListFilterOptions } from "./cardFilters";
 
 const defaultFilters = {
   query: "",
@@ -10,6 +10,7 @@ const defaultFilters = {
   type: "Any" as const,
   ram: "Any",
   cost: "Any",
+  set: "Any",
   classification: "Any",
   keyword: "Any",
   sellable: "Any" as const
@@ -44,6 +45,17 @@ describe("filterCards", () => {
     });
 
     expect(cards.every((card) => card.ram === 2 && card.cost === 1)).toBe(true);
+  });
+
+  it("filters by set code", () => {
+    const setCode = cyberpunkCardDb.cards[0].set.code;
+    const cards = filterCards(cyberpunkCardDb.cards, {
+      ...defaultFilters,
+      set: setCode
+    });
+
+    expect(cards.length).toBeGreaterThan(0);
+    expect(cards.every((card) => card.set.code === setCode)).toBe(true);
   });
 
   it("filters by sellable status", () => {
@@ -107,6 +119,19 @@ describe("textListFilterOptions", () => {
       { ...cyberpunkCardDb.cards[0], keywords: ["Quick"] },
       { ...cyberpunkCardDb.cards[1], keywords: ["Adrenaline"] }
     ], "keywords")).toEqual(["Any", "Adrenaline", "Quick"]);
+  });
+});
+
+describe("cardSetFilterOptions", () => {
+  it("returns readable, sorted set names with stable code values", () => {
+    const options = cardSetFilterOptions(cyberpunkCardDb.cards);
+    const nonAnyOptions = options.slice(1);
+
+    expect(options[0]).toEqual({ value: "Any", label: "Any" });
+    expect(nonAnyOptions.map((option) => option.label)).toEqual(
+      [...nonAnyOptions].map((option) => option.label).sort((left, right) => left.localeCompare(right))
+    );
+    expect(nonAnyOptions.every((option) => option.value !== "Any")).toBe(true);
   });
 });
 

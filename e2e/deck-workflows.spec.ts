@@ -87,6 +87,23 @@ test("filters by Legend RAM fit and allows a warned incompatible addition", asyn
   await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
 });
 
+test("filters the card database by set", async ({ page }) => {
+  await showAdvancedCardFilters(page);
+  const setFilter = page.getByRole("combobox", { name: "Set", exact: true });
+  await setFilter.selectOption({ label: "Set 1 Promos" });
+
+  const results = page.getByRole("region", { name: "Card database results" });
+  await expect(results.getByRole("article")).toHaveCount(1);
+  await expect(page.getByText("1 cards", { exact: true })).toBeVisible();
+  const clearSetFilter = page.getByRole("button", { name: "Clear Set 1 Promos filter" });
+  if (await clearSetFilter.isVisible()) {
+    await clearSetFilter.click();
+  } else {
+    await setFilter.selectOption({ label: "Any" });
+  }
+  await expect(results.getByRole("article")).toHaveCount(104);
+});
+
 test("clears stale RAM warnings after Legends make the card compatible", async ({ page }) => {
   await page.getByRole("button", { name: "New", exact: true }).click();
 

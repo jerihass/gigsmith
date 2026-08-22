@@ -454,7 +454,7 @@ textarea {
   gap: 0.45em;
 }
 
-.card-title-line > span:last-child {
+.card-title-text {
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -582,6 +582,13 @@ textarea {
   padding: 0.18em 0.5em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.card-set-badge {
+  background: var(--surface-control);
+  border-color: var(--border);
+  gap: 0.28em;
+  padding-inline: 0.42em;
 }
 
 .card-copy {

@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Card } from "@gigsmith/data-contracts";
 import { isSellableCard } from "@gigsmith/data-contracts";
 import { cardDetailStats, cardDetailTags, cardDetailTextParts } from "../cardDetails";
+import { alternateCardSets } from "../cardSets";
 import { CardArt } from "./CardArt";
 
 export function CardDetailDialog({
@@ -31,6 +32,7 @@ export function CardDetailDialog({
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const alternateSets = card ? alternateCardSets(card) : [];
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -122,8 +124,14 @@ export function CardDetailDialog({
             <div><dt>Keywords</dt><dd>{cardDetailTags(card.keywords)}</dd></div>
             <div><dt>Economy</dt><dd>{isSellableCard(card) ? "Sellable" : "Not sellable"}</dd></div>
             <div><dt>Classifications</dt><dd>{cardDetailTags(card.classifications)}</dd></div>
-            <div><dt>Set</dt><dd>{card.set.name}</dd></div>
+            <div><dt>Current set</dt><dd>{card.set.name}<br /><code>{card.set.code}</code></dd></div>
             <div><dt>Printing</dt><dd>{card.print_number ?? card.printing_id}</dd></div>
+            {alternateSets.length > 0 && (
+              <div style={{ gridColumn: "1 / -1" }}>
+                <dt>Also printed in</dt>
+                <dd>{alternateSets.map((set) => `${set.name} (${set.code})`).join(" · ")}</dd>
+              </div>
+            )}
           </dl>
           <footer className="card-detail-footer">
             <span>Card ID: <code>{card.id}</code></span>

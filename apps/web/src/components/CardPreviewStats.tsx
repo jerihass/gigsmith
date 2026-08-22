@@ -1,7 +1,8 @@
-import { MemoryStick, Swords } from "lucide-react";
+import { Layers, MemoryStick, Swords } from "lucide-react";
 import type { Card } from "@gigsmith/data-contracts";
 import { isSellableCard } from "@gigsmith/data-contracts";
 import { displayPreviewNumber, eddieSymbol } from "../cardDetails";
+import { alternateCardSets, cardSetBadgeLabel } from "../cardSets";
 
 export function CardPreviewIdentity({ card }: { card: Card }) {
   return (
@@ -12,6 +13,25 @@ export function CardPreviewIdentity({ card }: { card: Card }) {
       </span>
       <span className="card-preview-separator" aria-hidden="true">·</span>
       <span className="card-preview-type">{card.card_type}</span>
+    </span>
+  );
+}
+
+export function CardSetBadge({ card }: { card: Card }) {
+  const alternateSets = alternateCardSets(card);
+  const alternateCount = alternateSets.length;
+  const accessibleText = alternateCount > 0
+    ? `Printing set: ${card.set.name}; also printed in ${alternateCount} additional ${alternateCount === 1 ? "set" : "sets"}`
+    : `Printing set: ${card.set.name}`;
+  const title = alternateCount > 0
+    ? `${card.set.name}. Also printed in ${alternateSets.map((set) => set.name).join(", ")}.`
+    : card.set.name;
+
+  return (
+    <span className="deck-membership-badge card-set-badge" role="img" aria-label={accessibleText} title={title}>
+      <Layers size={12} strokeWidth={2.4} aria-hidden="true" />
+      <span aria-hidden="true">{cardSetBadgeLabel(card.set)}</span>
+      {alternateCount > 0 && <span className="card-set-badge-count" aria-hidden="true">+{alternateCount}</span>}
     </span>
   );
 }

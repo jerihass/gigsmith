@@ -73,6 +73,23 @@ function validateStringArray(value: unknown, path: string, errors: SnapshotValid
   });
 }
 
+function validatePrintings(value: unknown, path: string, errors: SnapshotValidationError[]): void {
+  if (value === undefined) return;
+  if (!Array.isArray(value)) {
+    addError(errors, path, "Expected an array.");
+    return;
+  }
+
+  value.forEach((printing, index) => {
+    const printingPath = `${path}[${index}]`;
+    if (!isRecord(printing)) {
+      addError(errors, printingPath, "Expected printing object.");
+      return;
+    }
+    if (printing.set !== undefined) validateSet(printing.set, `${printingPath}.set`, errors);
+  });
+}
+
 function stableImageUrl(value: unknown): string | null | undefined {
   if (value === null || value === undefined) return value;
   if (typeof value !== "string") return undefined;
@@ -115,6 +132,7 @@ function validateCard(value: unknown, index: number, errors: SnapshotValidationE
   requireString(value.printing_id, `${path}.printing_id`, errors);
   requireString(value.rules_text, `${path}.rules_text`, errors, { nullable: true });
   validateSet(value.set, `${path}.set`, errors);
+  validatePrintings(value.printings, `${path}.printings`, errors);
   validateStringArray(value.classifications, `${path}.classifications`, errors);
   validateStringArray(value.keywords, `${path}.keywords`, errors);
   requireNumberOrNull(value.cost, `${path}.cost`, errors);

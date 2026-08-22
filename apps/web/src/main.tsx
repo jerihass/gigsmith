@@ -35,7 +35,7 @@ import { CardDetailDialog } from "./components/CardDetailDialog";
 import { CardArt } from "./components/CardArt";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import { AppNavigation } from "./components/AppNavigation";
-import { CardPreviewIdentity, CardPreviewStats } from "./components/CardPreviewStats";
+import { CardPreviewIdentity, CardPreviewStats, CardSetBadge } from "./components/CardPreviewStats";
 import { CardDatabaseRefresh } from "./components/CardDatabaseRefresh";
 import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
 import { DeckCurveSummary } from "./components/DeckCurveSummary";
@@ -1192,7 +1192,8 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                           x{deckCopies}
                         </span>
                       )}
-                      <span>{card.display_name}</span>
+                      <span className="card-title-text">{card.display_name}</span>
+                      <CardSetBadge card={card} />
                     </strong>
                     <span>
                       <CardPreviewIdentity card={card} /> · <CardPreviewStats card={card} />

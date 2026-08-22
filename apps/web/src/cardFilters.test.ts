@@ -58,6 +58,31 @@ describe("filterCards", () => {
     expect(cards.every((card) => card.set.code === setCode)).toBe(true);
   });
 
+  it("filters once by an alternate printing set and includes set names in search", () => {
+    const alternateSetCard = {
+      ...cyberpunkCardDb.cards[0],
+      set: { code: "PRIMARY", name: "Primary Set" },
+      printings: [
+        { printing_id: "current", set: { code: "PRIMARY", name: "Primary Set" } },
+        { printing_id: "alternate", set: { code: "ALT", name: "Alternate Set" } }
+      ]
+    };
+    const otherCard = {
+      ...cyberpunkCardDb.cards[1],
+      set: { code: "OTHER", name: "Other Set" },
+      printings: []
+    };
+
+    expect(filterCards([alternateSetCard, otherCard], {
+      ...defaultFilters,
+      set: "ALT"
+    })).toEqual([alternateSetCard]);
+    expect(filterCards([alternateSetCard, otherCard], {
+      ...defaultFilters,
+      query: "alternate set"
+    })).toEqual([alternateSetCard]);
+  });
+
   it("filters by sellable status", () => {
     const sellable = filterCards(cyberpunkCardDb.cards, {
       ...defaultFilters,
@@ -132,6 +157,36 @@ describe("cardSetFilterOptions", () => {
       [...nonAnyOptions].map((option) => option.label).sort((left, right) => left.localeCompare(right))
     );
     expect(nonAnyOptions.every((option) => option.value !== "Any")).toBe(true);
+  });
+
+  it("includes alternate-printing sets without repeating the current set", () => {
+    const card = {
+      ...cyberpunkCardDb.cards[0],
+      set: { code: "PRIMARY", name: "Primary Set" },
+      printings: [
+        { set: { code: "PRIMARY", name: "Primary Set" } },
+        { set: { code: "ALT", name: "Alternate Set" } }
+      ]
+    };
+
+    expect(cardSetFilterOptions([card])).toEqual([
+      { value: "Any", label: "Any" },
+      { value: "ALT", label: "Alternate Set" },
+      { value: "PRIMARY", label: "Primary Set" }
+    ]);
+  });
+
+  it("uses the first stable source code when equivalent codes differ only by case", () => {
+    const card = {
+      ...cyberpunkCardDb.cards[0],
+      set: { code: "ALT", name: "Alternate Set" },
+      printings: [{ set: { code: "alt", name: "Alternate Set" } }]
+    };
+
+    expect(cardSetFilterOptions([card])).toEqual([
+      { value: "Any", label: "Any" },
+      { value: "ALT", label: "Alternate Set" }
+    ]);
   });
 });
 

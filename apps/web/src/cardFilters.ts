@@ -1,5 +1,6 @@
 import type { Card, CardColor, CardType, RamCompatibilityStatus } from "@gigsmith/data-contracts";
 import { isSellableCard } from "@gigsmith/data-contracts";
+import { cardHasSet, cardSetKey, cardSets } from "./cardSets";
 
 export type CardColorFilter = "Any" | CardColor;
 export type CardTypeFilter = "Any" | CardType;
@@ -61,16 +62,18 @@ export function textListFilterOptions(
 }
 
 export function cardSetFilterOptions(cards: Card[]): CardSetFilterOption[] {
-  const sets = new Map<string, string>();
+  const sets = new Map<string, CardSetFilterOption>();
   for (const card of cards) {
-    if (!sets.has(card.set.code)) sets.set(card.set.code, card.set.name);
+    for (const set of cardSets(card)) {
+      const key = cardSetKey(set.code);
+      if (!sets.has(key)) sets.set(key, { value: set.code, label: set.name });
+    }
   }
 
   return [
     { value: "Any", label: "Any" },
-    ...[...sets.entries()]
-      .sort((left, right) => left[1].localeCompare(right[1]) || left[0].localeCompare(right[0]))
-      .map(([value, label]) => ({ value, label }))
+    ...[...sets.values()]
+      .sort((left, right) => left.label.localeCompare(right.label) || left.value.localeCompare(right.value))
   ];
 }
 
@@ -93,7 +96,8 @@ function searchableText(card: Card): string {
     card.card_type,
     card.rules_text ?? "",
     card.classifications.join(" "),
-    card.keywords.join(" ")
+    card.keywords.join(" "),
+    ...cardSets(card).flatMap((set) => [set.code, set.name])
   ].join(" "));
   cardSearchTextCache.set(card, value);
   return value;
@@ -119,7 +123,7 @@ export function filterCards(cards: Card[], filters: CardFilters): Card[] {
     if (filters.type !== "Any" && card.card_type !== filters.type) return false;
     if (!fieldMatchesNumberFilter(card.ram, filters.ram)) return false;
     if (!fieldMatchesNumberFilter(card.cost, filters.cost)) return false;
-    if (filters.set !== "Any" && card.set.code !== filters.set) return false;
+    if (filters.set !== "Any" && !cardHasSet(card, filters.set)) return false;
     if (filters.classification !== "Any" && !card.classifications.includes(filters.classification)) return false;
     if (filters.keyword !== "Any" && !card.keywords.includes(filters.keyword)) return false;
     if (filters.sellable === "Sellable" && !isSellableCard(card)) return false;

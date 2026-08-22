@@ -94,6 +94,7 @@ test("filters the card database by set", async ({ page }) => {
 
   const results = page.getByRole("region", { name: "Card database results" });
   await expect(results.getByRole("article")).toHaveCount(1);
+  await expect(results.getByRole("img", { name: "Printing set: Set 1 Promos" })).toBeVisible();
   await expect(page.getByText("1 cards", { exact: true })).toBeVisible();
   const clearSetFilter = page.getByRole("button", { name: "Clear Set 1 Promos filter" });
   if (await clearSetFilter.isVisible()) {

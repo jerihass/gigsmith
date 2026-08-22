@@ -63,6 +63,21 @@ describe("validateCardSnapshot", () => {
     });
   });
 
+  it("validates alternate printing set metadata", () => {
+    const snapshot = structuredClone(cyberpunkCardSnapshot) as unknown as {
+      cards: Array<Record<string, unknown>>;
+    };
+    snapshot.cards[0].printings = [{ set: { code: "ALT", name: "Alternate Set" } }];
+
+    expect(validateCardSnapshot(snapshot)).toEqual({ valid: true, errors: [] });
+
+    snapshot.cards[0].printings = [{ set: { code: "", name: "Alternate Set" } }];
+    expect(validateCardSnapshot(snapshot).errors).toContainEqual({
+      path: "cards[0].printings[0].set.code",
+      message: "Expected a non-empty string."
+    });
+  });
+
   it("discards transient image URLs and normalizes stable source references", () => {
     const snapshot = structuredClone(cyberpunkCardSnapshot) as unknown as {
       cards: Array<Record<string, unknown>>;

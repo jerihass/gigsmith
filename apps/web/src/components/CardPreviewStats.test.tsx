@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Card } from "@gigsmith/data-contracts";
-import { CardPreviewIdentity, CardPreviewStats } from "./CardPreviewStats";
+import { CardPreviewIdentity, CardPreviewStats, CardSetBadge } from "./CardPreviewStats";
 
 function card(overrides: Partial<Card> = {}): Card {
   return {
@@ -63,5 +63,20 @@ describe("CardPreviewStats", () => {
     expect(markup).toContain("RAM -");
     expect(markup).toContain("€$ -");
     expect(markup).toContain("Power -");
+  });
+
+  it("renders a compact current-set badge and alternate-printing count", () => {
+    const markup = renderToStaticMarkup(
+      <CardSetBadge card={card({
+        set: { code: "welcometonightcityretail", name: "Welcome to Night City — Retail" },
+        printings: [{ set: { code: "PRM01", name: "Set 1 Promos" } }]
+      })} />
+    );
+
+    expect(markup).toContain("lucide-layers");
+    expect(markup).toContain("WNC");
+    expect(markup).toContain("+1");
+    expect(markup).toContain("Printing set: Welcome to Night City — Retail; also printed in 1 additional set");
+    expect(markup).toContain("Set 1 Promos");
   });
 });

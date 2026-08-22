@@ -7,6 +7,16 @@ export type ReleaseNoteEntry = {
 
 export const releaseNotes: ReleaseNoteEntry[] = [
   {
+    version: "0.1.24",
+    date: "2026-08-22",
+    title: "Multi-Set Card Information",
+    changes: [
+      "Set filters and search now include alternate printings without duplicating cards.",
+      "Added compact current-set references to card database rows.",
+      "Card details now distinguish the current printing from other known sets."
+    ]
+  },
+  {
     version: "0.1.23",
     date: "2026-08-21",
     title: "Set-Aware Card Filters",

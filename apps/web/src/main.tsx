@@ -1,7 +1,7 @@
-import React, { useEffect, useId, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
-import { Info, Layers, Palette, Redo2, RefreshCw, Search, Undo2, X } from "lucide-react";
+import { Info, Layers, Palette, Redo2, Search, Undo2, X } from "lucide-react";
 import { cyberpunkCardDb, cyberpunkGigRequirements, cyberpunkRulesetV1Printable } from "@gigsmith/card-data";
 import type { Card, CardDatabase, Deck, DeckCardEntry, DeckDocumentV1, GigMatchState, ValidationIssue } from "@gigsmith/data-contracts";
 import { decodeDeckSharePayload, deckInputLimits } from "@gigsmith/deck-io";
@@ -32,10 +32,9 @@ import {
   type SellableFilter
 } from "./cardFilters";
 import { CardDetailDialog } from "./components/CardDetailDialog";
-import { CardArt } from "./components/CardArt";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import { AppNavigation } from "./components/AppNavigation";
-import { CardPreviewIdentity, CardPreviewStats, CardSetBadge } from "./components/CardPreviewStats";
+import { CardBrowser } from "./components/CardBrowser";
 import { CardDatabaseRefresh } from "./components/CardDatabaseRefresh";
 import { DeckBaselineNotice } from "./components/DeckBaselineNotice";
 import { DeckCurveSummary } from "./components/DeckCurveSummary";
@@ -104,9 +103,6 @@ declare global {
     gigsmithRoot?: Root;
   }
 }
-
-const colorOptions: CardColorFilter[] = ["Any", "Red", "Yellow", "Green", "Blue"];
-const typeOptions: CardTypeFilter[] = ["Any", "Legend", "Unit", "Program", "Gear"];
 
 const LazyGigWorkspace = React.lazy(async () => ({
   default: (await import("./components/GigWorkspace")).GigWorkspace
@@ -251,7 +247,6 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
       )
     )
   ).current;
-  const advancedFiltersId = useId();
   const cardDb = cardDatabaseState.cardDb;
   const deck = getActiveDeck(library);
   const activeHistory = getDeckHistory(deckHistories, deck.id);
@@ -289,12 +284,18 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     setSellableFilter("Any");
     setRamCompatibilityFilter("All");
   };
-  const openAdvancedFiltersFromMobileSearch = () => {
-    setAdvancedFiltersOpen(true);
-    window.requestAnimationFrame(() => document.getElementById(advancedFiltersId)?.scrollIntoView({ block: "nearest" }));
-  };
   const scrollToMobileCardSearch = () => {
-    document.getElementById("mobile-card-search-input")?.scrollIntoView({ block: "start" });
+    const focusSearch = () => {
+      const input = document.getElementById("mobile-card-search-input") as HTMLInputElement | null;
+      input?.scrollIntoView({ block: "start" });
+      input?.focus();
+    };
+    if (activeView !== "cards") {
+      handleViewChange("cards");
+      window.requestAnimationFrame(focusSearch);
+      return;
+    }
+    focusSearch();
   };
   const deckDetailCards = useMemo(() => {
     const seen = new Set<string>();
@@ -310,7 +311,6 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const deckDetailIndex = detailNavigationContext === "deck"
     ? deckDetailCards.findIndex((card) => card.id === detailCardId)
     : -1;
-
   const validation = useMemo(
     () => measurePerformance(
       "deck.validation",
@@ -418,6 +418,9 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     sellableFilter,
     typeFilter
   ]);
+  const browserDetailIndex = detailNavigationContext === "database"
+    ? filteredCards.findIndex((card) => card.id === detailCardId)
+    : -1;
 
   useEffect(() => {
     applyThemePreference(theme);
@@ -479,7 +482,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   }, [deck.id]);
 
   useEffect(() => {
-    if (activeView !== "deck") setMobileDeckDrawerOpen(false);
+    if (activeView !== "deck" && activeView !== "cards") setMobileDeckDrawerOpen(false);
   }, [activeView]);
 
   useEffect(() => {
@@ -732,6 +735,12 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     setDetailCardId(deckDetailCards[nextIndex].id);
   }
 
+  function navigateBrowserDetails(offset: -1 | 1) {
+    if (filteredCards.length < 2 || browserDetailIndex < 0) return;
+    const nextIndex = (browserDetailIndex + offset + filteredCards.length) % filteredCards.length;
+    setDetailCardId(filteredCards[nextIndex].id);
+  }
+
   function addLegend(card: Card) {
     if (hasDeckEntry(deck.legends, card.id)) return;
     persist({ ...deck, legends: adjustDeckEntry(deck.legends, card.id, 1) });
@@ -884,6 +893,17 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               >Delete</button>
             </div>
           </div>
+          <div className="deck-browser-callout">
+            <div>
+              <p className="section-kicker">Card pool</p>
+              <strong>Browse and add cards</strong>
+              <span>Search the full card library without leaving the deck context.</span>
+            </div>
+            <button className="primary" onClick={() => handleViewChange("cards")} type="button">
+              <Search size={16} aria-hidden="true" />
+              Browse cards
+            </button>
+          </div>
           {pendingDelete && (
             <div className="delete-confirmation" role="alert">
               <span>Delete “{deck.name}” from this device?</span>
@@ -996,258 +1016,8 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           </div>
         </section>
 
-        <section className="panel card-database-panel" id="deck-builder-search">
-          <div className="panel-title">
-            <h2>Card Database</h2>
-            <div className="panel-actions card-database-actions">
-              <label className="binary-field card-art-toggle" title="Loads artwork from the external card-data source">
-                <input
-                  type="checkbox"
-                  checked={cardArtEnabled}
-                  onChange={(event) => handleCardArtPreference(event.target.checked)}
-                />
-                <span>External art</span>
-              </label>
-              {cardArtEnabled && (
-                <span className="result-count" aria-live="polite">
-                  {cardArtSourceStatus === "ready"
-                    ? `${cardArtCoverage.available} / ${cardArtCoverage.total} art`
-                    : cardArtSourceStatus === "loading" ? "Loading art" : "Art unavailable"}
-                </span>
-              )}
-              {cardArtEnabled && (
-                cardArtSourceStatus === "unavailable" ||
-                (cardArtSourceStatus === "ready" && cardArtCoverage.available < cardArtCoverage.total)
-              ) && (
-                <button
-                  aria-label="Retry external artwork"
-                  className="icon-button"
-                  onClick={retryExternalCardArt}
-                  title="Retry external artwork"
-                  type="button"
-                >
-                  <RefreshCw size={16} aria-hidden="true" />
-                </button>
-              )}
-              <span className="result-count">{filteredCards.length} cards</span>
-            </div>
-          </div>
-          <div className="mobile-card-search-bar" role="search" aria-label="Card search">
-            <label>
-              <span>Search</span>
-              <input
-                id="mobile-card-search-input"
-                aria-label="Search cards"
-                placeholder="Name, text, faction..."
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-            </label>
-            <button
-              aria-controls={advancedFiltersId}
-              aria-expanded={advancedFiltersOpen}
-              onClick={openAdvancedFiltersFromMobileSearch}
-              type="button"
-            >
-              Filters{activeAdvancedFilterCount > 0 ? ` ${activeAdvancedFilterCount}` : ""}
-            </button>
-            <span aria-live="polite">{filteredCards.length}</span>
-          </div>
-          <div className="filter-grid">
-            <label className="field search-field">
-              <span>Search</span>
-              <input placeholder="Name, text, faction..." value={query} onChange={(event) => setQuery(event.target.value)} />
-            </label>
-            <label className="field">
-              <span>Sort</span>
-              <select value={cardSort} onChange={(event) => setCardSort(event.target.value as CardSort)}>
-                {(["Snapshot", "Name", "Cost", "RAM", "Power", "Color", "Type"] as const).map((option) => <option key={option}>{option}</option>)}
-              </select>
-            </label>
-            <label className="field">
-              <span>Deck</span>
-              <select value={membershipFilter} onChange={(event) => setMembershipFilter(event.target.value as DeckMembershipFilter)}>
-                {(["All", "In Deck", "Not In Deck"] as const).map((option) => <option key={option}>{option}</option>)}
-              </select>
-            </label>
-            <button
-              aria-controls={advancedFiltersId}
-              aria-expanded={advancedFiltersOpen}
-              className="filter-toggle"
-              onClick={() => setAdvancedFiltersOpen((open) => !open)}
-              type="button"
-            >
-              Filters{activeAdvancedFilterCount > 0 ? ` ${activeAdvancedFilterCount}` : ""}
-            </button>
-            {activeAdvancedFilterChips.length > 0 && (
-              <div className="filter-chips" aria-label="Active card filters">
-                {activeAdvancedFilterChips.map((chip) => (
-                  <button aria-label={`Clear ${chip.label} filter`} key={chip.key} onClick={chip.clear} type="button">
-                    {chip.label}
-                    <span aria-hidden="true">x</span>
-                  </button>
-                ))}
-              </div>
-            )}
-            <div className="filter-secondary" data-expanded={advancedFiltersOpen ? "true" : "false"} id={advancedFiltersId}>
-              <label className="field">
-                <span>Color</span>
-                <select value={colorFilter} onChange={(event) => setColorFilter(event.target.value as CardColorFilter)}>
-                  {colorOptions.map((option) => <option key={option}>{option}</option>)}
-                </select>
-              </label>
-              <label className="field">
-                <span>Type</span>
-                <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as CardTypeFilter)}>
-                  {typeOptions.map((option) => <option key={option}>{option}</option>)}
-                </select>
-              </label>
-              <label className="field">
-                <span>Set</span>
-                <select value={setFilter} onChange={(event) => setSetFilter(event.target.value as CardSetFilter)}>
-                  {setOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </select>
-              </label>
-              <label className="field">
-                <span>RAM</span>
-                <select value={ramFilter} onChange={(event) => setRamFilter(event.target.value as NumberFilter)}>
-                  {ramOptions.map((option) => (
-                    <option key={option} value={option}>{option === "none" ? "None" : option}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                <span>Cost</span>
-                <select value={costFilter} onChange={(event) => setCostFilter(event.target.value as NumberFilter)}>
-                  {costOptions.map((option) => (
-                    <option key={option} value={option}>{option === "none" ? "None" : option}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                <span>Classification</span>
-                <select value={classificationFilter} onChange={(event) => setClassificationFilter(event.target.value as TextListFilter)}>
-                  {classificationOptions.map((option) => <option key={option}>{option}</option>)}
-                </select>
-              </label>
-              {keywordOptions.length > 1 && (
-                <label className="field">
-                  <span>Keyword</span>
-                  <select value={keywordFilter} onChange={(event) => setKeywordFilter(event.target.value as TextListFilter)}>
-                    {keywordOptions.map((option) => <option key={option}>{option}</option>)}
-                  </select>
-                </label>
-              )}
-              <label className="field">
-                <span>Sellable</span>
-                <select value={sellableFilter} onChange={(event) => setSellableFilter(event.target.value as SellableFilter)}>
-                  {(["Any", "Sellable", "Not Sellable"] as const).map((option) => <option key={option}>{option}</option>)}
-                </select>
-              </label>
-              <label className="field">
-                <span>RAM fit</span>
-                <select
-                  value={ramCompatibilityFilter}
-                  onChange={(event) => setRamCompatibilityFilter(event.target.value as RamCompatibilityFilter)}
-                >
-                  {(["All", "Compatible", "Incompatible"] as const).map((option) => <option key={option}>{option}</option>)}
-                </select>
-              </label>
-              <button className="filter-clear" disabled={activeAdvancedFilterCount === 0} onClick={clearAdvancedFilters} type="button">
-                Clear filters
-              </button>
-            </div>
-          </div>
-          {deckEditNotice && (
-            <div
-              className={`deck-edit-notice ${deckEditNotice.severity}`}
-              role={deckEditNotice.severity === "error" ? "alert" : "status"}
-            >
-              {deckEditNotice.message}
-            </div>
-          )}
-          <section aria-label="Card database results" className="card-list">
-            {filteredCards.map((card) => {
-              const legendSelected = card.card_type === "Legend" && hasDeckEntry(deck.legends, card.id);
-              const deckCopies = deckCountById.get(card.id) ?? 0;
-              const compatibility = ramCompatibilityById.get(card.id);
-              const addition = additionEvaluationById.get(card.id);
-              const atCopyLimit = addition?.blockers.some((blocker) => blocker.code === "max-copies") ?? false;
-              return (
-                <article aria-label={card.display_name} className="card-row" data-color={card.color.toLowerCase()} key={card.id}>
-                  <CardArt
-                    card={card}
-                    enabled={cardArtEnabled}
-                    source={selectExternalCardArtUrl(card, cardArtUrls)}
-                    sourcePending={cardArtSourceStatus === "loading"}
-                    variant="thumbnail"
-                  />
-                  <div className="card-copy">
-                    <strong className="card-title-line">
-                      {legendSelected && (
-                        <span className="deck-membership-badge" aria-label="Legend selected in deck">Selected</span>
-                      )}
-                      {!legendSelected && deckCopies > 0 && (
-                        <span className="deck-membership-badge" aria-label={`${deckCopies} ${deckCopies === 1 ? "copy" : "copies"} in deck`}>
-                          x{deckCopies}
-                        </span>
-                      )}
-                      <span className="card-title-text">{card.display_name}</span>
-                      <CardSetBadge card={card} />
-                    </strong>
-                    <span>
-                      <CardPreviewIdentity card={card} /> · <CardPreviewStats card={card} />
-                    </span>
-                    {compatibility?.status === "compatible" && (
-                      <small className="ram-compatibility compatible">RAM fit</small>
-                    )}
-                    {compatibility?.status === "incompatible" && (
-                      <small className="ram-compatibility incompatible">
-                        Over RAM · needs {compatibility.requiredRam}, has {compatibility.availableRam}
-                      </small>
-                    )}
-                    {compatibility?.status === "unknown" && (
-                      <small className="ram-compatibility unknown">RAM unknown</small>
-                    )}
-                  </div>
-                  <div className="card-actions">
-                    <button
-                      className="card-details-action"
-                      onClick={(event) => openCardDetails(card, event.currentTarget)}
-                    >Details</button>
-                    {card.card_type === "Legend" ? (
-                      legendSelected ? (
-                        <button onClick={() => removeLegend(card)}>Remove</button>
-                      ) : (
-                        <button onClick={() => addLegend(card)}>Add Legend</button>
-                      )
-                    ) : (
-                      <div className="card-action-group">
-                        <button
-                          disabled={deckCopies === 0}
-                          aria-label={`Remove one ${card.display_name}`}
-                          title={deckCopies > 0 ? "Remove one" : "Not in deck"}
-                          onClick={() => adjustMainCard(card, -1)}
-                          className="card-remove-copy-action"
-                        >−</button>
-                        <button
-                          disabled={!addition?.allowed}
-                          title={addition?.blockers[0]?.message}
-                          onClick={() => adjustMainCard(card, 1)}
-                        >{atCopyLimit ? `Max ${addition?.maxCopies}` : "+ Main"}</button>
-                      </div>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
-            {filteredCards.length === 0 && (
-              <div className="empty-state">No cards match the current filters.</div>
-            )}
-          </section>
-        </section>
         </div>
-        {activeView === "deck" && createPortal(
+        {(activeView === "deck" || activeView === "cards") && createPortal(
           <>
         <nav className="mobile-deck-sheet mobile-deck-dock" aria-label="Mobile deck builder shortcuts">
           <div className="mobile-deck-dock-status">
@@ -1280,7 +1050,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
             <span style={{ inlineSize: `${Math.min(100, (entryCount(deck.main) / 40) * 100)}%` }} />
           </div>
           <div className="mobile-deck-dock-actions">
-            <button onClick={scrollToMobileCardSearch} type="button"><Search size={17} aria-hidden="true" />Search</button>
+            <button onClick={scrollToMobileCardSearch} type="button"><Search size={17} aria-hidden="true" />{activeView === "cards" ? "Search" : "Cards"}</button>
             <button
               aria-controls="mobile-deck-drawer"
               aria-expanded={mobileDeckDrawerOpen}
@@ -1412,6 +1182,73 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           </>,
           document.body
         )}
+      </section>
+
+      <section
+        className="app-view"
+        id="app-panel-cards"
+        role="tabpanel"
+        aria-labelledby="app-tab-cards"
+        hidden={activeView !== "cards"}
+      >
+        <div className="cards-workspace">
+          <CardBrowser
+            deck={deck}
+            decks={library.decks}
+            deckLegal={validation.legal}
+            deckIssueCount={validation.errors.length}
+            filteredCards={filteredCards}
+            deckCountById={deckCountById}
+            ramCompatibilityById={ramCompatibilityById}
+            additionEvaluationById={additionEvaluationById}
+            cardArtEnabled={cardArtEnabled}
+            cardArtUrls={cardArtUrls}
+            cardArtCoverage={cardArtCoverage}
+            cardArtSourceStatus={cardArtSourceStatus}
+            onCardArtPreferenceChange={handleCardArtPreference}
+            onRetryExternalCardArt={retryExternalCardArt}
+            query={query}
+            onQueryChange={setQuery}
+            colorFilter={colorFilter}
+            onColorFilterChange={setColorFilter}
+            typeFilter={typeFilter}
+            onTypeFilterChange={setTypeFilter}
+            ramFilter={ramFilter}
+            onRamFilterChange={setRamFilter}
+            costFilter={costFilter}
+            onCostFilterChange={setCostFilter}
+            setFilter={setFilter}
+            onSetFilterChange={setSetFilter}
+            classificationFilter={classificationFilter}
+            onClassificationFilterChange={setClassificationFilter}
+            keywordFilter={keywordFilter}
+            onKeywordFilterChange={setKeywordFilter}
+            sellableFilter={sellableFilter}
+            onSellableFilterChange={setSellableFilter}
+            membershipFilter={membershipFilter}
+            onMembershipFilterChange={setMembershipFilter}
+            ramCompatibilityFilter={ramCompatibilityFilter}
+            onRamCompatibilityFilterChange={setRamCompatibilityFilter}
+            cardSort={cardSort}
+            onCardSortChange={setCardSort}
+            ramOptions={ramOptions}
+            costOptions={costOptions}
+            setOptions={setOptions}
+            classificationOptions={classificationOptions}
+            keywordOptions={keywordOptions}
+            advancedFiltersOpen={advancedFiltersOpen}
+            onAdvancedFiltersOpenChange={setAdvancedFiltersOpen}
+            activeAdvancedFilterChips={activeAdvancedFilterChips}
+            onClearAdvancedFilters={clearAdvancedFilters}
+            deckEditNotice={deckEditNotice}
+            onOpenCardDetails={openCardDetails}
+            onAddLegend={addLegend}
+            onRemoveLegend={removeLegend}
+            onAdjustMainCard={adjustMainCard}
+            onSelectDeck={handleSelectDeck}
+            onGoToDeck={() => handleViewChange("deck")}
+          />
+        </div>
       </section>
 
       <section
@@ -1573,12 +1410,21 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         artSourcePending={cardArtSourceStatus === "loading"}
         sourceUrl={cardDb.metadata.sourceUrl}
         navigation={deckDetailIndex >= 0 && deckDetailCards.length > 1 ? {
+          scope: "deck" as const,
           position: deckDetailIndex + 1,
           total: deckDetailCards.length,
           previousCardName: deckDetailCards[(deckDetailIndex - 1 + deckDetailCards.length) % deckDetailCards.length].display_name,
           nextCardName: deckDetailCards[(deckDetailIndex + 1) % deckDetailCards.length].display_name,
           onPrevious: () => navigateDeckDetails(-1),
           onNext: () => navigateDeckDetails(1)
+        } : browserDetailIndex >= 0 && filteredCards.length > 1 ? {
+          scope: "browser" as const,
+          position: browserDetailIndex + 1,
+          total: filteredCards.length,
+          previousCardName: filteredCards[(browserDetailIndex - 1 + filteredCards.length) % filteredCards.length].display_name,
+          nextCardName: filteredCards[(browserDetailIndex + 1) % filteredCards.length].display_name,
+          onPrevious: () => navigateBrowserDetails(-1),
+          onNext: () => navigateBrowserDetails(1)
         } : undefined}
         onClose={closeCardDetails}
       />

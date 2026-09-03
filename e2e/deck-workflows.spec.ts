@@ -11,7 +11,13 @@ function mainDeckCard(page: Page, name: string) {
   return page.getByRole("list", { name: "Main deck cards" }).getByRole("listitem", { name: new RegExp(`^${name},`) });
 }
 
+async function openCards(page: Page) {
+  const cardsTab = page.getByRole("tab", { name: "Cards", exact: true });
+  if ((await cardsTab.getAttribute("aria-selected")) !== "true") await cardsTab.click();
+}
+
 async function cardSearch(page: Page) {
+  await openCards(page);
   const mobileSearch = page.getByRole("search", { name: "Card search" }).getByRole("textbox", { name: "Search cards" });
   return await mobileSearch.isVisible()
     ? mobileSearch
@@ -19,6 +25,7 @@ async function cardSearch(page: Page) {
 }
 
 async function showAdvancedCardFilters(page: Page) {
+  await openCards(page);
   const mobileToggle = page.getByRole("search", { name: "Card search" }).getByRole("button", { name: /^Filters/ });
   if (await mobileToggle.isVisible()) {
     if ((await mobileToggle.getAttribute("aria-expanded")) !== "true") await mobileToggle.click();
@@ -38,12 +45,30 @@ test.beforeEach(async ({ page }) => {
 test("creates and edits a deck with immediate validation", async ({ page }) => {
   await page.getByRole("button", { name: "New", exact: true }).click();
   await expect(page.getByLabel("Deck name", { exact: true })).toHaveValue("Untitled Deck");
-  await expect(page.locator(".status")).toContainText("issue");
+  await expect(page.locator(".app-header .status")).toContainText("issue");
 
   await (await cardSearch(page)).fill("Chrome Reverie");
   await page.getByRole("button", { name: "+ Main", exact: true }).click();
-  await expect(page.getByText("1 / 40-50", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Active deck summary").getByText("1 / 40-50", { exact: true })).toBeVisible();
   await expect(cardResult(page, "Chrome Reverie").getByLabel("1 copy in deck")).toBeVisible();
+});
+
+test("keeps card browsing in a standalone tab while editing the active deck", async ({ page }) => {
+  await openCards(page);
+
+  const cardsView = page.getByRole("tabpanel", { name: "Cards" });
+  await expect(cardsView).toBeVisible();
+  await expect(page.getByRole("tabpanel", { name: "Deck" })).toBeHidden();
+  await expect(cardsView.getByRole("heading", { name: "Card Library" })).toBeVisible();
+  await expect(cardsView.getByLabel("Active deck summary")).toContainText("Starter Legal Shell");
+
+  await (await cardSearch(page)).fill("Chrome Reverie");
+  await cardResult(page, "Chrome Reverie").getByRole("button", { name: "+ Main", exact: true }).click();
+  await expect(cardsView.getByLabel("Active deck summary")).toContainText("1 / 40-50");
+
+  await cardsView.getByRole("button", { name: "Deck editor", exact: true }).click();
+  await expect(page.getByRole("tab", { name: "Deck" })).toHaveAttribute("aria-selected", "true");
+  await expect(mainDeckCard(page, "Chrome Reverie")).toBeVisible();
 });
 
 test("prevents a fourth copy through deck editing controls", async ({ page }) => {
@@ -51,7 +76,7 @@ test("prevents a fourth copy through deck editing controls", async ({ page }) =>
   const card = page.getByRole("article").filter({ hasText: "Swordwise Huscle" });
   await expect(card.getByRole("button", { name: "Max 3" })).toBeDisabled();
   await expect(page.getByRole("button", { name: /Swordwise Huscle already has the maximum 3 copies/ })).toBeDisabled();
-  await expect(page.getByText("40 / 40-50", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Active deck summary").getByText("40 / 40-50", { exact: true })).toBeVisible();
 });
 
 test("repairs a previously saved over-limit deck without normalizing it on load", async ({ page }) => {
@@ -82,9 +107,10 @@ test("filters by Legend RAM fit and allows a warned incompatible addition", asyn
   await card.getByRole("button", { name: "+ Main" }).click();
 
   await expect(page.locator(".deck-edit-notice")).toContainText("requires 6 Yellow RAM");
+  await page.getByRole("tab", { name: "Deck", exact: true }).click();
   const deckCard = mainDeckCard(page, "Adam Smasher — Metal Over Meat");
   await expect(deckCard.getByText("Over RAM", { exact: false })).toBeVisible();
-  await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
+  await expect(page.getByRole("tabpanel", { name: "Deck" }).getByText("41 / 40-50", { exact: true })).toBeVisible();
 });
 
 test("filters the card database by set", async ({ page }) => {
@@ -115,18 +141,20 @@ test("clears stale RAM warnings after Legends make the card compatible", async (
   await (await cardSearch(page)).fill("Goro Takemura — Vengeful Bodyguard");
   await cardResult(page, "Goro Takemura — Vengeful Bodyguard").getByRole("button", { name: "Add Legend" }).click();
   await expect(page.locator(".deck-edit-notice")).toBeHidden();
+  await page.getByRole("tab", { name: "Deck", exact: true }).click();
   await expect(mainDeckCard(page, "Wraith Marauders").getByText("Over RAM", { exact: false })).toHaveCount(0);
 });
 
 test("undoes and redoes an active-deck card edit", async ({ page }) => {
   await (await cardSearch(page)).fill("Chrome Reverie");
   await page.getByRole("button", { name: "+ Main", exact: true }).click();
-  await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Active deck summary").getByText("41 / 40-50", { exact: true })).toBeVisible();
 
+  await page.getByRole("tab", { name: "Deck", exact: true }).click();
   await page.getByRole("button", { name: "Undo deck edit" }).click();
-  await expect(page.getByText("40 / 40-50", { exact: true })).toBeVisible();
+  await expect(page.getByRole("tabpanel", { name: "Deck" }).getByText("40 / 40-50", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Redo deck edit" }).click();
-  await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
+  await expect(page.getByRole("tabpanel", { name: "Deck" }).getByText("41 / 40-50", { exact: true })).toBeVisible();
 });
 
 test("saves, compares, restores, and exports deck versions explicitly", async ({ page }) => {
@@ -137,12 +165,13 @@ test("saves, compares, restores, and exports deck versions explicitly", async ({
   await (await cardSearch(page)).fill("Chrome Reverie");
   await page.getByRole("button", { name: "+ Main", exact: true }).click();
 
+  await page.getByRole("tab", { name: "Deck", exact: true }).click();
   await expect(page.getByLabel("Version comparison summary")).toContainText("40");
   await expect(page.getByLabel("Version comparison summary")).toContainText("41");
   await expect(page.getByText("Chrome Reverie 0 -> 1")).toBeVisible();
 
   await page.getByRole("button", { name: "Restore as current edit" }).click();
-  await expect(page.getByText("40 / 40-50", { exact: true })).toBeVisible();
+  await expect(page.getByRole("tabpanel", { name: "Deck" }).getByText("40 / 40-50", { exact: true })).toBeVisible();
   await expect(page.getByText("No card-count changes from this saved version.")).toBeVisible();
 
   await page.getByRole("tab", { name: "Transfer" }).click();

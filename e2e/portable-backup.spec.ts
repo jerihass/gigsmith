@@ -54,7 +54,8 @@ test("merges backup decks without overwriting the active device deck", async ({ 
   await page.getByLabel("Add backup decks only").check();
   await page.getByRole("button", { name: "Confirm restore" }).click();
   await page.getByRole("tab", { name: "Deck" }).click();
-  await expect(page.getByLabel("Deck name", { exact: true })).toHaveValue("Current Device Deck");
-  await expect(page.getByLabel("Active deck")).toContainText("Current Device Deck");
-  await expect(page.locator(".deck-picker select option")).toHaveCount(2);
+  const deckPanel = page.getByRole("tabpanel", { name: "Deck" });
+  await expect(deckPanel.getByLabel("Deck name", { exact: true })).toHaveValue("Current Device Deck");
+  await expect(deckPanel.getByLabel("Active deck")).toContainText("Current Device Deck");
+  await expect(deckPanel.locator(".deck-picker select option")).toHaveCount(2);
 });

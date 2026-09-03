@@ -133,6 +133,25 @@
     grid-template-columns: 1fr;
   }
 
+  .card-browser-context {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .card-browser-context-summary {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .card-browser-deck-picker {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .card-browser-deck-action {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
   .delete-confirmation {
     align-items: stretch;
     flex-direction: column;
@@ -259,6 +278,10 @@
     padding-bottom: calc(210px + env(safe-area-inset-bottom));
   }
 
+  #app-panel-cards:not([hidden]) {
+    padding-bottom: calc(210px + env(safe-area-inset-bottom));
+  }
+
   .header-context {
     display: grid;
     gap: 8px;
@@ -308,6 +331,15 @@
     gap: 12px;
   }
 
+  .deck-browser-callout {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .deck-browser-callout button {
+    justify-content: center;
+  }
+
   .deck-panel,
   .card-database-panel {
     scroll-margin-top: 8px;
@@ -330,6 +362,35 @@
   .deck-panel .panel-actions > .result-count,
   .card-database-panel .panel-actions > .result-count {
     align-self: center;
+  }
+
+  .card-browser-context {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .card-browser-context-summary {
+    grid-column: 1;
+    grid-row: auto;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .card-browser-context-summary .card-browser-deck-count {
+    grid-column: 1;
+  }
+
+  .card-browser-context-summary .card-browser-status {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .card-browser-deck-picker,
+  .card-browser-deck-action {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .card-browser-deck-action {
+    width: 100%;
   }
 
   .deck-actions {

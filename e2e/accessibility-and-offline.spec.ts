@@ -13,7 +13,7 @@ async function expectNoSeriousAccessibilityViolations(page: Page, label: string)
 }
 
 async function expectViewsAccessible(page: Page, label: string) {
-  for (const view of ["Deck", "Analysis", "Gigs", "Transfer"]) {
+  for (const view of ["Deck", "Cards", "Analysis", "Gigs", "Transfer"]) {
     await page.getByRole("tab", { name: view }).click();
     await expectNoSeriousAccessibilityViolations(page, `${view} ${label}`);
   }
@@ -23,7 +23,7 @@ test("supports keyboard tab navigation and has no serious accessibility violatio
   const deckTab = page.getByRole("tab", { name: "Deck" });
   await deckTab.focus();
   await deckTab.press("ArrowRight");
-  await expect(page.getByRole("tab", { name: "Analysis" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("tab", { name: "Cards" })).toHaveAttribute("aria-selected", "true");
 
   await expectViewsAccessible(page, "dark");
 });

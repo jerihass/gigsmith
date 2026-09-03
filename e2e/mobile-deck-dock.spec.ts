@@ -31,6 +31,11 @@ test("keeps the deck summary attached to the viewport while scrolling", async ({
   await page.evaluate(() => window.scrollBy(0, -Math.min(900, window.scrollY)));
   await expect.poll(dockLayout).toMatchObject({ bottomGap: 0, parentIsBody: true, position: "fixed" });
 
+  await page.getByRole("tab", { name: "Cards", exact: true }).click();
+  await expect(dock.getByRole("button", { name: "Search", exact: true })).toBeVisible();
+  await dock.getByRole("button", { name: "Search", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Search cards" })).toBeFocused();
+
   await page.getByRole("tab", { name: "Analysis" }).click();
   await expect(dock).toHaveCount(0);
 });

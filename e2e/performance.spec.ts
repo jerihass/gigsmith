@@ -28,6 +28,7 @@ test("keeps core phone workflows within measured response budgets", async ({ pag
     await expect(page.getByRole("heading", { name: "Gigsmith" })).toBeVisible();
     const initialRenderMs = await pageTime(page);
 
+    await page.getByRole("tab", { name: "Cards", exact: true }).click();
     const search = page
       .getByRole("search", { name: "Card search" })
       .getByRole("textbox", { name: "Search cards" });
@@ -39,7 +40,7 @@ test("keeps core phone workflows within measured response budgets", async ({ pag
 
     startedAt = await pageTime(page);
     await filteredCard.getByRole("button", { name: "+ Main", exact: true }).click();
-    await expect(page.getByText("41 / 40-50", { exact: true })).toBeVisible();
+    await expect(page.getByLabel("Active deck summary").getByText("41 / 40-50", { exact: true })).toBeVisible();
     const deckEditResponseMs = await pageTime(page) - startedAt;
 
     await page.getByRole("tab", { name: "Analysis", exact: true }).click();

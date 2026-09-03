@@ -3,6 +3,7 @@ import { appViews, type AppView } from "../appViews";
 
 const labels: Record<AppView, string> = {
   deck: "Deck",
+  cards: "Cards",
   analysis: "Analysis",
   journal: "Journal",
   gigs: "Gigs",

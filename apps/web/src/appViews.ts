@@ -1,4 +1,4 @@
-export const appViews = ["deck", "analysis", "journal", "gigs", "print", "transfer"] as const;
+export const appViews = ["deck", "cards", "analysis", "journal", "gigs", "print", "transfer"] as const;
 export type AppView = typeof appViews[number];
 
 export const appViewStorageKey = "gigsmith.active-view.v1";

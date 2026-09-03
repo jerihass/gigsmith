@@ -1,10 +1,13 @@
 # Application Navigation
 
-Gigsmith organizes its tools into four locally selected views:
+Gigsmith organizes its tools into seven locally selected views:
 
-- **Deck:** deck library, deck editor, card database, and deck counts.
+- **Deck:** deck library, deck editor, and deck counts.
+- **Cards:** searchable card library, filters, card details, and active-deck additions.
 - **Analysis:** RAM limits, validation, Eddy curve, hand analysis, and deck-driven Gig odds.
+- **Journal:** playtest records tied to deck versions.
 - **Gigs:** fixed 12-die match state, turn flow, Street Cred, and win tracking.
+- **Print:** deck reports and printable proxy cards.
 - **Transfer:** text/JSON import, export, and share links.
 
 The active view is stored under `gigsmith.active-view.v1`. It is presentation

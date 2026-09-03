@@ -105,6 +105,56 @@
   margin-bottom: 14px;
 }
 
+.deck-builder-workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cards-workspace {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.deck-browser-callout {
+  align-items: center;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  border-radius: 4px;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 12px;
+}
+
+.deck-browser-callout > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.deck-browser-callout .section-kicker {
+  color: var(--cyan-text);
+  margin-bottom: 0;
+}
+
+.deck-browser-callout strong {
+  color: var(--text);
+}
+
+.deck-browser-callout span:not(.section-kicker) {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.deck-browser-callout button {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
 .deck-actions {
   display: flex;
   flex-wrap: wrap;
@@ -301,6 +351,69 @@ textarea {
 .deck-panel,
 .card-database-panel {
   scroll-margin-top: 12px;
+}
+
+.card-browser-context {
+  align-items: end;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.4fr) auto;
+  margin: 16px 0;
+  padding: 10px;
+}
+
+.card-browser-context-summary {
+  align-items: center;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  min-width: 0;
+}
+
+.card-browser-context-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.card-browser-context-summary strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-browser-deck-count {
+  color: var(--cyan-text);
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.card-browser-status {
+  border-radius: 3px;
+  font-size: 0.76rem;
+  padding: 0.45rem 0.65rem;
+  white-space: nowrap;
+}
+
+.card-browser-status.legal {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.card-browser-status.illegal {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.card-browser-deck-action {
+  min-height: 40px;
+  white-space: nowrap;
 }
 
 .mobile-deck-dock {

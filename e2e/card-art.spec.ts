@@ -26,6 +26,10 @@ async function routeArtSource(page: Page) {
   }));
 }
 
+async function openCards(page: Page) {
+  await page.getByRole("tab", { name: "Cards", exact: true }).click();
+}
+
 test("makes no external art request until the preference is enabled", async ({ page }) => {
   const artRequests: string[] = [];
   const sourceRequests: string[] = [];
@@ -36,6 +40,7 @@ test("makes no external art request until the preference is enabled", async ({ p
   await routeArtSource(page);
   await page.route(artHostPattern, (route) => route.fulfill({ status: 200, contentType: "image/png", body: transparentPng }));
   await page.goto("/");
+  await openCards(page);
 
   await expect(page.locator("img[src*='dstcynss47vun.cloudfront.net']")).toHaveCount(0);
   expect(artRequests).toEqual([]);
@@ -45,6 +50,7 @@ test("makes no external art request until the preference is enabled", async ({ p
   await preference.check();
   await expect(page.locator("img[src*='dstcynss47vun.cloudfront.net']")).toHaveCount(snapshot.cards.length);
   await expect.poll(() => sourceRequests.length).toBe(1);
+  await page.getByRole("article").filter({ hasText: "V — StreetKid" }).scrollIntoViewIfNeeded();
   await expect.poll(() => artRequests.length).toBeGreaterThan(0);
 
   await preference.uncheck();
@@ -55,9 +61,11 @@ test("keeps card text and actions available when artwork fails", async ({ page }
   await routeArtSource(page);
   await page.route(artHostPattern, (route) => route.abort());
   await page.goto("/");
+  await openCards(page);
   await page.getByLabel("External art").check();
 
   const firstCard = page.getByRole("article").filter({ hasText: "V — StreetKid" });
+  await firstCard.scrollIntoViewIfNeeded();
   await expect(firstCard.getByText("Art unavailable")).toBeVisible();
   await expect(firstCard.getByRole("button", { name: "Details" })).toBeEnabled();
   await firstCard.getByRole("button", { name: "Details" }).click();
@@ -71,6 +79,7 @@ test("keeps responsive card text beside enabled artwork", async ({ page }) => {
   await routeArtSource(page);
   await page.route(artHostPattern, (route) => route.fulfill({ status: 200, contentType: "image/png", body: transparentPng }));
   await page.goto("/");
+  await openCards(page);
   await page.getByLabel("External art").check();
 
   const firstCard = page.getByRole("article").filter({ hasText: "V — StreetKid" });
@@ -90,6 +99,7 @@ test("keeps text-only card workflows usable offline with art enabled", async ({ 
   await routeArtSource(page);
   await page.route(artHostPattern, (route) => route.abort());
   await page.goto("/");
+  await openCards(page);
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });
   await page.reload({ waitUntil: "domcontentloaded" });
   await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);

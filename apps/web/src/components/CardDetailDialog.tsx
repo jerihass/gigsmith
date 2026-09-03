@@ -21,6 +21,7 @@ export function CardDetailDialog({
   artSourcePending: boolean;
   sourceUrl: string;
   navigation?: {
+    scope: "deck" | "browser";
     position: number;
     total: number;
     previousCardName: string;
@@ -79,14 +80,17 @@ export function CardDetailDialog({
           </header>
 
           {navigation && (
-            <nav className="card-detail-navigation" aria-label="Deck card details">
+            <nav
+              className="card-detail-navigation"
+              aria-label={navigation.scope === "deck" ? "Deck card details" : "Filtered card results"}
+            >
               <button
                 className="icon-button"
                 aria-label={`Previous card: ${navigation.previousCardName}`}
                 title={`Previous: ${navigation.previousCardName}`}
                 onClick={navigation.onPrevious}
               ><ChevronLeft size={19} aria-hidden="true" /></button>
-              <span>{navigation.position} of {navigation.total} in deck</span>
+              <span>{navigation.position} of {navigation.total} {navigation.scope === "deck" ? "in deck" : "matching cards"}</span>
               <button
                 className="icon-button"
                 aria-label={`Next card: ${navigation.nextCardName}`}

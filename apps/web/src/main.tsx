@@ -439,6 +439,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     }
 
     const controller = new AbortController();
+    let refreshTimer: number | undefined;
     setCardArtSourceStatus("loading");
     const cardDataIdentity = `${cardDb.metadata.cardDataVersion}:${cardDb.metadata.sourceCardCount}`;
     loadExternalCardArtUrls(
@@ -449,16 +450,23 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
       Date.now(),
       cardDataIdentity
     )
-      .then(({ urls }) => {
+      .then(({ urls, refreshAtMs }) => {
         setCardArtUrls(urls);
         setCardArtSourceStatus("ready");
+        refreshTimer = window.setTimeout(
+          () => setCardArtRequestVersion((version) => version + 1),
+          Math.max(0, refreshAtMs - Date.now())
+        );
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") return;
         setCardArtUrls(new Map());
         setCardArtSourceStatus("unavailable");
       });
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
+    };
   }, [cardArtEnabled, cardArtRequestVersion, cardDb.metadata.cardDataVersion, cardDb.metadata.sourceCardCount, cardDb.metadata.sourceUrl]);
 
   function flushDeferredPersistence() {

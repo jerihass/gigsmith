@@ -38,7 +38,7 @@ test("validates and restores a portable backup across a reload", async ({ page }
 
   await page.reload();
   await expect(page.getByLabel("Deck name", { exact: true })).toHaveValue("Restored Backup Deck");
-  await expect(page.getByLabel("External art")).toBeChecked();
+  await expect(page.getByLabel("External art", { exact: true })).toBeChecked();
 });
 
 test("merges backup decks without overwriting the active device deck", async ({ page }) => {

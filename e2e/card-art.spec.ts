@@ -11,7 +11,7 @@ const snapshot = JSON.parse(readFileSync(new URL("../packages/card-data/src/cybe
   cards: Array<{ id: string; external_id: string; source_image_url: string }>;
 };
 
-async function routeArtSource(page: Page) {
+async function routeArtSource(page: Page, expiresInSeconds?: number) {
   await page.route(artSourcePattern, (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
@@ -20,7 +20,9 @@ async function routeArtSource(page: Page) {
       items: snapshot.cards.map((card) => ({
         id: card.id,
         external_id: card.external_id,
-        image_url: `${card.source_image_url}?Expires=9999999999&Signature=test`
+        image_url: `${card.source_image_url}?Expires=${
+          expiresInSeconds === undefined ? 9999999999 : Math.floor(Date.now() / 1000) + expiresInSeconds
+        }&Signature=test`
       }))
     })
   }));
@@ -46,10 +48,11 @@ test("makes no external art request until the preference is enabled", async ({ p
   expect(artRequests).toEqual([]);
   expect(sourceRequests).toEqual([]);
 
-  const preference = page.getByLabel("External art");
+  const preference = page.getByRole("checkbox", { name: "External art", exact: true });
   await preference.check();
   await expect(page.locator("img[src*='dstcynss47vun.cloudfront.net']")).toHaveCount(snapshot.cards.length);
   await expect.poll(() => sourceRequests.length).toBe(1);
+  await expect(page.getByRole("button", { name: "Retry external artwork" })).toBeVisible();
   await page.getByRole("article").filter({ hasText: "V — StreetKid" }).scrollIntoViewIfNeeded();
   await expect.poll(() => artRequests.length).toBeGreaterThan(0);
 
@@ -57,12 +60,27 @@ test("makes no external art request until the preference is enabled", async ({ p
   await expect(page.locator("img[src*='dstcynss47vun.cloudfront.net']")).toHaveCount(0);
 });
 
+test("refreshes artwork before short-lived signatures expire", async ({ page }) => {
+  let sourceRequests = 0;
+  page.on("request", (request) => {
+    if (request.url().startsWith("https://api.netdeck.gg/api/cards/cyberpunk")) sourceRequests += 1;
+  });
+  await routeArtSource(page, 33);
+  await page.route(artHostPattern, (route) => route.fulfill({ status: 200, contentType: "image/png", body: transparentPng }));
+  await page.goto("/");
+  await openCards(page);
+
+  await page.getByRole("checkbox", { name: "External art", exact: true }).check();
+  await expect(page.getByText(`${snapshot.cards.length} / ${snapshot.cards.length} art`, { exact: true })).toBeVisible();
+  await expect.poll(() => sourceRequests, { timeout: 8_000 }).toBeGreaterThanOrEqual(2);
+});
+
 test("keeps card text and actions available when artwork fails", async ({ page }) => {
   await routeArtSource(page);
   await page.route(artHostPattern, (route) => route.abort());
   await page.goto("/");
   await openCards(page);
-  await page.getByLabel("External art").check();
+  await page.getByRole("checkbox", { name: "External art", exact: true }).check();
 
   const firstCard = page.getByRole("article").filter({ hasText: "V — StreetKid" });
   await firstCard.scrollIntoViewIfNeeded();
@@ -80,7 +98,7 @@ test("keeps responsive card text beside enabled artwork", async ({ page }) => {
   await page.route(artHostPattern, (route) => route.fulfill({ status: 200, contentType: "image/png", body: transparentPng }));
   await page.goto("/");
   await openCards(page);
-  await page.getByLabel("External art").check();
+  await page.getByRole("checkbox", { name: "External art", exact: true }).check();
 
   const firstCard = page.getByRole("article").filter({ hasText: "V — StreetKid" });
   const art = firstCard.locator(".card-art.thumbnail");
@@ -103,12 +121,12 @@ test("keeps text-only card workflows usable offline with art enabled", async ({ 
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });
   await page.reload({ waitUntil: "domcontentloaded" });
   await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
-  await page.getByLabel("External art").check();
+  await page.getByRole("checkbox", { name: "External art", exact: true }).check();
 
   await context.setOffline(true);
   try {
     await page.reload({ waitUntil: "domcontentloaded" });
-    await expect(page.getByLabel("External art")).toBeChecked();
+    await expect(page.getByRole("checkbox", { name: "External art", exact: true })).toBeChecked();
     const firstCard = page.getByRole("article").filter({ hasText: "V — StreetKid" });
     await expect(firstCard.getByRole("button", { name: "Details" })).toBeEnabled();
     await firstCard.getByRole("button", { name: "Details" }).click();

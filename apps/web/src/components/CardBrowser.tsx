@@ -306,10 +306,7 @@ export function CardBrowser({
                 : cardArtSourceStatus === "loading" ? "Loading art" : "Art unavailable"}
             </span>
           )}
-          {cardArtEnabled && (
-            cardArtSourceStatus === "unavailable" ||
-            (cardArtSourceStatus === "ready" && cardArtCoverage.available < cardArtCoverage.total)
-          ) && (
+          {cardArtEnabled && cardArtSourceStatus !== "loading" && (
             <button
               aria-label="Retry external artwork"
               className="icon-button"

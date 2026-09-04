@@ -2,8 +2,9 @@ import type { Card } from "@gigsmith/data-contracts";
 
 const allowedArtworkHost = "dstcynss47vun.cloudfront.net";
 const externalCardArtCacheSchema = "gigsmith.card-art-url-cache";
-const externalCardArtCacheVersion = 3;
+const externalCardArtCacheVersion = 4;
 const externalCardArtCacheTtlMs = 12 * 60 * 60 * 1000;
+const externalCardArtRefreshMarginMs = 30 * 1000;
 const externalCardArtFetchLimit = 100;
 const maximumSourceCardCount = 5000;
 
@@ -31,6 +32,7 @@ interface ExternalCardArtCacheDocument {
 export interface ExternalCardArtUrlResult {
   urls: ReadonlyMap<string, string>;
   source: "cache" | "network";
+  refreshAtMs: number;
 }
 
 export interface ExternalCardArtCoverage {
@@ -42,16 +44,43 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function signedArtworkUrl(value: unknown): string | undefined {
+function signedArtworkExpirationMs(url: URL): number | undefined {
+  const expires = url.searchParams.get("Expires");
+  if (expires === null || !/^\d+$/.test(expires)) return undefined;
+  const expiresSeconds = Number(expires);
+  return Number.isSafeInteger(expiresSeconds) && expiresSeconds > 0
+    ? expiresSeconds * 1000
+    : undefined;
+}
+
+function signedArtworkUrl(value: unknown, nowMs?: number): string | undefined {
   if (typeof value !== "string") return undefined;
   try {
     const url = new URL(value);
-    return url.protocol === "https:" && url.hostname === allowedArtworkHost && url.search
-      ? url.href
-      : undefined;
+    if (url.protocol !== "https:" || url.hostname !== allowedArtworkHost || !url.search) return undefined;
+    const expiresAtMs = signedArtworkExpirationMs(url);
+    if (nowMs !== undefined && expiresAtMs !== undefined && expiresAtMs <= nowMs + externalCardArtRefreshMarginMs) {
+      return undefined;
+    }
+    return url.href;
   } catch {
     return undefined;
   }
+}
+
+function artworkRefreshAtMs(urls: ReadonlyMap<string, string>, nowMs: number): number {
+  let refreshAtMs = nowMs + externalCardArtCacheTtlMs;
+  for (const artworkUrl of new Set(urls.values())) {
+    try {
+      const expiresAtMs = signedArtworkExpirationMs(new URL(artworkUrl));
+      if (expiresAtMs !== undefined) {
+        refreshAtMs = Math.min(refreshAtMs, expiresAtMs - externalCardArtRefreshMarginMs);
+      }
+    } catch {
+      // URL validation happens before this calculation; ignore any value that becomes unusable here.
+    }
+  }
+  return refreshAtMs;
 }
 
 function stableArtworkUrl(value: unknown): string | undefined {
@@ -82,17 +111,19 @@ function cacheDocumentFromStorage(
     if (!isRecord(parsed)) return undefined;
     if (parsed.schema !== externalCardArtCacheSchema || parsed.version !== externalCardArtCacheVersion) return undefined;
     if (parsed.sourceUrl !== sourceUrl || parsed.cardDataIdentity !== cardDataIdentity || typeof parsed.expiresAt !== "string") return undefined;
-    if (Date.parse(parsed.expiresAt) <= nowMs) return undefined;
+    const cacheExpiresAtMs = Date.parse(parsed.expiresAt);
+    if (!Number.isFinite(cacheExpiresAtMs) || cacheExpiresAtMs <= nowMs) return undefined;
     if (!Array.isArray(parsed.urls)) return undefined;
 
     const urls: Array<[string, string]> = [];
     for (const entry of parsed.urls) {
       if (!Array.isArray(entry) || entry.length !== 2) return undefined;
       const [key, url] = entry;
-      if (typeof key !== "string" || !signedArtworkUrl(url)) return undefined;
+      if (typeof key !== "string" || !signedArtworkUrl(url, nowMs)) return undefined;
       urls.push([key, url]);
     }
     if (urls.length === 0) return undefined;
+    if (cacheExpiresAtMs > artworkRefreshAtMs(new Map(urls), nowMs)) return undefined;
 
     return {
       schema: externalCardArtCacheSchema,
@@ -111,7 +142,8 @@ function cacheDocumentFromStorage(
 export async function fetchExternalCardArtUrls(
   sourceUrl: string,
   signal?: AbortSignal,
-  fetcher: typeof fetch = fetch
+  fetcher: typeof fetch = fetch,
+  nowMs = Date.now()
 ): Promise<ReadonlyMap<string, string>> {
   const endpoint = new URL(sourceUrl);
   endpoint.searchParams.set("limit", String(externalCardArtFetchLimit));
@@ -155,7 +187,7 @@ export async function fetchExternalCardArtUrls(
 
   const urls = new Map<string, string>();
   for (const item of items) {
-    const artworkUrl = signedArtworkUrl(item.image_url);
+    const artworkUrl = signedArtworkUrl(item.image_url, nowMs);
     if (!artworkUrl) continue;
     addArtUrlKey(urls, item.id, artworkUrl);
     addArtUrlKey(urls, item.external_id, artworkUrl);
@@ -167,19 +199,28 @@ export async function fetchExternalCardArtUrls(
   return urls;
 }
 
-export function loadCachedExternalCardArtUrls(
+function loadCachedExternalCardArtDocument(
   storage: Storage,
   sourceUrl: string,
   nowMs = Date.now(),
   cardDataIdentity = ""
-): ReadonlyMap<string, string> | undefined {
+): ExternalCardArtCacheDocument | undefined {
   let stored: string | null;
   try {
     stored = storage.getItem(externalCardArtCacheStorageKey);
   } catch {
     return undefined;
   }
-  const document = cacheDocumentFromStorage(stored, sourceUrl, nowMs, cardDataIdentity);
+  return cacheDocumentFromStorage(stored, sourceUrl, nowMs, cardDataIdentity);
+}
+
+export function loadCachedExternalCardArtUrls(
+  storage: Storage,
+  sourceUrl: string,
+  nowMs = Date.now(),
+  cardDataIdentity = ""
+): ReadonlyMap<string, string> | undefined {
+  const document = loadCachedExternalCardArtDocument(storage, sourceUrl, nowMs, cardDataIdentity);
   return document ? new Map(document.urls) : undefined;
 }
 
@@ -190,8 +231,9 @@ export function saveCachedExternalCardArtUrls(
   nowMs = Date.now(),
   cardDataIdentity = ""
 ): void {
-  const entries = [...urls].filter(([key, url]) => key && signedArtworkUrl(url));
+  const entries = [...urls].filter(([key, url]) => key && signedArtworkUrl(url, nowMs));
   if (entries.length === 0) return;
+  const refreshAtMs = artworkRefreshAtMs(new Map(entries), nowMs);
 
   const document: ExternalCardArtCacheDocument = {
     schema: externalCardArtCacheSchema,
@@ -199,7 +241,7 @@ export function saveCachedExternalCardArtUrls(
     sourceUrl,
     cardDataIdentity,
     cachedAt: new Date(nowMs).toISOString(),
-    expiresAt: new Date(nowMs + externalCardArtCacheTtlMs).toISOString(),
+    expiresAt: new Date(refreshAtMs).toISOString(),
     urls: entries
   };
   try {
@@ -225,12 +267,14 @@ export async function loadExternalCardArtUrls(
   nowMs = Date.now(),
   cardDataIdentity = ""
 ): Promise<ExternalCardArtUrlResult> {
-  const cached = loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs, cardDataIdentity);
-  if (cached) return { urls: cached, source: "cache" };
+  const cached = loadCachedExternalCardArtDocument(storage, sourceUrl, nowMs, cardDataIdentity);
+  if (cached) {
+    return { urls: new Map(cached.urls), source: "cache", refreshAtMs: Date.parse(cached.expiresAt) };
+  }
 
-  const urls = await fetchExternalCardArtUrls(sourceUrl, signal, fetcher);
+  const urls = await fetchExternalCardArtUrls(sourceUrl, signal, fetcher, nowMs);
   saveCachedExternalCardArtUrls(storage, sourceUrl, urls, nowMs, cardDataIdentity);
-  return { urls, source: "network" };
+  return { urls, source: "network", refreshAtMs: artworkRefreshAtMs(urls, nowMs) };
 }
 
 export function selectExternalCardArtUrl(

@@ -11,8 +11,11 @@ import {
 } from "./externalCardArt";
 
 const sourceUrl = "https://api.netdeck.gg/api/cards/cyberpunk";
-const signedUrl = "https://dstcynss47vun.cloudfront.net/card.webp?Expires=123&Signature=test";
 const nowMs = Date.parse("2026-06-26T12:00:00.000Z");
+const signedUrl = "https://dstcynss47vun.cloudfront.net/card.webp?Expires=9999999999&Signature=test";
+const shortLivedArtworkExpiresAtMs = nowMs + 5 * 60 * 1000;
+const shortLivedRefreshAtMs = shortLivedArtworkExpiresAtMs - 30 * 1000;
+const shortLivedSignedUrl = `https://dstcynss47vun.cloudfront.net/card.webp?Expires=${shortLivedArtworkExpiresAtMs / 1000}&Signature=test`;
 
 function createStorage(): Storage {
   const values = new Map<string, string>();
@@ -56,7 +59,7 @@ describe("external card art", () => {
     const cards = Array.from({ length: 104 }, (_, index) => ({
       id: `card-${index}`,
       external_id: `CP-${index}`,
-      image_url: `https://dstcynss47vun.cloudfront.net/card-${index}.webp?Expires=123&Signature=test`
+      image_url: `https://dstcynss47vun.cloudfront.net/card-${index}.webp?Expires=9999999999&Signature=test`
     }));
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const offset = Number(new URL(String(input)).searchParams.get("offset") ?? 0);
@@ -93,7 +96,7 @@ describe("external card art", () => {
 
   it("selects art by stable card fields when local IDs differ from the live art source", async () => {
     const sourceImageUrl = "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/portal/a195323a-e29e-4c05-8e6c-7f1638c8264c/render-mpvm290s.webp";
-    const augmentedNegotiatorsUrl = `${sourceImageUrl}?Expires=123&Signature=test`;
+    const augmentedNegotiatorsUrl = `${sourceImageUrl}?Expires=9999999999&Signature=test`;
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({
       items: [{
         id: "ce45cb9d-430a-4ccf-bb4b-acf0b76120e0",
@@ -126,6 +129,16 @@ describe("external card art", () => {
     await expect(fetchExternalCardArtUrls(sourceUrl, undefined, fetcher)).rejects.toThrow("no usable URLs");
   });
 
+  it("rejects signed artwork URLs that expire inside the refresh safety margin", async () => {
+    const expiresTooSoon = `https://dstcynss47vun.cloudfront.net/card.webp?Expires=${(nowMs + 30_000) / 1000}&Signature=test`;
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({
+      items: [{ id: "card-1", image_url: expiresTooSoon }]
+    }), { status: 200 })) as typeof fetch;
+
+    await expect(fetchExternalCardArtUrls(sourceUrl, undefined, fetcher, nowMs))
+      .rejects.toThrow("no usable URLs");
+  });
+
   it("reports source and payload failures", async () => {
     const unavailable = vi.fn(async () => new Response(null, { status: 503 })) as typeof fetch;
     const malformed = vi.fn(async () => new Response(JSON.stringify({ cards: [] }), { status: 200 })) as typeof fetch;
@@ -144,6 +157,17 @@ describe("external card art", () => {
     expect(storage.getItem(externalCardArtCacheStorageKey)).toContain("gigsmith.card-art-url-cache");
   });
 
+  it("expires cached URLs before their CloudFront signatures", () => {
+    const storage = createStorage();
+    saveCachedExternalCardArtUrls(storage, sourceUrl, new Map([["card-1", shortLivedSignedUrl]]), nowMs);
+
+    const stored = JSON.parse(storage.getItem(externalCardArtCacheStorageKey) ?? "{}") as { expiresAt?: string };
+    expect(stored.expiresAt).toBe(new Date(shortLivedRefreshAtMs).toISOString());
+    expect(loadCachedExternalCardArtUrls(storage, sourceUrl, shortLivedRefreshAtMs - 1)?.get("card-1"))
+      .toBe(shortLivedSignedUrl);
+    expect(loadCachedExternalCardArtUrls(storage, sourceUrl, shortLivedRefreshAtMs)).toBeUndefined();
+  });
+
   it("ignores expired, mismatched, and malformed URL caches", () => {
     const storage = createStorage();
     saveCachedExternalCardArtUrls(storage, sourceUrl, new Map([["card-1", signedUrl]]), nowMs);
@@ -159,6 +183,21 @@ describe("external card art", () => {
       expiresAt: new Date(nowMs + 60_000).toISOString(),
       urls: [["card-1", "https://images.example/card.webp?Signature=test"]]
     }));
+    expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs)).toBeUndefined();
+  });
+
+  it("invalidates legacy caches that outlive their signed URLs", () => {
+    const storage = createStorage();
+    storage.setItem(externalCardArtCacheStorageKey, JSON.stringify({
+      schema: "gigsmith.card-art-url-cache",
+      version: 3,
+      sourceUrl,
+      cardDataIdentity: "",
+      cachedAt: new Date(nowMs).toISOString(),
+      expiresAt: new Date(nowMs + 12 * 60 * 60 * 1000).toISOString(),
+      urls: [["card-1", shortLivedSignedUrl]]
+    }));
+
     expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs)).toBeUndefined();
   });
 
@@ -193,6 +232,7 @@ describe("external card art", () => {
 
     expect(cached.source).toBe("cache");
     expect(cached.urls.get("card-1")).toBe(signedUrl);
+    expect(cached.refreshAtMs).toBe(nowMs + 12 * 60 * 60 * 1000);
     expect(unusedFetch).not.toHaveBeenCalled();
 
     const networkStorage = createStorage();
@@ -205,7 +245,28 @@ describe("external card art", () => {
 
     expect(fetched.source).toBe("network");
     expect(fetched.urls.get("card-2")).toBe(signedUrl);
+    expect(fetched.refreshAtMs).toBe(nowMs + 12 * 60 * 60 * 1000);
     expect(reloaded?.get("CP-002")).toBe(signedUrl);
+  });
+
+  it("returns the short-lived signature refresh deadline to the caller", async () => {
+    const storage = createStorage();
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
+      items: [{ id: "card-1", image_url: shortLivedSignedUrl }]
+    }), { status: 200 })) as typeof fetch;
+
+    const fetched = await loadExternalCardArtUrls(storage, sourceUrl, undefined, fetchMock, nowMs);
+    const cached = await loadExternalCardArtUrls(
+      storage,
+      sourceUrl,
+      undefined,
+      vi.fn(async () => new Response(null, { status: 500 })) as unknown as typeof fetch,
+      nowMs + 60_000
+    );
+
+    expect(fetched.refreshAtMs).toBe(shortLivedRefreshAtMs);
+    expect(cached.source).toBe("cache");
+    expect(cached.refreshAtMs).toBe(shortLivedRefreshAtMs);
   });
 
   it("treats unavailable storage as a cache miss without failing network art", async () => {

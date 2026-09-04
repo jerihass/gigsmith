@@ -21,3 +21,11 @@ removed from the accessibility tree. A stored selection for the retired Tactics
 view safely falls back to Deck.
 
 The tab list supports pointer input plus Left Arrow, Right Arrow, Home, and End.
+On narrow screens it scrolls horizontally without showing a scrollbar, and the
+selected tab is brought fully into view whenever the active view changes.
+
+Deck and Cards expose a compact, safe-area-aware bottom dock on screens up to
+560px wide. Its Cards/Search shortcut focuses the sticky card search without
+letting the dock cover it; Deck opens a modal sheet with deck health and card
+controls. Advanced card filters use a separate modal sheet at the same
+breakpoint so filter controls do not crowd the card list.

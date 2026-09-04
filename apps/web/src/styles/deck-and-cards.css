@@ -420,8 +420,8 @@ textarea {
   display: none;
 }
 
-.mobile-deck-drawer-backdrop,
-.mobile-deck-drawer {
+.mobile-deck-drawer,
+.mobile-filter-dialog {
   display: none;
 }
 

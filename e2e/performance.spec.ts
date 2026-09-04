@@ -31,7 +31,7 @@ test("keeps core phone workflows within measured response budgets", async ({ pag
     await page.getByRole("tab", { name: "Cards", exact: true }).click();
     const search = page
       .getByRole("search", { name: "Card search" })
-      .getByRole("textbox", { name: "Search cards" });
+      .getByRole("searchbox", { name: "Search cards" });
     let startedAt = await pageTime(page);
     await search.fill("Chrome Reverie");
     const filteredCard = page.getByRole("article").filter({ hasText: "Chrome Reverie" });

@@ -1,5 +1,5 @@
-import { useId } from "react";
-import { RefreshCw } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
+import { RefreshCw, X } from "lucide-react";
 import type {
   Card,
   Deck,
@@ -103,6 +103,25 @@ function entryCount(entries: Deck["main"]): number {
   return entries.reduce((sum, entry) => sum + entry.count, 0);
 }
 
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() =>
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(query).matches
+      : false
+  );
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, [query]);
+
+  return matches;
+}
+
 export function CardBrowser({
   deck,
   decks,
@@ -160,10 +179,108 @@ export function CardBrowser({
   onGoToDeck
 }: CardBrowserProps) {
   const advancedFiltersId = useId();
+  const mobileFilters = useMediaQuery("(max-width: 560px)");
+  const filterDialogRef = useRef<HTMLDialogElement>(null);
+  const filterCloseRef = useRef<HTMLButtonElement>(null);
+  const filterTriggerRef = useRef<HTMLButtonElement>();
 
-  function openAdvancedFiltersFromMobileSearch() {
+  useEffect(() => {
+    const dialog = filterDialogRef.current;
+    if (!mobileFilters || !dialog) return;
+    if (advancedFiltersOpen && !dialog.open) {
+      dialog.showModal();
+      window.requestAnimationFrame(() => filterCloseRef.current?.focus());
+    } else if (!advancedFiltersOpen && dialog.open) {
+      dialog.close();
+    }
+  }, [advancedFiltersOpen, mobileFilters]);
+
+  function openAdvancedFilters(trigger: HTMLButtonElement) {
+    filterTriggerRef.current = trigger;
     onAdvancedFiltersOpenChange(true);
-    window.requestAnimationFrame(() => document.getElementById(advancedFiltersId)?.scrollIntoView({ block: "nearest" }));
+    if (!mobileFilters) {
+      window.requestAnimationFrame(() => document.getElementById(advancedFiltersId)?.scrollIntoView({ block: "nearest" }));
+    }
+  }
+
+  function closeAdvancedFilters() {
+    onAdvancedFiltersOpenChange(false);
+    window.requestAnimationFrame(() => filterTriggerRef.current?.focus());
+  }
+
+  function renderAdvancedFilterControls(includeClearButton: boolean) {
+    return (
+      <>
+        <label className="field">
+          <span>Color</span>
+          <select value={colorFilter} onChange={(event) => onColorFilterChange(event.target.value as CardColorFilter)}>
+            {colorOptions.map((option) => <option key={option}>{option}</option>)}
+          </select>
+        </label>
+        <label className="field">
+          <span>Type</span>
+          <select value={typeFilter} onChange={(event) => onTypeFilterChange(event.target.value as CardTypeFilter)}>
+            {typeOptions.map((option) => <option key={option}>{option}</option>)}
+          </select>
+        </label>
+        <label className="field">
+          <span>Set</span>
+          <select value={setFilter} onChange={(event) => onSetFilterChange(event.target.value as CardSetFilter)}>
+            {setOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          </select>
+        </label>
+        <label className="field">
+          <span>RAM</span>
+          <select value={ramFilter} onChange={(event) => onRamFilterChange(event.target.value as NumberFilter)}>
+            {ramOptions.map((option) => (
+              <option key={option} value={option}>{option === "none" ? "None" : option}</option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span>Cost</span>
+          <select value={costFilter} onChange={(event) => onCostFilterChange(event.target.value as NumberFilter)}>
+            {costOptions.map((option) => (
+              <option key={option} value={option}>{option === "none" ? "None" : option}</option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span>Classification</span>
+          <select value={classificationFilter} onChange={(event) => onClassificationFilterChange(event.target.value as TextListFilter)}>
+            {classificationOptions.map((option) => <option key={option}>{option}</option>)}
+          </select>
+        </label>
+        {keywordOptions.length > 1 && (
+          <label className="field">
+            <span>Keyword</span>
+            <select value={keywordFilter} onChange={(event) => onKeywordFilterChange(event.target.value as TextListFilter)}>
+              {keywordOptions.map((option) => <option key={option}>{option}</option>)}
+            </select>
+          </label>
+        )}
+        <label className="field">
+          <span>Sellable</span>
+          <select value={sellableFilter} onChange={(event) => onSellableFilterChange(event.target.value as SellableFilter)}>
+            {sellableOptions.map((option) => <option key={option}>{option}</option>)}
+          </select>
+        </label>
+        <label className="field">
+          <span>RAM fit</span>
+          <select
+            value={ramCompatibilityFilter}
+            onChange={(event) => onRamCompatibilityFilterChange(event.target.value as RamCompatibilityFilter)}
+          >
+            {ramCompatibilityOptions.map((option) => <option key={option}>{option}</option>)}
+          </select>
+        </label>
+        {includeClearButton && (
+          <button className="filter-clear" disabled={activeAdvancedFilterChips.length === 0} onClick={onClearAdvancedFilters} type="button">
+            Clear filters
+          </button>
+        )}
+      </>
+    );
   }
 
   return (
@@ -233,7 +350,11 @@ export function CardBrowser({
           <input
             id="mobile-card-search-input"
             aria-label="Search cards"
+            autoComplete="off"
+            enterKeyHint="search"
             placeholder="Name, text, faction..."
+            spellCheck={false}
+            type="search"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
           />
@@ -241,7 +362,7 @@ export function CardBrowser({
         <button
           aria-controls={advancedFiltersId}
           aria-expanded={advancedFiltersOpen}
-          onClick={openAdvancedFiltersFromMobileSearch}
+          onClick={(event) => openAdvancedFilters(event.currentTarget)}
           type="button"
         >
           Filters{activeAdvancedFilterChips.length > 0 ? ` ${activeAdvancedFilterChips.length}` : ""}
@@ -252,7 +373,15 @@ export function CardBrowser({
       <div className="filter-grid">
         <label className="field search-field">
           <span>Search</span>
-          <input placeholder="Name, text, faction..." value={query} onChange={(event) => onQueryChange(event.target.value)} />
+          <input
+            autoComplete="off"
+            enterKeyHint="search"
+            placeholder="Name, text, faction..."
+            spellCheck={false}
+            type="search"
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+          />
         </label>
         <label className="field">
           <span>Sort</span>
@@ -270,7 +399,10 @@ export function CardBrowser({
           aria-controls={advancedFiltersId}
           aria-expanded={advancedFiltersOpen}
           className="filter-toggle"
-          onClick={() => onAdvancedFiltersOpenChange(!advancedFiltersOpen)}
+          onClick={(event) => {
+            filterTriggerRef.current = event.currentTarget;
+            onAdvancedFiltersOpenChange(!advancedFiltersOpen);
+          }}
           type="button"
         >
           Filters{activeAdvancedFilterChips.length > 0 ? ` ${activeAdvancedFilterChips.length}` : ""}
@@ -285,74 +417,58 @@ export function CardBrowser({
             ))}
           </div>
         )}
-        <div className="filter-secondary" data-expanded={advancedFiltersOpen ? "true" : "false"} id={advancedFiltersId}>
-          <label className="field">
-            <span>Color</span>
-            <select value={colorFilter} onChange={(event) => onColorFilterChange(event.target.value as CardColorFilter)}>
-              {colorOptions.map((option) => <option key={option}>{option}</option>)}
-            </select>
-          </label>
-          <label className="field">
-            <span>Type</span>
-            <select value={typeFilter} onChange={(event) => onTypeFilterChange(event.target.value as CardTypeFilter)}>
-              {typeOptions.map((option) => <option key={option}>{option}</option>)}
-            </select>
-          </label>
-          <label className="field">
-            <span>Set</span>
-            <select value={setFilter} onChange={(event) => onSetFilterChange(event.target.value as CardSetFilter)}>
-              {setOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-          </label>
-          <label className="field">
-            <span>RAM</span>
-            <select value={ramFilter} onChange={(event) => onRamFilterChange(event.target.value as NumberFilter)}>
-              {ramOptions.map((option) => (
-                <option key={option} value={option}>{option === "none" ? "None" : option}</option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>Cost</span>
-            <select value={costFilter} onChange={(event) => onCostFilterChange(event.target.value as NumberFilter)}>
-              {costOptions.map((option) => (
-                <option key={option} value={option}>{option === "none" ? "None" : option}</option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>Classification</span>
-            <select value={classificationFilter} onChange={(event) => onClassificationFilterChange(event.target.value as TextListFilter)}>
-              {classificationOptions.map((option) => <option key={option}>{option}</option>)}
-            </select>
-          </label>
-          {keywordOptions.length > 1 && (
-            <label className="field">
-              <span>Keyword</span>
-              <select value={keywordFilter} onChange={(event) => onKeywordFilterChange(event.target.value as TextListFilter)}>
-                {keywordOptions.map((option) => <option key={option}>{option}</option>)}
-              </select>
-            </label>
-          )}
-          <label className="field">
-            <span>Sellable</span>
-            <select value={sellableFilter} onChange={(event) => onSellableFilterChange(event.target.value as SellableFilter)}>
-              {sellableOptions.map((option) => <option key={option}>{option}</option>)}
-            </select>
-          </label>
-          <label className="field">
-            <span>RAM fit</span>
-            <select
-              value={ramCompatibilityFilter}
-              onChange={(event) => onRamCompatibilityFilterChange(event.target.value as RamCompatibilityFilter)}
-            >
-              {ramCompatibilityOptions.map((option) => <option key={option}>{option}</option>)}
-            </select>
-          </label>
-          <button className="filter-clear" disabled={activeAdvancedFilterChips.length === 0} onClick={onClearAdvancedFilters} type="button">
-            Clear filters
-          </button>
-        </div>
+        {!mobileFilters && (
+          <div className="filter-secondary" data-expanded={advancedFiltersOpen ? "true" : "false"} id={advancedFiltersId}>
+            {renderAdvancedFilterControls(true)}
+          </div>
+        )}
+        {mobileFilters && (
+          <dialog
+            aria-labelledby="mobile-card-filters-title"
+            className="mobile-filter-dialog"
+            id={advancedFiltersId}
+            ref={filterDialogRef}
+            onCancel={(event) => {
+              event.preventDefault();
+              closeAdvancedFilters();
+            }}
+            onClick={(event) => {
+              if (event.target === event.currentTarget) closeAdvancedFilters();
+            }}
+            onClose={() => {
+              if (advancedFiltersOpen) onAdvancedFiltersOpenChange(false);
+              window.requestAnimationFrame(() => filterTriggerRef.current?.focus());
+            }}
+          >
+            <header className="mobile-filter-dialog-header">
+              <div>
+                <p className="section-kicker">Card library</p>
+                <h2 id="mobile-card-filters-title">Filters</h2>
+              </div>
+              <button
+                aria-label="Close card filters"
+                className="icon-button"
+                onClick={closeAdvancedFilters}
+                ref={filterCloseRef}
+                title="Close"
+                type="button"
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            </header>
+            <div className="mobile-filter-dialog-body">
+              {renderAdvancedFilterControls(false)}
+            </div>
+            <footer className="mobile-filter-dialog-footer">
+              <button disabled={activeAdvancedFilterChips.length === 0} onClick={onClearAdvancedFilters} type="button">
+                Clear filters
+              </button>
+              <button className="primary" onClick={closeAdvancedFilters} type="button">
+                Show {filteredCards.length} cards
+              </button>
+            </footer>
+          </dialog>
+        )}
       </div>
 
       {deckEditNotice && (

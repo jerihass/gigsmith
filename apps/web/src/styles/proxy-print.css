@@ -449,16 +449,16 @@
   }
 
   .proxy-quantity-stepper {
-    grid-template-columns: 40px 44px 40px;
+    grid-template-columns: 44px 44px 44px;
   }
 
   .proxy-quantity-stepper .icon-button,
   .proxy-quantity-stepper input {
-    height: 42px;
+    height: 44px;
   }
 
   .proxy-quantity-stepper .icon-button {
-    width: 40px;
+    width: 44px;
   }
 }
 

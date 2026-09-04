@@ -220,6 +220,9 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
   const detailTriggerRef = useRef<HTMLButtonElement>();
   const releaseNotesTriggerRef = useRef<HTMLButtonElement>();
+  const mobileDeckDrawerRef = useRef<HTMLDialogElement>(null);
+  const mobileDeckDrawerCloseRef = useRef<HTMLButtonElement>(null);
+  const mobileDeckDrawerTriggerRef = useRef<HTMLButtonElement>(null);
   const libraryPersistence = useRef(
     createDeferredPersistence<DeckLibrary>((next) =>
       measurePerformance(
@@ -286,9 +289,10 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   };
   const scrollToMobileCardSearch = () => {
     const focusSearch = () => {
+      const searchBar = document.querySelector<HTMLElement>(".mobile-card-search-bar");
       const input = document.getElementById("mobile-card-search-input") as HTMLInputElement | null;
-      input?.scrollIntoView({ block: "start" });
-      input?.focus();
+      searchBar?.scrollIntoView({ block: "start" });
+      input?.focus({ preventScroll: true });
     };
     if (activeView !== "cards") {
       handleViewChange("cards");
@@ -330,6 +334,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const openMobileDeckHealthIssue = () => {
     const issue = mobileDeckHealth.topIssue;
     if (!issue) return;
+    setMobileDeckDrawerOpen(false);
     setActiveView("analysis");
     window.requestAnimationFrame(() => {
       document.getElementById(validationGroupAnchorId(issue.groupId))?.scrollIntoView({ block: "start" });
@@ -486,13 +491,24 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   }, [activeView]);
 
   useEffect(() => {
-    if (!mobileDeckDrawerOpen) return;
-    function closeMobileDeckDrawer(event: KeyboardEvent) {
-      if (event.key === "Escape") setMobileDeckDrawerOpen(false);
-    }
+    const mobileLayout = window.matchMedia("(max-width: 560px)");
+    const closeDrawerOutsideMobileLayout = () => {
+      if (!mobileLayout.matches) setMobileDeckDrawerOpen(false);
+    };
+    closeDrawerOutsideMobileLayout();
+    mobileLayout.addEventListener("change", closeDrawerOutsideMobileLayout);
+    return () => mobileLayout.removeEventListener("change", closeDrawerOutsideMobileLayout);
+  }, []);
 
-    window.addEventListener("keydown", closeMobileDeckDrawer);
-    return () => window.removeEventListener("keydown", closeMobileDeckDrawer);
+  useEffect(() => {
+    const dialog = mobileDeckDrawerRef.current;
+    if (!dialog) return;
+    if (mobileDeckDrawerOpen && !dialog.open) {
+      dialog.showModal();
+      window.requestAnimationFrame(() => mobileDeckDrawerCloseRef.current?.focus());
+    } else if (!mobileDeckDrawerOpen && dialog.open) {
+      dialog.close();
+    }
   }, [mobileDeckDrawerOpen]);
 
   useEffect(() => {
@@ -705,6 +721,11 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     setDeckHistories((current) => dropDeckHistory(current, deck.id));
     persistLibrary(removeDeck(library, deck.id));
     setPendingDelete(false);
+  }
+
+  function closeMobileDeckDrawer() {
+    setMobileDeckDrawerOpen(false);
+    window.requestAnimationFrame(() => mobileDeckDrawerTriggerRef.current?.focus());
   }
 
   function openCardDetails(card: Card, trigger: HTMLButtonElement, context: "database" | "deck" = "database") {
@@ -1027,34 +1048,13 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
               {validation.legal ? "Legal" : `${validation.errors.length} issue${validation.errors.length === 1 ? "" : "s"}`}
             </span>
           </div>
-          <div className="mobile-deck-health" aria-label="Deck health summary">
-            {mobileDeckHealth.metrics.map((metric) => (
-              <span className="mobile-deck-health-chip" data-state={metric.state} key={metric.id}>
-                <span>{metric.label}</span>
-                <strong>{metric.issueCount === 0 ? "OK" : metric.issueCount}</strong>
-              </span>
-            ))}
-          </div>
-          {mobileDeckHealth.topIssue && (
-            <button
-              className="mobile-deck-health-issue"
-              data-severity={mobileDeckHealth.topIssue.severity}
-              onClick={openMobileDeckHealthIssue}
-              type="button"
-            >
-              <span>{mobileDeckHealth.topIssue.title}</span>
-              <strong>{mobileDeckHealth.topIssue.message}</strong>
-            </button>
-          )}
-          <div className="mobile-deck-meter" aria-hidden="true">
-            <span style={{ inlineSize: `${Math.min(100, (entryCount(deck.main) / 40) * 100)}%` }} />
-          </div>
           <div className="mobile-deck-dock-actions">
             <button onClick={scrollToMobileCardSearch} type="button"><Search size={17} aria-hidden="true" />{activeView === "cards" ? "Search" : "Cards"}</button>
             <button
               aria-controls="mobile-deck-drawer"
               aria-expanded={mobileDeckDrawerOpen}
               onClick={() => setMobileDeckDrawerOpen((open) => !open)}
+              ref={mobileDeckDrawerTriggerRef}
               type="button"
             >
               <Layers size={17} aria-hidden="true" />
@@ -1062,38 +1062,66 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
             </button>
           </div>
         </nav>
-        {mobileDeckDrawerOpen && (
-          <div
-            className="mobile-deck-drawer-backdrop"
-            role="presentation"
-            onClick={() => setMobileDeckDrawerOpen(false)}
-          >
-            <aside
-              aria-label="Current deck"
-              aria-modal="true"
-              className="mobile-deck-sheet mobile-deck-drawer"
-              id="mobile-deck-drawer"
-              role="dialog"
-              onClick={(event) => event.stopPropagation()}
-            >
+        <dialog
+          aria-labelledby="mobile-deck-drawer-title"
+          className="mobile-deck-sheet mobile-deck-drawer"
+          id="mobile-deck-drawer"
+          ref={mobileDeckDrawerRef}
+          onCancel={(event) => {
+            event.preventDefault();
+            closeMobileDeckDrawer();
+          }}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) closeMobileDeckDrawer();
+          }}
+          onClose={() => {
+            if (mobileDeckDrawerOpen) setMobileDeckDrawerOpen(false);
+          }}
+        >
               <header className="mobile-deck-drawer-header">
                 <div>
-                  <h2>Current Deck</h2>
+                  <h2 id="mobile-deck-drawer-title">Current Deck</h2>
                   <span>{entryCount(deck.legends)} / 3 Legends · {entryCount(deck.main)} / 40 main</span>
                 </div>
                 <button
                   className="icon-button"
                   aria-label="Close current deck"
                   title="Close"
-                  onClick={() => setMobileDeckDrawerOpen(false)}
+                  onClick={closeMobileDeckDrawer}
+                  ref={mobileDeckDrawerCloseRef}
                   type="button"
                 >
                   <X size={18} aria-hidden="true" />
                 </button>
               </header>
-              <div className="mobile-deck-meter" aria-hidden="true">
-                <span style={{ inlineSize: `${Math.min(100, (entryCount(deck.main) / 40) * 100)}%` }} />
-              </div>
+              <section className="mobile-deck-drawer-health" aria-labelledby="mobile-deck-health-title">
+                <div className="mobile-deck-health-heading">
+                  <h3 id="mobile-deck-health-title">Deck health</h3>
+                  <span>{validation.legal ? "Ready" : "Needs attention"}</span>
+                </div>
+                <div className="mobile-deck-health" aria-label="Deck health summary">
+                  {mobileDeckHealth.metrics.map((metric) => (
+                    <span className="mobile-deck-health-chip" data-state={metric.state} key={metric.id}>
+                      <span>{metric.label}</span>
+                      <strong>{metric.issueCount === 0 ? "OK" : metric.issueCount}</strong>
+                    </span>
+                  ))}
+                </div>
+                {mobileDeckHealth.topIssue && (
+                  <button
+                    className="mobile-deck-health-issue"
+                    data-severity={mobileDeckHealth.topIssue.severity}
+                    onClick={openMobileDeckHealthIssue}
+                    type="button"
+                  >
+                    <span>{mobileDeckHealth.topIssue.title}</span>
+                    <strong>{mobileDeckHealth.topIssue.message}</strong>
+                  </button>
+                )}
+                <div className="mobile-deck-meter" aria-hidden="true">
+                  <span style={{ inlineSize: `${Math.min(100, (entryCount(deck.main) / 40) * 100)}%` }} />
+                </div>
+              </section>
               <div className="mobile-deck-drawer-body">
                 <section>
                   <div className="deck-section-title"><h3>Legends</h3><span>{entryCount(deck.legends)} / 3</span></div>
@@ -1176,9 +1204,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
                   </div>
                 </section>
               </div>
-            </aside>
-          </div>
-        )}
+        </dialog>
           </>,
           document.body
         )}

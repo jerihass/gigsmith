@@ -18,7 +18,7 @@ async function openCards(page: Page) {
 
 async function cardSearch(page: Page) {
   await openCards(page);
-  const mobileSearch = page.getByRole("search", { name: "Card search" }).getByRole("textbox", { name: "Search cards" });
+  const mobileSearch = page.getByRole("search", { name: "Card search" }).getByRole("searchbox", { name: "Search cards" });
   return await mobileSearch.isVisible()
     ? mobileSearch
     : page.getByRole("textbox", { name: "Search", exact: true });
@@ -35,6 +35,13 @@ async function showAdvancedCardFilters(page: Page) {
   const desktopToggle = page.locator(".card-database-panel .filter-toggle");
   if ((await desktopToggle.isVisible()) && (await desktopToggle.getAttribute("aria-expanded")) !== "true") {
     await desktopToggle.click();
+  }
+}
+
+async function applyAdvancedCardFilters(page: Page) {
+  const mobileFilters = page.getByRole("dialog", { name: "Filters" });
+  if (await mobileFilters.isVisible()) {
+    await mobileFilters.getByRole("button", { name: /^Show \d+ cards$/ }).click();
   }
 }
 
@@ -102,6 +109,7 @@ test("repairs a previously saved over-limit deck without normalizing it on load"
 test("filters by Legend RAM fit and allows a warned incompatible addition", async ({ page }) => {
   await showAdvancedCardFilters(page);
   await page.getByRole("combobox", { name: "RAM fit", exact: true }).selectOption("Incompatible");
+  await applyAdvancedCardFilters(page);
   const card = cardResult(page, "Adam Smasher — Metal Over Meat");
   await expect(card.getByText("Over RAM", { exact: false })).toBeVisible();
   await card.getByRole("button", { name: "+ Main" }).click();
@@ -117,6 +125,7 @@ test("filters the card database by set", async ({ page }) => {
   await showAdvancedCardFilters(page);
   const setFilter = page.getByRole("combobox", { name: "Set", exact: true });
   await setFilter.selectOption({ label: "Set 1 Promos" });
+  await applyAdvancedCardFilters(page);
 
   const results = page.getByRole("region", { name: "Card database results" });
   await expect(results.getByRole("article")).toHaveCount(1);

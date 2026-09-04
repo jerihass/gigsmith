@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from "react";
+import { useEffect, useRef, type KeyboardEvent } from "react";
 import { appViews, type AppView } from "../appViews";
 
 const labels: Record<AppView, string> = {
@@ -12,6 +12,23 @@ const labels: Record<AppView, string> = {
 };
 
 export function AppNavigation({ activeView, onChange }: { activeView: AppView; onChange: (view: AppView) => void }) {
+  const navigationRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const navigation = navigationRef.current;
+    const activeTab = document.getElementById(`app-tab-${activeView}`);
+    if (!navigation || !activeTab) return;
+
+    const navigationBounds = navigation.getBoundingClientRect();
+    const tabBounds = activeTab.getBoundingClientRect();
+    const edgeInset = 12;
+    if (tabBounds.left < navigationBounds.left + edgeInset) {
+      navigation.scrollBy({ left: tabBounds.left - navigationBounds.left - edgeInset });
+    } else if (tabBounds.right > navigationBounds.right - edgeInset) {
+      navigation.scrollBy({ left: tabBounds.right - navigationBounds.right + edgeInset });
+    }
+  }, [activeView]);
+
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>, view: AppView) {
     const currentIndex = appViews.indexOf(view);
     let nextIndex: number | undefined;
@@ -28,7 +45,7 @@ export function AppNavigation({ activeView, onChange }: { activeView: AppView; o
   }
 
   return (
-    <nav className="app-navigation" aria-label="Gigsmith tools">
+    <nav className="app-navigation" aria-label="Gigsmith tools" ref={navigationRef}>
       <div role="tablist" aria-label="Tool views">
         {appViews.map((view) => (
           <button

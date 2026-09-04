@@ -271,15 +271,19 @@
 
 @media (max-width: 560px) {
   main {
-    padding: 14px 12px;
+    padding:
+      max(14px, env(safe-area-inset-top))
+      max(12px, env(safe-area-inset-right))
+      max(14px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
   }
 
   #app-panel-deck:not([hidden]) {
-    padding-bottom: calc(210px + env(safe-area-inset-bottom));
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 
   #app-panel-cards:not([hidden]) {
-    padding-bottom: calc(210px + env(safe-area-inset-bottom));
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 
   .header-context {
@@ -290,6 +294,49 @@
 
   .active-deck-context strong {
     max-width: 100%;
+  }
+
+  .theme-picker {
+    height: 44px;
+  }
+
+  .theme-picker select {
+    height: 42px;
+  }
+
+  .binary-field {
+    min-height: 44px;
+  }
+
+  .icon-button {
+    height: 44px;
+    width: 44px;
+  }
+
+  input,
+  select {
+    min-height: 44px;
+  }
+
+  .share-link-field input,
+  .recovery-data textarea {
+    font-size: 1rem;
+  }
+
+  .app-navigation {
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 12px;
+    scroll-snap-type: inline proximity;
+    scrollbar-width: none;
+    touch-action: pan-x;
+  }
+
+  .app-navigation::-webkit-scrollbar {
+    display: none;
+  }
+
+  .app-navigation [role="tab"] {
+    scroll-snap-align: center;
   }
 
   .card-detail-dialog {
@@ -315,7 +362,11 @@
     max-height: inherit;
     overflow: auto;
     overscroll-behavior: contain;
-    padding: 12px 16px calc(18px + env(safe-area-inset-bottom));
+    padding:
+      12px
+      max(16px, env(safe-area-inset-right))
+      calc(18px + env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
   }
 
   .card-detail-content::before {
@@ -390,6 +441,7 @@
   }
 
   .card-browser-deck-action {
+    min-height: 44px;
     width: 100%;
   }
 
@@ -398,11 +450,35 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .deck-actions button,
+  .deck-row-actions button,
+  .card-actions button,
+  .filter-clear,
+  .pwa-update-actions button,
+  .share-preview-actions button,
+  .data-refresh-actions button,
+  .io-actions button,
+  .recovery-actions button {
+    min-height: 44px;
+  }
+
+  .count-controls {
+    grid-template-columns: 44px 32px 44px;
+  }
+
+  .card-action-group {
+    grid-template-columns: 44px minmax(78px, 1fr);
+  }
+
   .deck-list {
     max-height: none;
   }
 
   .card-database-panel .filter-grid .search-field {
+    display: none;
+  }
+
+  .card-database-panel .filter-grid > .filter-toggle {
     display: none;
   }
 
@@ -418,7 +494,8 @@
     margin: 0 0 10px;
     padding: 8px;
     position: sticky;
-    top: 0;
+    scroll-margin-top: max(8px, env(safe-area-inset-top));
+    top: env(safe-area-inset-top);
     z-index: 12;
   }
 
@@ -436,12 +513,12 @@
   }
 
   .mobile-card-search-bar input {
-    min-height: 38px;
+    min-height: 44px;
     padding-block: 0.55rem;
   }
 
   .mobile-card-search-bar button {
-    min-height: 38px;
+    min-height: 44px;
     white-space: nowrap;
   }
 
@@ -455,9 +532,83 @@
     font-size: 0.76rem;
     font-weight: 800;
     justify-content: center;
-    min-height: 38px;
-    min-width: 38px;
+    min-height: 44px;
+    min-width: 44px;
     padding: 0 8px;
+  }
+
+  .mobile-filter-dialog {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-block-end: 0;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 -18px 40px var(--shadow);
+    color: var(--text);
+    gap: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    inset-block-end: 0;
+    inset-block-start: auto;
+    inset-inline: 0;
+    margin: auto auto 0;
+    max-height: min(88dvh, 720px);
+    max-width: 560px;
+    overflow: hidden;
+    padding: 0;
+    width: 100%;
+  }
+
+  .mobile-filter-dialog[open] {
+    display: grid;
+  }
+
+  .mobile-filter-dialog::backdrop {
+    background: color-mix(in srgb, var(--backdrop) 72%, transparent);
+  }
+
+  .mobile-filter-dialog-header,
+  .mobile-filter-dialog-footer {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    padding-inline:
+      max(14px, env(safe-area-inset-left))
+      max(14px, env(safe-area-inset-right));
+  }
+
+  .mobile-filter-dialog-header {
+    border-bottom: 1px solid var(--border);
+    padding-block: 12px 10px;
+  }
+
+  .mobile-filter-dialog-header h2,
+  .mobile-filter-dialog-header p {
+    margin-bottom: 0;
+  }
+
+  .mobile-filter-dialog-body {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding:
+      14px
+      max(14px, env(safe-area-inset-right))
+      18px
+      max(14px, env(safe-area-inset-left));
+  }
+
+  .mobile-filter-dialog-footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    padding-block: 10px calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-filter-dialog-footer button {
+    min-height: 44px;
   }
 
   .card-database-panel .card-list {
@@ -477,10 +628,14 @@
 
   .mobile-deck-dock {
     display: grid;
-    gap: 7px;
+    gap: 4px;
     inset-block-end: 0;
     inset-inline: 0;
-    padding: 9px 12px calc(9px + env(safe-area-inset-bottom));
+    padding:
+      6px
+      max(10px, env(safe-area-inset-right))
+      calc(6px + env(safe-area-inset-bottom))
+      max(10px, env(safe-area-inset-left));
     position: fixed;
     z-index: 20;
   }
@@ -508,7 +663,30 @@
     border-radius: 999px;
     font-size: 0.7rem;
     justify-self: end;
-    padding: 4px 8px;
+    padding: 2px 7px;
+  }
+
+  .mobile-deck-drawer-health {
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    gap: 8px;
+    padding-bottom: 12px;
+  }
+
+  .mobile-deck-health-heading {
+    align-items: baseline;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .mobile-deck-health-heading h3 {
+    margin: 0;
+  }
+
+  .mobile-deck-health-heading span {
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-weight: 700;
   }
 
   .mobile-deck-health {
@@ -575,7 +753,7 @@
     display: grid;
     gap: 2px;
     justify-items: start;
-    min-height: 42px;
+    min-height: 44px;
     padding: 7px 9px;
     text-align: start;
   }
@@ -626,7 +804,7 @@
 
   .mobile-deck-dock-actions {
     display: grid;
-    gap: 8px;
+    gap: 6px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -641,7 +819,7 @@
     gap: 6px;
     font-weight: 800;
     justify-content: center;
-    min-height: 42px;
+    min-height: 44px;
     text-decoration: none;
   }
 
@@ -650,24 +828,31 @@
     background: var(--surface-hover);
   }
 
-  .mobile-deck-drawer-backdrop {
-    background: color-mix(in srgb, var(--backdrop) 58%, transparent);
-    display: block;
-    inset: 0;
-    position: fixed;
-    z-index: 30;
-  }
-
   .mobile-deck-drawer {
-    display: grid;
+    color: var(--text);
     gap: 10px;
     grid-template-rows: auto auto minmax(0, 1fr);
     inset-block-end: 0;
+    inset-block-start: auto;
     inset-inline: 0;
-    max-height: min(78dvh, 680px);
+    margin: auto auto 0;
+    max-height: min(84dvh, 720px);
     overflow: hidden;
-    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
-    position: absolute;
+    padding:
+      12px
+      max(12px, env(safe-area-inset-right))
+      calc(12px + env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+    position: fixed;
+    width: 100%;
+  }
+
+  .mobile-deck-drawer[open] {
+    display: grid;
+  }
+
+  .mobile-deck-drawer::backdrop {
+    background: color-mix(in srgb, var(--backdrop) 72%, transparent);
   }
 
   .mobile-deck-drawer-header {
@@ -680,6 +865,11 @@
   .mobile-deck-drawer-body {
     min-height: 0;
     overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .mobile-deck-drawer .mobile-deck-health-issue > strong {
+    white-space: normal;
   }
 
   .mobile-deck-drawer-row {
@@ -702,7 +892,12 @@
 
   .recovery-page {
     align-items: flex-start;
-    padding: 12px;
+    min-height: 100svh;
+    padding:
+      max(12px, env(safe-area-inset-top))
+      max(12px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
   }
 
   .recovery-panel {
@@ -930,7 +1125,7 @@
   }
 
   .gig-value-trigger {
-    min-height: 30px;
+    min-height: 44px;
     padding: 4px 6px;
     width: 100%;
   }
@@ -951,12 +1146,12 @@
   }
 
   .gig-value-controls {
-    grid-template-columns: 30px minmax(42px, 1fr) 30px 30px;
+    grid-template-columns: 44px minmax(48px, 1fr) 44px 44px;
   }
 
   .gig-value-controls input,
   .gig-command {
-    min-height: 30px;
+    min-height: 44px;
   }
 
   .gig-die {
@@ -989,7 +1184,7 @@
 
   .controlled-gig .gig-command {
     font-size: 0.68rem;
-    min-height: 28px;
+    min-height: 44px;
     padding-inline: 0.25rem;
     white-space: normal;
   }
@@ -999,5 +1194,27 @@
   .composition-summary > div + div {
     border-left: 0;
     border-top: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 360px) {
+  .header-context {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  .active-deck-context {
+    grid-column: 1 / -1;
+  }
+
+  .status {
+    justify-self: start;
+  }
+
+  .app-navigation [role="tab"] {
+    padding-inline: 12px;
+  }
+
+  .mobile-deck-health {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

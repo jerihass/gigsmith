@@ -40,6 +40,8 @@ export interface ExternalCardArtCoverage {
   total: number;
 }
 
+type CardArtLookupCard = Pick<Card, "id" | "external_id" | "slug" | "printing_id" | "source_image_url" | "set">;
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -110,16 +112,19 @@ function cacheDocumentFromStorage(
     const parsed = JSON.parse(value) as unknown;
     if (!isRecord(parsed)) return undefined;
     if (parsed.schema !== externalCardArtCacheSchema || parsed.version !== externalCardArtCacheVersion) return undefined;
-    if (parsed.sourceUrl !== sourceUrl || parsed.cardDataIdentity !== cardDataIdentity || typeof parsed.expiresAt !== "string") return undefined;
+    const storedCardDataIdentity = typeof parsed.cardDataIdentity === "string" ? parsed.cardDataIdentity : "";
+    if (parsed.sourceUrl !== sourceUrl ||
+      (cardDataIdentity.length > 0 && storedCardDataIdentity !== cardDataIdentity) ||
+      typeof parsed.expiresAt !== "string") return undefined;
     const cacheExpiresAtMs = Date.parse(parsed.expiresAt);
     if (!Number.isFinite(cacheExpiresAtMs) || cacheExpiresAtMs <= nowMs) return undefined;
     if (!Array.isArray(parsed.urls)) return undefined;
 
     const urls: Array<[string, string]> = [];
     for (const entry of parsed.urls) {
-      if (!Array.isArray(entry) || entry.length !== 2) return undefined;
+      if (!Array.isArray(entry) || entry.length !== 2) continue;
       const [key, url] = entry;
-      if (typeof key !== "string" || !signedArtworkUrl(url, nowMs)) return undefined;
+      if (typeof key !== "string" || !signedArtworkUrl(url, nowMs)) continue;
       urls.push([key, url]);
     }
     if (urls.length === 0) return undefined;
@@ -143,9 +148,11 @@ export async function fetchExternalCardArtUrls(
   sourceUrl: string,
   signal?: AbortSignal,
   fetcher: typeof fetch = fetch,
-  nowMs = Date.now()
+  nowMs = Date.now(),
+  setCode?: string
 ): Promise<ReadonlyMap<string, string>> {
   const endpoint = new URL(sourceUrl);
+  if (setCode !== undefined) endpoint.searchParams.set("set", setCode);
   endpoint.searchParams.set("limit", String(externalCardArtFetchLimit));
   endpoint.searchParams.set("offset", "0");
 
@@ -265,11 +272,31 @@ export async function loadExternalCardArtUrls(
   signal?: AbortSignal,
   fetcher: typeof fetch = fetch,
   nowMs = Date.now(),
-  cardDataIdentity = ""
+  cardDataIdentity = "",
+  cards?: ReadonlyArray<CardArtLookupCard>
 ): Promise<ExternalCardArtUrlResult> {
   const cached = loadCachedExternalCardArtDocument(storage, sourceUrl, nowMs, cardDataIdentity);
   if (cached) {
-    return { urls: new Map(cached.urls), source: "cache", refreshAtMs: Date.parse(cached.expiresAt) };
+    const urls = new Map(cached.urls);
+    const missingSetCodes = new Map<string, string>();
+    for (const card of cards ?? []) {
+      if (selectExternalCardArtUrl(card, urls)) continue;
+      const key = card.set.code.trim().toLowerCase();
+      if (key && !missingSetCodes.has(key)) missingSetCodes.set(key, card.set.code);
+    }
+
+    if (missingSetCodes.size === 0) {
+      return { urls, source: "cache", refreshAtMs: Date.parse(cached.expiresAt) };
+    }
+
+    const partialResults = await Promise.all(
+      [...missingSetCodes.values()].map((setCode) => fetchExternalCardArtUrls(sourceUrl, signal, fetcher, nowMs, setCode))
+    );
+    for (const partial of partialResults) {
+      for (const [key, artworkUrl] of partial) urls.set(key, artworkUrl);
+    }
+    saveCachedExternalCardArtUrls(storage, sourceUrl, urls, nowMs, cardDataIdentity);
+    return { urls, source: "network", refreshAtMs: artworkRefreshAtMs(urls, nowMs) };
   }
 
   const urls = await fetchExternalCardArtUrls(sourceUrl, signal, fetcher, nowMs);

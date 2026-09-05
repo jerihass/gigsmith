@@ -206,6 +206,7 @@ describe("external card art", () => {
     saveCachedExternalCardArtUrls(storage, sourceUrl, new Map([["card-1", signedUrl]]), nowMs, "snapshot:100");
 
     expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs + 60_000, "snapshot:100")?.get("card-1")).toBe(signedUrl);
+    expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs + 60_000)?.get("card-1")).toBe(signedUrl);
     expect(loadCachedExternalCardArtUrls(storage, sourceUrl, nowMs + 60_000, "snapshot:104")).toBeUndefined();
   });
 
@@ -247,6 +248,54 @@ describe("external card art", () => {
     expect(fetched.urls.get("card-2")).toBe(signedUrl);
     expect(fetched.refreshAtMs).toBe(nowMs + 12 * 60 * 60 * 1000);
     expect(reloaded?.get("CP-002")).toBe(signedUrl);
+  });
+
+  it("fills art gaps by requesting only the missing card sets", async () => {
+    const storage = createStorage();
+    const cachedCard = {
+      id: "card-1",
+      external_id: "CP-001",
+      slug: "cached-card",
+      printing_id: "print-1",
+      source_image_url: "https://dstcynss47vun.cloudfront.net/card-1.webp",
+      set: { code: "SET-A", name: "Set A" }
+    };
+    const newCard = {
+      id: "card-2",
+      external_id: "CP-002",
+      slug: "new-card",
+      printing_id: "print-2",
+      source_image_url: "https://dstcynss47vun.cloudfront.net/card-2.webp",
+      set: { code: "SET-NEW", name: "New Set" }
+    };
+    saveCachedExternalCardArtUrls(storage, sourceUrl, new Map([[cachedCard.id, signedUrl]]), nowMs);
+    const fetcher = vi.fn(async (input: RequestInfo | URL) => {
+      const endpoint = new URL(String(input));
+      expect(endpoint.searchParams.get("set")).toBe("SET-NEW");
+      return new Response(JSON.stringify({ total: 1, items: [{
+        id: newCard.id,
+        external_id: newCard.external_id,
+        slug: newCard.slug,
+        printing_id: newCard.printing_id,
+        source_image_url: newCard.source_image_url,
+        image_url: signedUrl
+      }] }), { status: 200 });
+    }) as typeof fetch;
+
+    const result = await loadExternalCardArtUrls(
+      storage,
+      sourceUrl,
+      undefined,
+      fetcher,
+      nowMs + 60_000,
+      "",
+      [cachedCard, newCard]
+    );
+
+    expect(result.source).toBe("network");
+    expect(fetcher).toHaveBeenCalledOnce();
+    expect(selectExternalCardArtUrl(cachedCard, result.urls)).toBe(signedUrl);
+    expect(selectExternalCardArtUrl(newCard, result.urls)).toBe(signedUrl);
   });
 
   it("returns the short-lived signature refresh deadline to the caller", async () => {

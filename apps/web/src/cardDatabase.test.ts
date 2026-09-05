@@ -28,6 +28,37 @@ function mockResponse(payload: unknown, status = 200): Response {
   } as Response;
 }
 
+function testCard(id: string, setCode: string, name = id) {
+  return {
+    ...cyberpunkCardSnapshot.cards[0],
+    id,
+    external_id: `external-${id}`,
+    name,
+    display_name: name,
+    slug: id,
+    printing_id: `printing-${id}`,
+    set: { code: setCode, name: `${setCode} Set` }
+  };
+}
+
+function setAwareFetcher(sourceCards: ReturnType<typeof testCard>[]) {
+  return vi.fn((input: RequestInfo | URL) => {
+    const endpoint = new URL(String(input));
+    const setCode = endpoint.searchParams.get("set");
+    const limit = Number(endpoint.searchParams.get("limit") ?? 100);
+    const offset = Number(endpoint.searchParams.get("offset") ?? 0);
+    const cards = setCode
+      ? sourceCards.filter((card) => card.set.code.toLowerCase() === setCode.toLowerCase())
+      : sourceCards;
+    return Promise.resolve(mockResponse({
+      total: cards.length,
+      limit,
+      offset,
+      items: cards.slice(offset, offset + limit)
+    }));
+  });
+}
+
 describe("cardDatabase refresh", () => {
   it("normalizes and validates a Netdeck items payload", async () => {
     const { source_image_url: _sourceImageUrl, ...card } = {
@@ -134,6 +165,151 @@ describe("cardDatabase refresh", () => {
     expect(result.changed).toBe(false);
     expect(result.newCards).toEqual([]);
     expect(result.message).toContain("already current");
+  });
+
+  it("uses one-card set probes when the saved snapshot is already current", async () => {
+    const storage = createStorage();
+    const sourceCards = [
+      testCard("alpha-1", "SET-A", "Alpha One"),
+      testCard("alpha-2", "SET-A", "Alpha Two"),
+      testCard("beta-1", "SET-B", "Beta One")
+    ];
+    const initialFetcher = setAwareFetcher(sourceCards);
+    const initial = await refreshStoredCardDatabase(
+      storage,
+      { metadata: cyberpunkCardSnapshot.metadata, cards: [] },
+      undefined,
+      initialFetcher as unknown as typeof fetch
+    );
+
+    const probeFetcher = setAwareFetcher(sourceCards);
+    const refreshed = await refreshStoredCardDatabase(
+      storage,
+      initial.cardDb!,
+      undefined,
+      probeFetcher as unknown as typeof fetch
+    );
+
+    expect(refreshed.mode).toBe("cache");
+    expect(refreshed.changed).toBe(false);
+    expect(refreshed.cardCount).toBe(sourceCards.length);
+    expect(probeFetcher).toHaveBeenCalled();
+    expect(probeFetcher.mock.calls.every(([input]) => {
+      const endpoint = new URL(String(input));
+      return endpoint.searchParams.get("limit") === "1";
+    })).toBe(true);
+  });
+
+  it("downloads only a changed set when a set gains cards", async () => {
+    const storage = createStorage();
+    const initialCards = [
+      testCard("alpha-1", "SET-A", "Alpha One"),
+      testCard("alpha-2", "SET-A", "Alpha Two"),
+      testCard("beta-1", "SET-B", "Beta One")
+    ];
+    const initial = await refreshStoredCardDatabase(
+      storage,
+      { metadata: cyberpunkCardSnapshot.metadata, cards: [] },
+      undefined,
+      setAwareFetcher(initialCards) as unknown as typeof fetch
+    );
+    const updatedCards = [
+      ...initialCards,
+      testCard("alpha-3", "SET-A", "Alpha Three")
+    ];
+    const fetcher = setAwareFetcher(updatedCards);
+
+    const refreshed = await refreshStoredCardDatabase(
+      storage,
+      initial.cardDb!,
+      undefined,
+      fetcher as unknown as typeof fetch
+    );
+
+    expect(refreshed.mode).toBe("incremental");
+    expect(refreshed.changed).toBe(true);
+    expect(refreshed.newCards.map((card) => card.id)).toEqual(["alpha-3"]);
+    expect(refreshed.cardDb?.cards.map((card) => card.id)).toEqual([
+      "alpha-1",
+      "alpha-2",
+      "alpha-3",
+      "beta-1"
+    ]);
+    const requests = fetcher.mock.calls.map(([input]) => new URL(String(input)));
+    expect(requests.some((endpoint) => endpoint.searchParams.get("set") === "SET-A" && endpoint.searchParams.get("limit") === "100")).toBe(true);
+    expect(requests.some((endpoint) => !endpoint.searchParams.has("set") && endpoint.searchParams.get("limit") === "100")).toBe(false);
+  });
+
+  it("downloads a newly visible boundary set without refreshing existing sets", async () => {
+    const storage = createStorage();
+    const initialCards = [
+      testCard("alpha-1", "SET-A", "Alpha One"),
+      testCard("beta-1", "SET-B", "Beta One")
+    ];
+    const initial = await refreshStoredCardDatabase(
+      storage,
+      { metadata: cyberpunkCardSnapshot.metadata, cards: [] },
+      undefined,
+      setAwareFetcher(initialCards) as unknown as typeof fetch
+    );
+    const updatedCards = [
+      testCard("new-1", "SET-NEW", "New Card"),
+      ...initialCards
+    ];
+    const fetcher = setAwareFetcher(updatedCards);
+
+    const refreshed = await refreshStoredCardDatabase(
+      storage,
+      initial.cardDb!,
+      undefined,
+      fetcher as unknown as typeof fetch
+    );
+
+    expect(refreshed.mode).toBe("incremental");
+    expect(refreshed.cardCount).toBe(3);
+    expect(refreshed.cardDb?.cards.map((card) => card.id)).toEqual(["new-1", "alpha-1", "beta-1"]);
+    expect(fetcher.mock.calls.some(([input]) => {
+      const endpoint = new URL(String(input));
+      return endpoint.searchParams.get("set") === "SET-NEW" && endpoint.searchParams.get("limit") === "100";
+    })).toBe(true);
+    expect(fetcher.mock.calls.some(([input]) => {
+      const endpoint = new URL(String(input));
+      return !endpoint.searchParams.has("set") && endpoint.searchParams.get("limit") === "100";
+    })).toBe(false);
+  });
+
+  it("falls back to a full refresh when a new set cannot be located at a boundary", async () => {
+    const storage = createStorage();
+    const initialCards = [
+      testCard("alpha-1", "SET-A", "Alpha One"),
+      testCard("beta-1", "SET-B", "Beta One")
+    ];
+    const initial = await refreshStoredCardDatabase(
+      storage,
+      { metadata: cyberpunkCardSnapshot.metadata, cards: [] },
+      undefined,
+      setAwareFetcher(initialCards) as unknown as typeof fetch
+    );
+    const updatedCards = [
+      initialCards[0],
+      testCard("new-1", "SET-NEW", "New Card"),
+      initialCards[1]
+    ];
+    const fetcher = setAwareFetcher(updatedCards);
+
+    const refreshed = await refreshStoredCardDatabase(
+      storage,
+      initial.cardDb!,
+      undefined,
+      fetcher as unknown as typeof fetch
+    );
+
+    expect(refreshed.mode).toBe("full");
+    expect(refreshed.cardCount).toBe(3);
+    expect(fetcher.mock.calls.some(([input]) => {
+      const endpoint = new URL(String(input));
+      return !endpoint.searchParams.has("set") && endpoint.searchParams.get("limit") === "100";
+    })).toBe(true);
   });
 
   it("falls back to bundled data when stored data is invalid", () => {

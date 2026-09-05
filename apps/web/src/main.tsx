@@ -441,14 +441,14 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     const controller = new AbortController();
     let refreshTimer: number | undefined;
     setCardArtSourceStatus("loading");
-    const cardDataIdentity = `${cardDb.metadata.cardDataVersion}:${cardDb.metadata.sourceCardCount}`;
     loadExternalCardArtUrls(
       window.localStorage,
       cardDb.metadata.sourceUrl,
       controller.signal,
       fetch,
       Date.now(),
-      cardDataIdentity
+      "",
+      cardDb.cards
     )
       .then(({ urls, refreshAtMs }) => {
         setCardArtUrls(urls);
@@ -467,7 +467,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
       controller.abort();
       if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
     };
-  }, [cardArtEnabled, cardArtRequestVersion, cardDb.metadata.cardDataVersion, cardDb.metadata.sourceCardCount, cardDb.metadata.sourceUrl]);
+  }, [cardArtEnabled, cardArtRequestVersion, cardDb]);
 
   function flushDeferredPersistence() {
     libraryPersistence.flush();

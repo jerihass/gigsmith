@@ -8,8 +8,9 @@ The **External art** checkbox in Card Database is an explicit, device-local opt-
 
 ## Sources And Requests
 
-- Enabling artwork makes one request to the snapshot's Netdeck API source to obtain current signed image URLs.
+- Enabling artwork requests current signed image URLs from the snapshot's Netdeck API source. A warm cache requests only sets containing cards that are missing from the cached URL directory, so newly added sets do not force a full artwork lookup.
 - Signed URLs are cached in local storage under `gigsmith.card-art.urls.v1` for up to 12 hours so returning sessions can populate art without repeating the URL lookup.
+- The signed-URL directory is retained across card-data revisions; entries are refreshed when their signatures expire or when a newly loaded set has missing art.
 - Cached signed URLs are scoped to the source URL and are validated before use; invalid, expired, wrong-source, untrusted-host, and unsigned entries are ignored.
 - Signed URLs are never written to the card snapshot or portable backup.
 - Image URLs must use HTTPS and Netdeck's expected CloudFront artwork host. Other hosts and unsigned paths are rejected.

@@ -108,12 +108,21 @@ Fix the snapshot or update the domain contracts deliberately. Do not work around
 
 The PWA also supports a user-forced refresh from the Transfer tab. That path:
 
-- fetches Netdeck's 100-card pages in sequence only after the user clicks refresh;
+- uses the saved browser-local snapshot as a cache, so a warm refresh first makes a
+  one-card source count probe and one-card first/last probes for each cached set;
+- downloads only sets whose count or boundary cards changed;
+- downloads a newly observed set by itself when it appears at the beginning or end
+  of the ordered source feed;
+- falls back to the full Netdeck page sequence when a new set cannot be located from
+  the source boundaries or the source does not honor set filtering;
+- fetches Netdeck's 100-card pages in sequence only on an initial or fallback refresh;
 - verifies that the assembled card count matches Netdeck's reported `total` before storing it;
 - normalizes Netdeck `items` into the same `CardSnapshot` shape as the bundled file;
 - strips transient signed `image_url` values and stores only stable metadata;
 - validates the downloaded snapshot before accepting it;
 - stores the accepted override in `localStorage` under `gigsmith.card-database.override.v1`;
+- keeps that accepted override as the durable text-data cache, without maintaining a
+  second full copy in browser storage;
 - loads card data in this order: validated user override, then bundled snapshot;
 - exposes a reset action that deletes the override and returns to the bundled snapshot.
 

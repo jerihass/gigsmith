@@ -31,7 +31,7 @@ an iOS 26 deployment target; simulator smoke testing covers launch and basic nav
 ## Scope and follow-up parity
 
 The first native release focuses on offline deck building and analysis. Web-specific PWA
-installation is inapplicable. Match tracking, tactical board editing, playtest journals,
+installation is inapplicable. Tactical board editing, playtest journals,
 version history UI, QR sharing, proxy PDFs, and optional artwork are follow-up slices;
 they must not be advertised as present. Preserve imported deck version history in JSON.
 App Store distribution needs the owner's signing team, icons, and release review.
@@ -60,3 +60,27 @@ remain outside this native deck-building release.
 
 The unsigned Release build for generic physical iOS devices also succeeds against
 the iOS 26.2 SDK. This verifies compilation/linking, not device installation or signing.
+
+
+## Follow-up: native match tracking
+
+Implemented a Match tab that reuses the shared gain/steal/value/turn functions and
+reports Street Cred, overtime and winners. First-player selection, a confirmed new
+match, and bounded undo are native controls. Users enter physical die rolls. Steals
+are explicitly recorded only after combat has resolved; this does not claim tactical
+legality or Blocker handling.
+
+The match is saved atomically in its own file. Failed writes do not change memory or
+undo history. Invalid saved data and incompatible ruleset versions cause a visible
+error and preserve the original file; deck access remains independent. Derived match
+reports are recomputed when loading rather than trusted from storage.
+
+TDD started with failing native contracts, followed by the engine/storage commit and
+the SwiftUI slice. Fourteen Swift tests now pass, including parameterized normal and
+overtime winner timing, transition rejections, reload/undo, and failed saves. All 264
+shared TypeScript tests, native bridge typechecking, and bundle freshness checks pass.
+
+The existing deck UI regression and the new match UI test both pass on iOS 26.0,
+built with the iOS 26.2 SDK. The match test checks gain, undo, turn advancement and
+persisted scores after relaunch. Its screenshot was visually reviewed. Native CI
+already covers this added UI test; no remote CI or signed distribution was performed.

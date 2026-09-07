@@ -42,6 +42,9 @@ xcodebuild -project apps/ios/Gigsmith.xcodeproj -scheme Gigsmith \
 - Notes and version history survive JSON exchange, although there is no history UI yet.
 - Seeded opening hands, sellable counts, composition, Eddy curve and mulligan guidance
   with assumptions, data limitations, sample size and confidence information.
+- Persistent match tracker: gain Gigs, enter/change die values, record resolved steals,
+  advance turns, and see Street Cred, overtime, and winner status. Match undo includes
+  starting a new match; corrupt or incompatible saves are preserved.
 - Standard iOS controls, Dynamic Type, VoiceOver labels, automatic light/dark appearance.
 
 ## Public package API and data
@@ -63,16 +66,28 @@ visible Swift errors. Snapshot and ruleset versions remain attached to every dec
 Swift contract tests cover storage, failed writes, undo/redo, malformed input,
 portable limits, repeatable hands, and JSON/text exchange. Vitest tests remain the
 rule oracle. The Xcode UI test creates a deck, adds a card, opens validation, and
-verifies the saved count after terminating and relaunching the app. UI tests create
-uniquely named smoke decks in the simulator's library.
+verifies the saved count after terminating and relaunching the app. A second test
+checks match gain/undo, turn advancement, and relaunch persistence. UI tests create
+uniquely named smoke decks and replace the simulator's current match.
 
 ## Current limits
 
-This is the native deck-building release, not complete web feature parity. Match
-tracking, tactical board editing, Gig odds UI, playtest journals, version history UI,
+This is the native deck-building release, not complete web feature parity. Tactical board editing, Gig odds UI, playtest journals, version history UI,
 QR sharing, proxy PDFs, and optional artwork remain follow-up work. Mulligan guidance
 currently uses balanced scoring and first-player assumptions. Imported ruleset mismatch
 warnings remain visible; the bundled engine uses the repository's current baseline.
 
 App Store distribution, release icons, signing/provisioning and physical-device QA
 are not completed. See ../../docs/IOS_IMPLEMENTATION.md for the implementation plan.
+
+## Match state
+
+`MatchSession` stores `match.json` next to the deck library, with the ruleset version.
+`RulesEngine` delegates all match transitions to the shared rules package. Stored state
+is checked for native player/die identities, value bounds, and ruleset compatibility;
+derived reports are regenerated on load. Writes are atomic and the last 100 match
+actions can be undone during the session. A match-load error leaves decks available.
+
+This is a tracker for resolved tabletop actions: recording a steal does **not** check
+attack legality, Blockers, or card-effect sequencing. Enter actual die rolls; the app
+does not roll dice or recommend tactical plays.

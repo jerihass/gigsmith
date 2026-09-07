@@ -17,7 +17,7 @@ The current rules baseline is `ruleset.v1-printable-2026-06-19`, derived from th
 
 The native SwiftUI application in [`apps/ios`](apps/ios/README.md) targets iOS 26
 and Swift 6. Open `apps/ios/Gigsmith.xcodeproj` to run it. It reuses the local
-rules engine through JavaScriptCore and supports offline deck building and analysis.
+rules engine through JavaScriptCore and supports offline deck building, analysis, and persistent match tracking.
 See [`docs/IOS_IMPLEMENTATION.md`](docs/IOS_IMPLEMENTATION.md) for scope and validation.
 
 ## Project Docs

@@ -56,7 +56,7 @@ struct MatchView: View {
                     if report.overtime { Label("Overtime", systemImage: "clock.badge.exclamationmark") }
                 }
                 ForEach(report.players, id: \.playerId) { player in
-                    LabeledContent(playerName(player.playerId), value: "\(player.controlledGigCount) Gigs · Street Cred \(player.streetCred)")
+                    LabeledContent(playerName(player.playerId), value: "Gigs: \(player.controlledGigCount) · Street Cred: \(player.streetCred)")
                         .accessibilityElement(children: .ignore)
                         .accessibilityLabel(playerName(player.playerId))
                         .accessibilityValue("\(player.streetCred) Street Cred; \(player.controlledGigCount) Gigs")

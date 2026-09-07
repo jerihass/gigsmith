@@ -17,6 +17,28 @@ export function invoke(operation: string, input: string): string {
     case 'curve': result = core.analyzeEddyCurve(deck, db, rules); break;
     case 'composition': result = core.analyzeDeckComposition(deck, db); break;
     case 'mulligan': result = core.analyzeMulligan(deck, db, rules, { seed: args.seed, goal: args.goal ?? 'balanced', playerOrder: args.playerOrder ?? 'first' }); break;
+    case 'analysis': {
+      const curve = core.analyzeEddyCurve(deck, db, rules);
+      const composition = core.analyzeDeckComposition(deck, db);
+      const mulligan = core.analyzeMulligan(deck, db, rules, { seed: args.seed, goal: 'balanced', playerOrder: 'first' });
+      result = [
+        { title: 'Eddy curve', rows: [
+          `Sellable cards: ${curve.supply.sellableCardCount} (${(curve.supply.sellableDensity * 100).toFixed(1)}%)`,
+          `Average printed cost: ${curve.mainDeckDemand.averagePrintedCost?.toFixed(2) ?? 'Unknown'}`,
+          ...curve.mainDeckDemand.costBuckets.map(b => `Cost ${b.cost}: ${b.cardCount} cards`)
+        ] },
+        { title: 'Composition', rows: [...composition.main.colorBuckets, ...composition.main.typeBuckets].map(b => `${b.label}: ${b.copyCount} cards`) },
+        { title: 'Mulligan · balanced · going first', rows: [
+          `Guidance: ${mulligan.recommendation.replaceAll('-', ' ')}`,
+          `Method: ${mulligan.method}; ${mulligan.sampleSize} hands`,
+          `Confidence: ${(mulligan.confidenceLevel * 100).toFixed(0)}%; score margin ±${mulligan.scoreMarginOfError.toFixed(3)}`,
+          ...mulligan.reasons
+        ] },
+        { title: 'Data limitations', rows: [...curve.warnings, ...composition.warnings, ...mulligan.issues].map(w => w.message) },
+        { title: 'Assumptions', rows: [...new Set([...curve.assumptions, ...composition.assumptions, ...mulligan.assumptions])] }
+      ];
+      break;
+    }
     case 'odds': result = core.analyzeGigOdds(deck, db, cyberpunkGigRequirements, rules); break;
     case 'export': result = exportDeckJson(deck, { includeVersionHistory: true }); break;
     case 'text': result = exportDecklist(deck, db); break;

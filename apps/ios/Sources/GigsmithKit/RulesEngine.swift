@@ -45,5 +45,6 @@ public struct GigsmithError: LocalizedError {
         try call(plainText ? "importText" : "import", extra: ["text": text, "id": UUID().uuidString])
     }
     public func sampleHand(_ deck: Deck, seed: String) throws -> SampleHand { try call("hand", deck: deck, extra: ["seed": seed]) }
+    public func analysis(_ deck: Deck, seed: String) throws -> [AnalysisSection] { try call("analysis", deck: deck, extra: ["seed": seed]) }
     public func ram(_ deck: Deck) throws -> RamReport { try call("ram", deck: deck) }
 }

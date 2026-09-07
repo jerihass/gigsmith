@@ -83,6 +83,8 @@ public struct SampleHand: Codable, Equatable, Sendable {
         public let displayName: String?
     }
     public let cards: [Copy]
+    public struct Issue: Codable, Equatable, Sendable { public let message: String }
+    public let issues: [Issue]
     public let sellableCount: Int
     public let assumptions: [String]
 }
@@ -90,7 +92,7 @@ public struct RamReport: Codable, Sendable {
     public struct Limit: Codable, Sendable { public let color: String; public let limit: Int }
     public let limits: [Limit]
 }
-public struct AnalysisSection: Identifiable, Sendable {
+public struct AnalysisSection: Codable, Identifiable, Sendable {
     public var id: String { title }
     public let title: String
     public let rows: [String]

@@ -1,0 +1,60 @@
+name: Native iOS
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'apps/ios/**'
+      - 'packages/**'
+      - 'scripts/build-ios-engine.mjs'
+      - 'package*.json'
+      - '.github/workflows/ios.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/ios/**'
+      - 'packages/**'
+      - 'scripts/build-ios-engine.mjs'
+      - 'package*.json'
+      - '.github/workflows/ios.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verify shared source and native bundle
+        run: |
+          npm test
+          npm run typecheck:ios
+          npm run check:ios-engine
+      - name: Verify native contracts
+        run: swift test --package-path apps/ios
+      - name: Build with installed iOS 26 SDK
+        run: |
+          xcodebuild -showsdks | grep -q 'iphoneos26'
+          xcodebuild -project apps/ios/Gigsmith.xcodeproj -scheme Gigsmith \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath apps/ios/.derivedData CODE_SIGNING_ALLOWED=NO build
+      - name: Test on an installed iOS 26 simulator
+        shell: bash
+        run: |
+          device_id=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(v["udid"] for k,vs in d.items() if "iOS-26" in k for v in vs if v["name"].startswith("iPhone")))')
+          xcodebuild -project apps/ios/Gigsmith.xcodeproj -scheme Gigsmith \
+            -destination "platform=iOS Simulator,id=$device_id" \
+            -derivedDataPath apps/ios/.derivedData -resultBundlePath /tmp/Gigsmith.xcresult \
+            CODE_SIGNING_ALLOWED=NO test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-test-results
+          path: /tmp/Gigsmith.xcresult

@@ -35,3 +35,28 @@ installation is inapplicable. Match tracking, tactical board editing, playtest j
 version history UI, QR sharing, proxy PDFs, and optional artwork are follow-up slices;
 they must not be advertised as present. Preserve imported deck version history in JSON.
 App Store distribution needs the owner's signing team, icons, and release review.
+
+## Implementation outcome (2026-09-07)
+
+The delivery sequence above is implemented. The Xcode app target supports iPhone and
+iPad with iOS 26.0 minimum, Swift 6 mode and complete strict-concurrency checking.
+The native kit has nine passing Swift Testing contracts. The existing 264 Vitest
+tests pass, as do web and bridge typechecking and the generated-bundle freshness check.
+An XCTest UI smoke test passes on an iPhone 17 Pro Max running iOS 26.0, built with
+Xcode's iOS 26.2 SDK. It verifies creation, card editing, live validation, and persisted
+state after app termination/relaunch. Screens were inspected using XCTest attachments.
+
+TDD commits recorded the absent engine/storage and library/analysis contracts before
+implementation. Additional regression tests cover portable limits and text exchange.
+The simulator run caught a combined-accessibility-label mismatch in the test; the
+persisted card count was correct. Debug now builds the active architecture to match
+SwiftPM dependencies during destination-specific test runs.
+
+Native CI runs the shared tests, bundle check, native tests, simulator build and UI test
+on a macOS runner with an installed iOS 26 SDK/runtime. The workflow is committed;
+remote CI has not been run in this session. Build commands and API notes are in
+`apps/ios/README.md`. Signing, distribution and the listed feature-parity follow-ups
+remain outside this native deck-building release.
+
+The unsigned Release build for generic physical iOS devices also succeeds against
+the iOS 26.2 SDK. This verifies compilation/linking, not device installation or signing.

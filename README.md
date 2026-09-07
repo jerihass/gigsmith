@@ -13,6 +13,13 @@ This repository starts with the constitution-compliant foundation:
 
 The current rules baseline is `ruleset.v1-printable-2026-06-19`, derived from the official printable Cyberpunk TCG gameplay guide. The card metadata snapshot comes from Netdeck's Cyberpunk API and is stored locally for offline use and deterministic tests. External image URLs are references only; card art is not bundled.
 
+## Native iOS
+
+The native SwiftUI application in [`apps/ios`](apps/ios/README.md) targets iOS 26
+and Swift 6. Open `apps/ios/Gigsmith.xcodeproj` to run it. It reuses the local
+rules engine through JavaScriptCore and supports offline deck building and analysis.
+See [`docs/IOS_IMPLEMENTATION.md`](docs/IOS_IMPLEMENTATION.md) for scope and validation.
+
 ## Project Docs
 
 - `docs/BACKLOG.md` tracks milestone work.

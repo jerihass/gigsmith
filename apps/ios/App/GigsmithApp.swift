@@ -2,6 +2,8 @@ import SwiftUI
 import GigsmithKit
 
 @main struct GigsmithApp: App {
+    @AppStorage("gigsmith.appearance") private var appearance = "system"
+    @AppStorage("gigsmith.art.enabled") private var artwork = false
     @State private var library: DeckLibrary?
     @State private var failure: String?
     @State private var recoveryURL: URL?
@@ -21,7 +23,11 @@ import GigsmithKit
                     }
                 } else { ProgressView("Opening offline library…") }
             }
-            .tint(.cyan)
+            .tint(GigsmithTheme.accent)
+            .preferredColorScheme(appearance == "dark" ? .dark : appearance == "light" ? .light : nil)
+            .onChange(of: artwork) { _, enabled in
+                if !enabled { Task { await CardArtCache.shared.cancelRequests() } }
+            }
             .task { if library == nil && failure == nil { load() } }
         }
     }

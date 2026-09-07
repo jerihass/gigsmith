@@ -1,6 +1,25 @@
 import XCTest
 
 final class GigsmithUITests: XCTestCase {
+    @MainActor func testAppearanceAndCacheControls() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.tabBars.buttons["Settings"].tap()
+        XCTAssertTrue(app.buttons["Clear cached artwork"].waitForExistence(timeout: 5))
+        app.buttons["Clear cached artwork"].tap()
+        XCTAssertEqual(app.switches["externalArtwork"].value as? String, "0")
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Theme")).firstMatch.tap()
+        app.buttons["Dark"].tap()
+        app.tabBars.buttons["Cards"].tap()
+        XCTAssertTrue(app.navigationBars["Card database"].waitForExistence(timeout: 5))
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        app.tabBars.buttons["Settings"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Theme")).firstMatch.tap()
+        app.buttons["System"].tap()
+    }
+
     @MainActor func testMatchGainUndoTurnAndRelaunch() throws {
         let app = XCUIApplication()
         app.launch()

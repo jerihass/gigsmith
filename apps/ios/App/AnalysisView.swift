@@ -31,7 +31,7 @@ struct AnalysisView: View {
                 }
             }
         }
-        .navigationTitle("Hand and analysis")
+        .gigsmithSurface().navigationTitle("Hand and analysis")
         .task { analyze() }
     }
     private func analyze() {

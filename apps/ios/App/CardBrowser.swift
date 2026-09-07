@@ -37,7 +37,7 @@ struct CardBrowser: View {
                 }
             }
         }
-        .navigationTitle(deck == nil ? "Card database" : "Add cards")
+        .gigsmithSurface().navigationTitle(deck == nil ? "Card database" : "Add cards")
         .searchable(text: $query, prompt: "Name, rules, classification")
         .overlay { if filtered.isEmpty { ContentUnavailableView.search(text: query) } }
         .onChange(of: deck, initial: true) { _, value in
@@ -70,7 +70,7 @@ struct CardBrowser: View {
                         if report.legal { Text("Your deck meets the bundled ruleset's requirements.") }
                     }
                 }
-                .navigationTitle("Deck validation")
+                .gigsmithSurface().navigationTitle("Deck validation")
                 .toolbar { Button("Done") { showReport = false } }
             }
         }
@@ -79,18 +79,25 @@ struct CardBrowser: View {
 
 struct CardSummary: View {
     let card: Card
+    @AppStorage("gigsmith.art.enabled") private var artwork = false
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            Text(card.display_name).font(.headline)
-            Text("\(card.color) · \(card.card_type) · RAM \(card.ram.map(String.init) ?? "?")")
-                .font(.subheadline).foregroundStyle(.secondary)
+        HStack(spacing: 12) {
+            if artwork { CardArtwork(card: card) }
+            RoundedRectangle(cornerRadius: 2).fill(GigsmithTheme.cardColor(card.color)).frame(width: 4, height: 36)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(card.display_name).font(.headline)
+                Text("\(card.color) · \(card.card_type) · RAM \(card.ram.map(String.init) ?? "?")")
+                    .font(.subheadline).foregroundStyle(.secondary)
+            }
         }.accessibilityElement(children: .combine)
     }
 }
 struct CardDetail: View {
     let card: Card
+    @AppStorage("gigsmith.art.enabled") private var artwork = false
     var body: some View {
         List {
+            if artwork { Section { CardArtwork(card: card, large: true) } }
             Section { CardSummary(card: card).padding(.vertical, 12) }
             Section("Printed stats") {
                 LabeledContent("Cost", value: card.cost.map(String.init) ?? "Unknown")
@@ -101,6 +108,6 @@ struct CardDetail: View {
             Section("Classifications") { Text(card.classifications.joined(separator: ", ")) }
             if !card.keywords.isEmpty { Section("Keywords") { Text(card.keywords.joined(separator: ", ")) } }
         }
-        .navigationTitle(card.display_name).navigationBarTitleDisplayMode(.inline)
+        .gigsmithSurface().navigationTitle(card.display_name).navigationBarTitleDisplayMode(.inline)
     }
 }

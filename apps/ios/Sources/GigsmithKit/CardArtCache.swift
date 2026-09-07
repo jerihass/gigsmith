@@ -37,7 +37,7 @@ public actor CardArtCache {
               let width = properties[kCGImagePropertyPixelWidth] as? Int,
               let height = properties[kCGImagePropertyPixelHeight] as? Int,
               width > 0, height > 0, width <= 12000, height <= 12000, width * height <= 40_000_000 else { return false }
-        return true
+        return CGImageSourceCreateThumbnailAtIndex(source, 0, [kCGImageSourceCreateThumbnailFromImageAlways: true, kCGImageSourceThumbnailMaxPixelSize: 8] as CFDictionary) != nil
     }
     public func image(printingID: String, setCode: String, enabled: Bool) async throws -> Data? {
         guard enabled else { return nil }

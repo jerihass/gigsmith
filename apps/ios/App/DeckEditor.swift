@@ -42,7 +42,7 @@ struct DeckEditor: View {
                         Text(deck.cardDataVersion)
                     }.font(.caption).foregroundStyle(.secondary)
                 }
-                .navigationTitle(deck.name)
+                .gigsmithSurface().navigationTitle(deck.name)
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         Button("Undo", systemImage: "arrow.uturn.backward") { attempt { try library.undo() } }.disabled(!library.canUndo)
@@ -126,7 +126,7 @@ struct DeckEditor: View {
                 }
                 Section("Warnings") { ForEach(Array(report.warnings.enumerated()), id: \.offset) { _, issue in Text(issue.message) } }
             }
-        }.navigationTitle("Deck validation")
+        }.gigsmithSurface().navigationTitle("Deck validation")
     }
     private func attempt(_ action: () throws -> Void) { do { try action() } catch { failure = error.localizedDescription } }
 }

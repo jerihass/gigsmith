@@ -29,7 +29,7 @@ struct LibraryView: View {
                     List {
                         Section {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("BUILD YOUR NEXT RUN").font(.caption.weight(.bold)).foregroundStyle(.secondary)
+                                Label("BUILD YOUR NEXT RUN", systemImage: "bolt.fill").font(.system(.caption, design: .monospaced, weight: .bold)).foregroundStyle(GigsmithTheme.accent)
                                 Text("Your decks. Offline.").font(.title2.bold())
                                 Text("Build, check RAM, and test an opening hand.").foregroundStyle(.secondary)
                             }.padding(.vertical, 8)
@@ -56,7 +56,7 @@ struct LibraryView: View {
                         }
                         Section { Text("Unofficial Cyberpunk TCG companion. Not affiliated with or endorsed by the game's owners.").font(.footnote).foregroundStyle(.secondary) }
                     }
-                    .navigationTitle("Gigsmith")
+                    .gigsmithSurface().navigationTitle("Gigsmith")
                     .toolbar {
                         ToolbarItem(placement: .topBarLeading) {
                             Button("Import", systemImage: "square.and.arrow.down") { importSheet = true }
@@ -68,6 +68,7 @@ struct LibraryView: View {
                     }
                 }
             }
+            Tab("Settings", systemImage: "slider.horizontal.3") { AppearanceSettings() }
             Tab("Match", systemImage: "dice") { MatchWorkspace(engine: library.engine) }
             Tab("Cards", systemImage: "rectangle.on.rectangle") {
                 NavigationStack { CardBrowser(engine: library.engine) }
@@ -104,7 +105,7 @@ struct ImportView: View {
                 if let failure { Section("Import failed") { Text(failure).foregroundStyle(.red).textSelection(.enabled) } }
                 Section { Text("JSON preserves notes and deck version history. Import creates a new deck; your existing decks remain available.").font(.footnote) }
             }
-            .navigationTitle("Import deck")
+            .gigsmithSurface().navigationTitle("Import deck")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {

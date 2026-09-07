@@ -19,7 +19,7 @@ struct MatchWorkspace: View {
                         if let savedURL { ShareLink("Export saved match", item: savedURL) }
                     }
                 } else { ProgressView("Opening match…") }
-            }.navigationTitle("Match")
+            }.gigsmithSurface().navigationTitle("Match")
         }.task { if session == nil && failure == nil { load() } }
     }
     private func load() {
@@ -150,7 +150,7 @@ private struct MatchValueEditor: View {
                 Stepper("Value: \(value)", value: $value, in: 1...gig.maximum)
                 if let failure { Text(failure).foregroundStyle(.red) }
             }
-            .navigationTitle("Change \(gig.dieType) value")
+            .gigsmithSurface().navigationTitle("Change \(gig.dieType) value")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {

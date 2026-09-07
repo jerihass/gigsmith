@@ -68,6 +68,7 @@ struct LibraryView: View {
                     }
                 }
             }
+            Tab("Match", systemImage: "dice") { MatchWorkspace(engine: library.engine) }
             Tab("Cards", systemImage: "rectangle.on.rectangle") {
                 NavigationStack { CardBrowser(engine: library.engine) }
             }

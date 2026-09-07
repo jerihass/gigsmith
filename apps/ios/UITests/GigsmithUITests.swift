@@ -1,6 +1,34 @@
 import XCTest
 
 final class GigsmithUITests: XCTestCase {
+    @MainActor func testMatchGainUndoTurnAndRelaunch() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.tabBars.buttons["Match"].tap()
+        XCTAssertTrue(app.buttons["New match"].waitForExistence(timeout: 10))
+        app.buttons["New match"].tap()
+        app.buttons["You go first"].tap()
+        let roll = app.steppers["rolledValue"]
+        XCTAssertTrue(roll.waitForExistence(timeout: 5))
+        roll.buttons["rolledValue-Increment"].tap()
+        app.buttons["Gain Gig"].tap()
+        let score = app.descendants(matching: .any).matching(identifier: "score-player").firstMatch
+        XCTAssertEqual(score.value as? String, "2 Street Cred; 1 Gigs")
+        app.buttons["Undo match action"].tap()
+        XCTAssertEqual(score.value as? String, "0 Street Cred; 0 Gigs")
+        app.buttons["Gain Gig"].tap()
+        app.buttons["End turn"].tap()
+        XCTAssertTrue(app.staticTexts["Rival · turn 1"].waitForExistence(timeout: 5))
+        app.terminate()
+        app.launch()
+        app.tabBars.buttons["Match"].tap()
+        XCTAssertTrue(app.staticTexts["Rival · turn 1"].waitForExistence(timeout: 5))
+        XCTAssertEqual(score.value as? String, "1 Street Cred; 1 Gigs")
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+    }
+
     @MainActor func testDeckCreationEditingAndOfflineRelaunch() throws {
         let app = XCUIApplication()
         app.launch()

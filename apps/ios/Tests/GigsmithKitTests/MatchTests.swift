@@ -57,7 +57,7 @@ import Testing
     @Test(arguments: [false, true]) func winnerTimingAndCompletedMatchGuards(overtime: Bool) throws {
         let engine = try RulesEngine()
         var match = try engine.newMatch()
-        for _ in 0..<12 {
+        for _ in 0..<(overtime ? 12 : 8) {
             match = try engine.changeMatch(match, action: .gain, gigID: match.report.availableGigIds.first!, value: 1)
             match = try engine.changeMatch(match, action: .advance)
         }
@@ -66,10 +66,15 @@ import Testing
             match = try engine.changeMatch(match, action: .advance)
             #expect(match.report.overtime)
         }
+        if !overtime {
+            match = try engine.changeMatch(match, action: .gain, gigID: match.report.availableGigIds.first!, value: 1)
+            match = try engine.changeMatch(match, action: .steal, gigID: "rival:d6")
+        }
         match = try engine.changeMatch(match, action: .steal, gigID: "rival:d4")
         if !overtime {
             #expect(match.report.winnerId == nil)
             match = try engine.changeMatch(match, action: .advance)
+            match = try engine.changeMatch(match, action: .gain, gigID: match.report.availableGigIds.first!, value: 1)
             match = try engine.changeMatch(match, action: .advance)
         }
         #expect(match.report.winnerId == "player")

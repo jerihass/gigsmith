@@ -8,6 +8,9 @@ struct CardBrowser: View {
     @State private var query = ""
     @State private var type = "All"
     @State private var color = "All"
+    @State private var report: ValidationReport?
+    @State private var reportFailure: String?
+    @State private var showReport = false
 
     private var filtered: [Card] {
         engine.cards.filter { card in
@@ -27,7 +30,7 @@ struct CardBrowser: View {
                         NavigationLink { CardDetail(card: card) } label: { CardSummary(card: card) }
                         if let deck, let onChange {
                             let count = (card.card_type == "Legend" ? deck.legends : deck.main).filter { $0.cardId == card.id }.reduce(0) { $0 + $1.count }
-                            Stepper("Copies: \(count)", value: Binding(get: { count }, set: { onChange(card, $0) }), in: 0...500)
+                            Stepper("Copies: \(count)", value: Binding(get: { count }, set: { onChange(card, $0) }), in: 0...100)
                                 .accessibilityLabel("Copies of \(card.display_name)")
                         }
                     }.padding(.vertical, 4)
@@ -37,6 +40,40 @@ struct CardBrowser: View {
         .navigationTitle(deck == nil ? "Card database" : "Add cards")
         .searchable(text: $query, prompt: "Name, rules, classification")
         .overlay { if filtered.isEmpty { ContentUnavailableView.search(text: query) } }
+        .onChange(of: deck, initial: true) { _, value in
+            guard let value else { return }
+            do { report = try engine.validate(value); reportFailure = nil }
+            catch { report = nil; reportFailure = error.localizedDescription }
+        }
+        .safeAreaInset(edge: .bottom) {
+            if deck != nil {
+                Button {
+                    showReport = true
+                } label: {
+                    Label(report.map { $0.legal ? "Deck is legal" : "\($0.errors.count) deck issues · View details" } ?? "Validation unavailable",
+                          systemImage: report?.legal == true ? "checkmark.seal" : "exclamationmark.triangle")
+                        .frame(maxWidth: .infinity).padding()
+                }.buttonStyle(.plain).background(.regularMaterial).accessibilityIdentifier("liveValidation")
+            }
+        }
+        .sheet(isPresented: $showReport) {
+            NavigationStack {
+                List {
+                    if let reportFailure { Text(reportFailure) }
+                    if let report {
+                        ForEach(Array((report.errors + report.warnings).enumerated()), id: \.offset) { _, issue in
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(issue.message)
+                                ForEach(issue.suggestedFixes ?? [], id: \.self) { Text($0).font(.footnote).foregroundStyle(.secondary) }
+                            }
+                        }
+                        if report.legal { Text("Your deck meets the bundled ruleset's requirements.") }
+                    }
+                }
+                .navigationTitle("Deck validation")
+                .toolbar { Button("Done") { showReport = false } }
+            }
+        }
     }
 }
 

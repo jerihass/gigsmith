@@ -38,7 +38,14 @@ public struct GigsmithError: LocalizedError {
         guard let json = result?.toString(), let data = json.data(using: .utf8) else { throw GigsmithError("The rules engine returned no report.") }
         return try JSONDecoder().decode(T.self, from: data)
     }
-    public func newDeck(name: String) throws -> Deck { try call("newDeck", extra: ["id": UUID().uuidString, "name": name]) }
+    public func newDeck(name: String) throws -> Deck {
+        let deck: Deck = try call("newDeck", extra: ["id": UUID().uuidString, "name": name])
+        try checkPortable(deck)
+        return deck
+    }
+    public func checkPortable(_ deck: Deck) throws {
+        _ = try importDeck(exportDeck(deck))
+    }
     public func validate(_ deck: Deck) throws -> ValidationReport { try call("validate", deck: deck) }
     public func exportDeck(_ deck: Deck) throws -> String { try call("export", deck: deck) }
     public func importDeck(_ text: String, plainText: Bool = false) throws -> Deck {

@@ -18,7 +18,7 @@ struct DeckEditor: View {
             if let deck {
                 List {
                     Section {
-                        LabeledContent("Main deck", value: "\(deck.mainCount) cards")
+                        LabeledContent("Main deck", value: "\(deck.mainCount) \(deck.mainCount == 1 ? "card" : "cards")")
                         if let report {
                             Label(report.legal ? "Deck is legal" : "\(report.errors.count) issues to resolve", systemImage: report.legal ? "checkmark.seal" : "exclamationmark.triangle")
                                 .foregroundStyle(report.legal ? .green : .orange)
@@ -91,7 +91,7 @@ struct DeckEditor: View {
                             guard var deck else { return }
                             deck.setCount(for: card, count: count)
                             attempt { try library.update(deck) }
-                        }), in: 0...max(500, entry.count)).accessibilityLabel("Copies of \(card.display_name)")
+                        }), in: 0...max(100, entry.count)).accessibilityLabel("Copies of \(card.display_name)")
                     }
                 } else {
                     VStack(alignment: .leading) {

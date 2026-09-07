@@ -1,0 +1,78 @@
+# Gigsmith for iOS
+
+Native SwiftUI app for iPhone and iPad, minimum iOS 26.0, Swift 6 language mode
+with complete concurrency checking. No server, login, WebView, or network request
+is needed. Game logic is the existing TypeScript engine bundled into Apple's
+JavaScriptCore; the application UI, file access, state, and storage are Swift.
+
+## Build and run
+
+Requirements: macOS, Xcode with an iOS 26 SDK, Node.js 22, and `npm ci` at the
+repository root. The checked-in engine bundle permits Xcode builds without Node.
+
+```sh
+npm ci
+npm run build:ios-engine
+npm run typecheck:ios
+npm run check:ios-engine
+npm run test:ios
+open apps/ios/Gigsmith.xcodeproj
+```
+
+Select the **Gigsmith** scheme and an iOS 26 iPhone/iPad simulator, then Run.
+For a physical device, set your signing team in Signing & Capabilities.
+
+```sh
+xcodebuild -project apps/ios/Gigsmith.xcodeproj -scheme Gigsmith \
+  -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath apps/ios/.derivedData CODE_SIGNING_ALLOWED=NO build
+
+# Substitute an installed simulator's UDID from `xcrun simctl list devices available`.
+xcodebuild -project apps/ios/Gigsmith.xcodeproj -scheme Gigsmith \
+  -destination 'platform=iOS Simulator,id=SIMULATOR_UDID' \
+  -derivedDataPath apps/ios/.derivedData CODE_SIGNING_ALLOWED=NO test
+```
+
+## Included
+
+- Offline, searchable 104-card database, color/type filters and card rules/details.
+- Multiple saved decks, duplicate/delete, rename, copy editing and bounded undo/redo.
+- Existing versioned deck validation, explanatory fixes and Legend RAM totals.
+- Files import/export for portable Gigsmith JSON and plain-text decklists.
+- Notes and version history survive JSON exchange, although there is no history UI yet.
+- Seeded opening hands, sellable counts, composition, Eddy curve and mulligan guidance
+  with assumptions, data limitations, sample size and confidence information.
+- Standard iOS controls, Dynamic Type, VoiceOver labels, automatic light/dark appearance.
+
+## Public package API and data
+
+`RulesEngine` owns an actor-isolated JavaScriptCore context. Its typed methods load
+cards, create/validate decks, import/export, sample hands, and produce analysis reports.
+`DeckLibrary` owns edits and 100 in-session undo snapshots. A mutation becomes visible
+only after its atomic write succeeds. `DeckStorage` stores a Codable deck array in
+Application Support/Gigsmith/decks.json. A failed decode stops startup and offers a
+copy of the original file instead of replacing it with an empty library. Undo history
+is intentionally not persisted.
+
+`Bridge/index.ts` calls shared packages, and `scripts/build-ios-engine.mjs` produces
+the committed resource. Regenerate it after changing cards, rules, or import/export.
+The native bundle omits optional remote art URLs. No downloaded code is evaluated;
+all user data crosses the bridge as JSON function arguments. Engine exceptions become
+visible Swift errors. Snapshot and ruleset versions remain attached to every deck.
+
+Swift contract tests cover storage, failed writes, undo/redo, malformed input,
+portable limits, repeatable hands, and JSON/text exchange. Vitest tests remain the
+rule oracle. The Xcode UI test creates a deck, adds a card, opens validation, and
+verifies the saved count after terminating and relaunching the app. UI tests create
+uniquely named smoke decks in the simulator's library.
+
+## Current limits
+
+This is the native deck-building release, not complete web feature parity. Match
+tracking, tactical board editing, Gig odds UI, playtest journals, version history UI,
+QR sharing, proxy PDFs, and optional artwork remain follow-up work. Mulligan guidance
+currently uses balanced scoring and first-player assumptions. Imported ruleset mismatch
+warnings remain visible; the bundled engine uses the repository's current baseline.
+
+App Store distribution, release icons, signing/provisioning and physical-device QA
+are not completed. See ../../docs/IOS_IMPLEMENTATION.md for the implementation plan.

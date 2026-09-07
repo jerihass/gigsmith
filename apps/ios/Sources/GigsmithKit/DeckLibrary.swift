@@ -17,6 +17,7 @@ import Observation
     }
     private func commit(_ next: [Deck]) throws {
         guard next != decks else { return }
+        for deck in next where !decks.contains(deck) { try engine.checkPortable(deck) }
         try storage.save(next)
         past.append(decks)
         if past.count > 100 { past.removeFirst() }

@@ -95,3 +95,23 @@ import Testing
         #expect(try engine.sampleHand(deck, seed: "fixture").issues.count > 0)
     }
 }
+
+@Suite @MainActor struct EditingLimitsTests {
+    @Test func invalidNamesAndCountsCannotCreateUnimportableDecks() throws {
+        let engine = try RulesEngine()
+        #expect(throws: (any Error).self) { try engine.newDeck(name: String(repeating: "x", count: 121)) }
+        var deck = try engine.newDeck(name: "Portable")
+        deck.main = [DeckEntry(cardId: engine.cards[0].id, count: 101)]
+        #expect(throws: (any Error).self) { try engine.checkPortable(deck) }
+    }
+}
+
+@Suite @MainActor struct TextInterchangeTests {
+    @Test func plainTextRoundTrip() throws {
+        let engine = try RulesEngine()
+        var deck = try engine.newDeck(name: "Text")
+        deck.main = [DeckEntry(cardId: engine.cards.first { $0.card_type == "Unit" }!.id, count: 2)]
+        let text: String = try engine.call("text", deck: deck)
+        #expect(try engine.importDeck(text, plainText: true).main == deck.main)
+    }
+}

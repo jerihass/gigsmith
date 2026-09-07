@@ -17,7 +17,11 @@
     "test:pwa-builds": "node apps/web/scripts/test-pwa-builds.mjs",
     "check:sources": "node scripts/check-source-changes.mjs",
     "refresh:cards": "node scripts/refresh-card-snapshot.mjs",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "build:ios-engine": "node scripts/build-ios-engine.mjs",
+    "check:ios-engine": "node scripts/build-ios-engine.mjs --check",
+    "typecheck:ios": "tsc -p apps/ios/tsconfig.json",
+    "test:ios": "swift test --package-path apps/ios"
   },
   "dependencies": {
     "lucide-react": "^1.21.0",
@@ -32,6 +36,7 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.7.0",
+    "esbuild": "0.25.12",
     "typescript": "^5.9.3",
     "vite": "^6.4.3",
     "vitest": "^4.1.9"

@@ -2,6 +2,9 @@ import Foundation
 
 public struct Card: Codable, Identifiable, Equatable, Sendable {
     public let id: String
+    public struct CardSet: Codable, Equatable, Sendable { public let code: String; public let name: String }
+    public let printing_id: String
+    public let set: CardSet
     public let display_name: String
     public let color: String
     public let card_type: String

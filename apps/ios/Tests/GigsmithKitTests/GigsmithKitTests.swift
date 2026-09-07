@@ -31,10 +31,10 @@ import Testing
         var deck = try engine.newDeck(name: "Hand")
         deck.main = engine.cards.filter { $0.card_type != "Legend" }.prefix(14).map { DeckEntry(cardId: $0.id, count: 3) }
         let first = try engine.sampleHand(deck, seed: "native-42")
-        #expect(first == engine.sampleHand(deck, seed: "native-42"))
+        #expect(first == (try engine.sampleHand(deck, seed: "native-42")))
         #expect(first.cards.count == 6)
         deck.main[0].count = 4
-        #expect(try engine.validate(deck).errors.contains { $0.code == "copy-limit" })
+        #expect(try engine.validate(deck).errors.contains { $0.code == "max-copies" })
     }
 
     @Test func atomicStorageAndCorruptDataPreservation() throws {

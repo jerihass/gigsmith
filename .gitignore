@@ -9,3 +9,7 @@ playwright-report/
 test-results/
 .env
 .env.*
+apps/ios/.build/
+apps/ios/.derivedData/
+*.xcuserstate
+xcuserdata/

@@ -1,3 +1,4 @@
+import { matchOperation } from './match';
 import { cyberpunkCardDb as db, cyberpunkRulesetV1Printable as rules, cyberpunkGigRequirements } from '@gigsmith/card-data';
 import * as core from '@gigsmith/rules-core';
 import { exportDeckJson, importDeckJson, exportDecklist, importDecklist } from '@gigsmith/deck-io';
@@ -9,6 +10,9 @@ export function invoke(operation: string, input: string): string {
   const deck = args.deck as Deck;
   let result: unknown;
   switch (operation) {
+    case 'matchCreate':
+    case 'matchRestore':
+    case 'matchChange': result = matchOperation(operation, args); break;
     case 'catalog': result = db; break;
     case 'newDeck': result = { id: args.id, name: args.name, legends: [], main: [], formatId: rules.defaultFormatId, rulesetVersion: rules.version, cardDataVersion: db.metadata.cardDataVersion }; break;
     case 'validate': result = core.validateDeck(deck, db, rules); break;

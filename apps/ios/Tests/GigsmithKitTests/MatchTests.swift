@@ -52,3 +52,45 @@ import Testing
         #expect(!session.canUndo)
     }
 }
+
+@Suite @MainActor struct MatchCompletionTests {
+    @Test(arguments: [false, true]) func winnerTimingAndCompletedMatchGuards(overtime: Bool) throws {
+        let engine = try RulesEngine()
+        var match = try engine.newMatch()
+        for _ in 0..<12 {
+            match = try engine.changeMatch(match, action: .gain, gigID: match.report.availableGigIds.first!, value: 1)
+            match = try engine.changeMatch(match, action: .advance)
+        }
+        if overtime {
+            match = try engine.changeMatch(match, action: .advance)
+            match = try engine.changeMatch(match, action: .advance)
+            #expect(match.report.overtime)
+        }
+        match = try engine.changeMatch(match, action: .steal, gigID: "rival:d4")
+        if !overtime {
+            #expect(match.report.winnerId == nil)
+            match = try engine.changeMatch(match, action: .advance)
+            match = try engine.changeMatch(match, action: .advance)
+        }
+        #expect(match.report.winnerId == "player")
+        #expect(match.report.winReason == (overtime ? "overtime-majority" : "start-turn-majority"))
+        #expect(throws: (any Error).self) { try engine.changeMatch(match, action: .advance) }
+    }
+
+    @Test func invalidSavedStateAndRulesVersionAreRejected() throws {
+        let engine = try RulesEngine()
+        let match = try engine.newMatch()
+        var json = try JSONSerialization.jsonObject(with: JSONEncoder().encode(match)) as! [String: Any]
+        var state = json["state"] as! [String: Any]
+        state["activePlayerId"] = "unknown"
+        json["state"] = state
+        let broken = try JSONDecoder().decode(MatchSnapshot.self, from: JSONSerialization.data(withJSONObject: json))
+        #expect(throws: (any Error).self) { try engine.restoreMatch(broken) }
+        json = try JSONSerialization.jsonObject(with: JSONEncoder().encode(match)) as! [String: Any]
+        var report = json["report"] as! [String: Any]
+        report["rulesetVersion"] = "future-rules"
+        json["report"] = report
+        let future = try JSONDecoder().decode(MatchSnapshot.self, from: JSONSerialization.data(withJSONObject: json))
+        #expect(throws: (any Error).self) { try engine.restoreMatch(future) }
+    }
+}

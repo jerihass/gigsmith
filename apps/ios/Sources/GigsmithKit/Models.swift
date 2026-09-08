@@ -61,8 +61,13 @@ public struct Deck: Codable, Identifiable, Equatable, Sendable {
     public var mainCount: Int { main.reduce(0) { $0 + $1.count } }
     public mutating func setCount(for card: Card, count: Int) {
         var entries = card.card_type == "Legend" ? legends : main
-        entries.removeAll { $0.cardId == card.id }
-        if count > 0 { entries.append(DeckEntry(cardId: card.id, count: count)) }
+        if count <= 0 {
+            entries.removeAll { $0.cardId == card.id }
+        } else if let index = entries.firstIndex(where: { $0.cardId == card.id }) {
+            entries[index].count = count
+        } else {
+            entries.append(DeckEntry(cardId: card.id, count: count))
+        }
         if card.card_type == "Legend" { legends = entries } else { main = entries }
     }
 }

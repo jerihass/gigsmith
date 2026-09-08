@@ -87,7 +87,7 @@ struct DeckEditor: View {
     private func entries(_ title: String, entries: [DeckEntry]) -> some View {
         Section(title) {
             if entries.isEmpty { Text("No cards selected").foregroundStyle(.secondary) }
-            ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
+            ForEach(entries, id: \.cardId) { entry in
                 if let card = library.engine.cards.first(where: { $0.id == entry.cardId }) {
                     VStack(alignment: .leading) {
                         NavigationLink { CardDetail(card: card, engine: library.engine) } label: { CardSummary(card: card) }

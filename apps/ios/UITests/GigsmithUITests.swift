@@ -1,6 +1,28 @@
 import XCTest
 
 final class GigsmithUITests: XCTestCase {
+    @MainActor func testLiveDatabaseSyncAndRelaunch() throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["GIGSMITH_DATABASE_REVIEW"] == "1", "Live database review is opt-in.")
+        let app = XCUIApplication()
+        app.launch()
+        app.tabBars.buttons["Cards"].tap()
+        app.buttons["Sync database"].tap()
+        XCTAssertTrue(app.buttons["syncDatabase"].waitForExistence(timeout: 5))
+        app.buttons["syncDatabase"].tap()
+        let status = app.staticTexts["databaseSyncStatus"]
+        let synced = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label CONTAINS %@ OR label CONTAINS %@", "Synced", "up to date"), object: status)
+        XCTAssertEqual(XCTWaiter.wait(for: [synced], timeout: 45), .completed)
+        let version = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "netdeck-cyberpunk-")).firstMatch.label
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        app.terminate()
+        app.launch()
+        app.tabBars.buttons["Cards"].tap()
+        app.buttons["Sync database"].tap()
+        XCTAssertTrue(app.staticTexts[version].waitForExistence(timeout: 5))
+    }
+
     @MainActor func testLiveArtworkRendering() throws {
         try XCTSkipUnless(ProcessInfo.processInfo.environment["GIGSMITH_ART_REVIEW"] == "1", "Live artwork review is opt-in.")
         let app = XCUIApplication()

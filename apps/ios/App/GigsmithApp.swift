@@ -5,13 +5,14 @@ import GigsmithKit
     @AppStorage("gigsmith.appearance") private var appearance = "system"
     @AppStorage("gigsmith.art.enabled") private var artwork = false
     @State private var library: DeckLibrary?
+    @State private var database: CardDatabaseSync?
     @State private var failure: String?
     @State private var recoveryURL: URL?
 
     var body: some Scene {
         WindowGroup {
             Group {
-                if let library { LibraryView(library: library) }
+                if let library, let database { LibraryView(library: library, database: database) }
                 else if let failure {
                     ContentUnavailableView {
                         Label("Library could not open", systemImage: "externaldrive.badge.exclamationmark")
@@ -35,7 +36,10 @@ import GigsmithKit
         do {
             let storage = try DeckStorage.applicationStorage()
             recoveryURL = FileManager.default.fileExists(atPath: storage.url.path) ? storage.url : nil
-            library = try DeckLibrary(engine: RulesEngine(), storage: storage)
+            let engine = try RulesEngine()
+            let database = CardDatabaseSync(engine: engine, url: storage.url.deletingLastPathComponent().appendingPathComponent("cards.json"))
+            library = try DeckLibrary(engine: engine, storage: storage)
+            self.database = database
             failure = nil
         } catch { failure = error.localizedDescription }
     }

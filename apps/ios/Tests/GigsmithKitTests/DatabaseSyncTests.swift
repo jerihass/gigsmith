@@ -86,3 +86,21 @@ private actor DatabasePages {
         #expect(try Data(contentsOf: url) == bad)
     }
 }
+
+@Suite @MainActor struct LiveDatabaseTests {
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["GIGSMITH_LIVE_DATABASE_TEST"] == "1"))
+    func liveDatabaseSyncAndOfflineRestore() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let engine = try RulesEngine()
+        let url = root.appendingPathComponent("cards.json")
+        let sync = CardDatabaseSync(engine: engine, url: url)
+        try await sync.refresh()
+        #expect(engine.cards.count == engine.metadata.sourceCardCount)
+        #expect(engine.cards.count > 0)
+        let restarted = try RulesEngine()
+        let restored = CardDatabaseSync(engine: restarted, url: url, fetch: { _ in throw URLError(.notConnectedToInternet) })
+        #expect(restored.usingSavedSnapshot)
+        #expect(restarted.cards == engine.cards)
+    }
+}

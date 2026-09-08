@@ -33,6 +33,7 @@ struct AnalysisView: View {
         }
         .gigsmithSurface().navigationTitle("Hand and analysis")
         .task { analyze() }
+        .onChange(of: engine.revision) { _, _ in analyze() }
     }
     private func analyze() {
         do {

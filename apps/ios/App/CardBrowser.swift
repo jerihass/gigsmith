@@ -3,6 +3,7 @@ import GigsmithKit
 
 struct CardBrowser: View {
     let engine: RulesEngine
+    var database: CardDatabaseSync?
     var deck: Deck?
     var onChange: ((Card, Int) -> Void)?
     @State private var query = ""
@@ -27,7 +28,7 @@ struct CardBrowser: View {
             Section("\(filtered.count) cards") {
                 ForEach(filtered) { card in
                     VStack(alignment: .leading, spacing: 8) {
-                        NavigationLink { CardDetail(card: card) } label: { CardSummary(card: card) }
+                        NavigationLink { CardDetail(card: card, engine: engine) } label: { CardSummary(card: card) }
                         if let deck, let onChange {
                             let count = (card.card_type == "Legend" ? deck.legends : deck.main).filter { $0.cardId == card.id }.reduce(0) { $0 + $1.count }
                             Stepper("Copies: \(count)", value: Binding(get: { count }, set: { onChange(card, $0) }), in: 0...100)
@@ -38,6 +39,16 @@ struct CardBrowser: View {
             }
         }
         .gigsmithSurface().navigationTitle(deck == nil ? "Card database" : "Add cards")
+        .toolbar {
+            if let database {
+                NavigationLink { DatabaseSettings(database: database) } label: { Label("Sync database", systemImage: "arrow.triangle.2.circlepath") }
+            }
+        }
+        .onChange(of: engine.revision) { _, _ in
+            guard let deck else { return }
+            do { report = try engine.validate(deck); reportFailure = nil }
+            catch { report = nil; reportFailure = error.localizedDescription }
+        }
         .searchable(text: $query, prompt: "Name, rules, classification")
         .overlay { if filtered.isEmpty { ContentUnavailableView.search(text: query) } }
         .onChange(of: deck, initial: true) { _, value in
@@ -93,10 +104,16 @@ struct CardSummary: View {
     }
 }
 struct CardDetail: View {
-    let card: Card
+    let selectedCard: Card
+    let engine: RulesEngine
+    private var card: Card { engine.cards.first { $0.id == selectedCard.id } ?? selectedCard }
+    init(card: Card, engine: RulesEngine) { selectedCard = card; self.engine = engine }
     @AppStorage("gigsmith.art.enabled") private var artwork = false
     var body: some View {
         List {
+            if !engine.cards.contains(where: { $0.id == selectedCard.id }) {
+                Section { Text("This card is absent from the current database. Showing its previously loaded details.").foregroundStyle(.orange) }
+            }
             if artwork { Section { CardArtwork(card: card, large: true) } }
             Section { CardSummary(card: card).padding(.vertical, 12) }
             Section("Printed stats") {

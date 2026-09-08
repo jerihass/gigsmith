@@ -54,6 +54,10 @@ struct DeckEditor: View {
                         } label: { Label("Deck actions", systemImage: "ellipsis.circle") }
                     }
                 }
+                .onChange(of: library.engine.revision) { _, _ in
+                    do { report = try library.engine.validate(deck); ram = try library.engine.ram(deck) }
+                    catch { report = nil; ram = nil; failure = error.localizedDescription }
+                }
                 .onChange(of: deck, initial: true) { _, value in
                     do { report = try library.engine.validate(value); ram = try library.engine.ram(value) }
                     catch { report = nil; ram = nil; failure = error.localizedDescription }
@@ -86,7 +90,7 @@ struct DeckEditor: View {
             ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
                 if let card = library.engine.cards.first(where: { $0.id == entry.cardId }) {
                     VStack(alignment: .leading) {
-                        NavigationLink { CardDetail(card: card) } label: { CardSummary(card: card) }
+                        NavigationLink { CardDetail(card: card, engine: library.engine) } label: { CardSummary(card: card) }
                         Stepper("Copies: \(entry.count)", value: Binding(get: { entry.count }, set: { count in
                             guard var deck else { return }
                             deck.setCount(for: card, count: count)

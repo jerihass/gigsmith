@@ -17,6 +17,7 @@ struct DeckFile: FileDocument {
 
 struct LibraryView: View {
     @Bindable var library: DeckLibrary
+    let database: CardDatabaseSync
     @State private var newDeck = false
     @State private var name = ""
     @State private var importSheet = false
@@ -68,10 +69,10 @@ struct LibraryView: View {
                     }
                 }
             }
-            Tab("Settings", systemImage: "slider.horizontal.3") { AppearanceSettings() }
+            Tab("Settings", systemImage: "slider.horizontal.3") { AppearanceSettings(database: database) }
             Tab("Match", systemImage: "dice") { MatchWorkspace(engine: library.engine) }
             Tab("Cards", systemImage: "rectangle.on.rectangle") {
-                NavigationStack { CardBrowser(engine: library.engine) }
+                NavigationStack { CardBrowser(engine: library.engine, database: database) }
             }
         }
         .alert("New deck", isPresented: $newDeck) {

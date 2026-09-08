@@ -67,6 +67,7 @@ struct CardArtwork: View {
 }
 
 struct AppearanceSettings: View {
+    let database: CardDatabaseSync
     @AppStorage("gigsmith.appearance") private var appearance = "system"
     @AppStorage("gigsmith.art.enabled") private var artwork = false
     @State private var bytes = 0
@@ -75,6 +76,11 @@ struct AppearanceSettings: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    NavigationLink { DatabaseSettings(database: database) } label: {
+                        Label("Card database · \(database.engine.cards.count) cards", systemImage: "arrow.triangle.2.circlepath")
+                    }
+                }
                 Section("Appearance") {
                     Picker("Theme", selection: $appearance) {
                         Text("System").tag("system")
@@ -102,8 +108,48 @@ struct AppearanceSettings: View {
                 if let failure { Section("Cache error") { Text(failure).foregroundStyle(.red) } }
             }
             .gigsmithSurface()
-            .navigationTitle("Appearance & art")
+            .navigationTitle("Settings")
             .task { bytes = await CardArtCache.shared.cachedBytes() }
         }
+    }
+}
+
+
+struct DatabaseSettings: View {
+    @Bindable var database: CardDatabaseSync
+    @State private var reset = false
+    @State private var failure: String?
+    var body: some View {
+        Form {
+            Section("Current database") {
+                LabeledContent("Source", value: database.engine.metadata.sourceName)
+                LabeledContent("Cards", value: "\(database.engine.cards.count)")
+                LabeledContent("Stored locally", value: database.usingSavedSnapshot ? "Yes" : "Bundled snapshot")
+                Text(database.engine.metadata.cardDataVersion).font(.caption).textSelection(.enabled)
+                Text("Retrieved: \(database.engine.metadata.sourceRetrievedAt)").font(.caption).foregroundStyle(.secondary)
+            }
+            Section {
+                Button {
+                    Task { do { try await database.refresh() } catch { /* Status is retained by the sync service. */ } }
+                } label: { Label("Sync from Netdeck", systemImage: "arrow.clockwise") }
+                    .disabled(database.isSyncing).accessibilityIdentifier("syncDatabase")
+                if database.isSyncing { ProgressView(database.progress) }
+                if let message = database.message { Text(message).accessibilityIdentifier("databaseSyncStatus") }
+                if let warning = database.loadWarning { Text(warning).foregroundStyle(.orange) }
+                Text("Downloads the current text database from Netdeck and saves it for offline use. This does not enable artwork, upload decks, or change the bundled game rules.")
+                    .font(.footnote).foregroundStyle(.secondary)
+            }
+            Section {
+                Button("Use bundled database", role: .destructive) { reset = true }.disabled(database.isSyncing)
+                Text("Existing decks retain their card IDs and original data version. Validation will flag missing cards or version differences.").font(.footnote).foregroundStyle(.secondary)
+            }
+            if let failure { Text(failure).foregroundStyle(.red) }
+        }
+        .gigsmithSurface().navigationTitle("Card database sync")
+        .confirmationDialog("Use the bundled database?", isPresented: $reset, titleVisibility: .visible) {
+            Button("Use bundled database", role: .destructive) {
+                do { try database.useBundledSnapshot() } catch { failure = error.localizedDescription }
+            }
+        } message: { Text("This replaces your downloaded snapshot. Your decks stay saved, but cards added by the source may become unavailable until you sync again.") }
     }
 }

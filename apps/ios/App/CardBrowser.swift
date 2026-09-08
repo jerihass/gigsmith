@@ -115,8 +115,8 @@ struct CardDetail: View {
                 Section { Text("This card is absent from the current database. Showing its previously loaded details.").foregroundStyle(.orange) }
             }
             if artwork { Section { CardArtwork(card: card, large: true) } }
-            Section { CardSummary(card: card).padding(.vertical, 12) }
-            Section("Printed stats") {
+            if !artwork { Section { CardSummary(card: card).padding(.vertical, 12) } }
+            Section(artwork ? "\(card.color) · \(card.card_type)" : "Printed stats") {
                 LabeledContent("Cost", value: card.cost.map(String.init) ?? "Unknown")
                 LabeledContent("Power", value: card.power.map(String.init) ?? "Unknown")
                 LabeledContent("RAM", value: card.ram.map(String.init) ?? "Unknown")

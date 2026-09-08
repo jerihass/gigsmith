@@ -35,7 +35,8 @@ xcodebuild -project apps/ios/Gigsmith.xcodeproj -scheme Gigsmith \
 
 ## Included
 
-- Offline, searchable 104-card database, color/type filters and card rules/details.
+- Offline, searchable database with 104 bundled cards, color/type filters and card rules/details.
+- On-demand Netdeck database sync, validated snapshots, and offline restore on launch.
 - Multiple saved decks, duplicate/delete, rename, copy editing and bounded undo/redo.
 - Existing versioned deck validation, explanatory fixes and Legend RAM totals.
 - Files import/export for portable Gigsmith JSON and plain-text decklists.
@@ -103,3 +104,37 @@ loads lazily in card rows and details; cached images remain usable offline. Clea
 artwork also turns the preference off. See ../../docs/CARD_ART.md for request, cache,
 validation, and opt-in live-test details. The deterministic native suite skips live
 network tests unless explicitly enabled.
+
+## Database sync
+
+Open **Cards → Sync database → Sync from Netdeck**, or **Settings → Card database**.
+The app fetches every page from the same Netdeck Cyberpunk endpoint used by the web
+app, validates the complete snapshot with the shared data contracts, and saves it
+atomically as Application Support/Gigsmith/cards.json. The card browser, validation,
+RAM totals, and analysis use the new snapshot immediately. Subsequent launches load
+the saved database without a network request.
+
+Native sync currently performs a full refresh; it does not use the web app's incremental
+probes. The data version includes a content hash so corrections are detected even when
+the card count stays unchanged. Failed downloads, invalid snapshots, inconsistent page
+totals, or failed saves leave the active database and decks unchanged. A corrupt saved
+snapshot is preserved and launch falls back to bundled cards with a visible warning.
+
+Existing decks retain their IDs and original data versions; validation reports missing
+cards or version differences. **Use bundled database** restores the shipped snapshot
+after confirmation. Sync updates card data, not the bundled rules engine. Artwork
+remains separately opt-in, and transient artwork URLs are omitted from saved snapshots.
+
+Deterministic sync tests use fixture pages. Optional live checks contact Netdeck and
+are excluded from regular test runs:
+
+```sh
+GIGSMITH_LIVE_DATABASE_TEST=1 swift test --package-path apps/ios \
+  --filter liveDatabaseSyncAndOfflineRestore
+
+# This UI review updates the simulator's saved card database.
+xcodebuild -project apps/ios/Gigsmith.xcodeproj -scheme GigsmithDatabaseReview \
+  -only-testing:GigsmithUITests/GigsmithUITests/testLiveDatabaseSyncAndRelaunch \
+  -destination 'platform=iOS Simulator,id=SIMULATOR_UDID' \
+  -derivedDataPath apps/ios/.derivedData CODE_SIGNING_ALLOWED=NO test
+```

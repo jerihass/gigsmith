@@ -107,3 +107,26 @@ external artwork is enabled, a real card image is loaded and displayed, a screen
 is captured, and artwork is disabled again. The screenshot was visually reviewed.
 Regular CI retains its network-free default. Local Xcode signing edits were preserved
 separately from the implementation commits.
+
+## Follow-up: Netdeck database sync (2026-09-08)
+
+Cards and Settings now expose an explicit sync action against the web app's Netdeck
+Cyberpunk source. Native sync downloads the full paginated snapshot, validates it with
+the shared data contracts, enriches keywords, removes transient artwork URLs, and
+atomically saves it for offline launch. It does not yet use the web's incremental
+probes. Content-hashed versions detect corrections independently of card counts.
+
+The observable rules adapter updates both card browsing and the shared rules database;
+open validation, RAM and analysis reports refresh. Deck IDs and original data versions
+remain unchanged. Failed syncs preserve the active snapshot, and corrupt saved data is
+preserved while bundled cards keep the app usable. A confirmed restore action selects
+the bundled snapshot. Game rules remain bundled, and artwork remains separately opt-in.
+
+TDD began with failing pagination, offline restore, invalid-page, duplicate-card,
+failed-save and corrupt-file contracts. The native suite passes, as do all 264 shared
+TypeScript tests, bridge typechecking and engine freshness checks. Existing simulator
+UI regressions pass. Opt-in live data tests verify a real download and offline restore.
+The dedicated GigsmithDatabaseReview UI test also passes on iOS 26.0 with the iOS 26.2
+SDK: it synced 151 cards (47 additions to the bundle), then relaunched and verified the
+same saved version. Its screenshot was visually reviewed. Live checks remain excluded
+from normal CI. Local Xcode signing edits remain outside these commits.

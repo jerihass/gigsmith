@@ -1,62 +1,348 @@
 // !$*UTF8*$!
-{ archiveVersion = 1; classes = {}; objectVersion = 56; objects = {
-B00000000000000000000001 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/Appearance.swift"; sourceTree = "<group>"; };
-B00000000000000000000002 = { isa = PBXBuildFile; fileRef = B00000000000000000000001; };
-A00000000000000000000001 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/MatchView.swift"; sourceTree = "<group>"; };
-A00000000000000000000002 = { isa = PBXBuildFile; fileRef = A00000000000000000000001; };
-1F304F22C5A5550F43BA7780 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/AnalysisView.swift"; sourceTree = "<group>"; };
-20DB709E8D17FA599105DEE2 = { isa = PBXBuildFile; fileRef = 1F304F22C5A5550F43BA7780; };
-CB1F87E03E91361542DC3D43 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/CardBrowser.swift"; sourceTree = "<group>"; };
-88A22E5F48F058FDE85F5CC7 = { isa = PBXBuildFile; fileRef = CB1F87E03E91361542DC3D43; };
-0BD7F6BE8F3CD035E2E578AD = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/DeckEditor.swift"; sourceTree = "<group>"; };
-38425318E3D2DC254FDC4940 = { isa = PBXBuildFile; fileRef = 0BD7F6BE8F3CD035E2E578AD; };
-B7900E12349476D58A0452C1 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/GigsmithApp.swift"; sourceTree = "<group>"; };
-14192D716331D219672E5C55 = { isa = PBXBuildFile; fileRef = B7900E12349476D58A0452C1; };
-C3A71EB8A1870D5145885724 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/LibraryView.swift"; sourceTree = "<group>"; };
-19C8EB4B95C22316B8790D14 = { isa = PBXBuildFile; fileRef = C3A71EB8A1870D5145885724; };
-38A007151ABE87CC01A5B6E9 = { isa = PBXFileReference; explicitFileType = wrapper.application; path = Gigsmith.app; sourceTree = BUILT_PRODUCTS_DIR; };
-FBDC4F23F93125BBEEAE800C = { isa = PBXGroup; children = (38A007151ABE87CC01A5B6E9,9D3AD977850B7EAC0E4F6585,); name = Products; sourceTree = "<group>"; };
-B28B7AF69320201D1CF206EB = { isa = PBXGroup; children = (B00000000000000000000001,A00000000000000000000001,4DDE1B02B46FB05CF1955EC0,1F304F22C5A5550F43BA7780,CB1F87E03E91361542DC3D43,0BD7F6BE8F3CD035E2E578AD,B7900E12349476D58A0452C1,C3A71EB8A1870D5145885724,FBDC4F23F93125BBEEAE800C,); sourceTree = "<group>"; };
-BCE16DD0260827ECF338C787 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B00000000000000000000002,A00000000000000000000002,20DB709E8D17FA599105DEE2,88A22E5F48F058FDE85F5CC7,38425318E3D2DC254FDC4940,14192D716331D219672E5C55,19C8EB4B95C22316B8790D14,); runOnlyForDeploymentPostprocessing = 0; };
-582681C2EAE02B3F3D399C0C = { isa = XCLocalSwiftPackageReference; relativePath = .; };
-E9FAD0C6CD43534327C0AF90 = { isa = XCSwiftPackageProductDependency; package = 582681C2EAE02B3F3D399C0C; productName = GigsmithKit; };
-4F0AA52D656A3D75867F784B = { isa = PBXBuildFile; productRef = E9FAD0C6CD43534327C0AF90; };
-7561BFB015D8F536760CB671 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (4F0AA52D656A3D75867F784B,); runOnlyForDeploymentPostprocessing = 0; };
-0189424A5A60FED329FA868E = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-89E1FD6268CC0F221A2BE178 = { isa = XCBuildConfiguration; name = Debug; buildSettings = { SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 26.0; SWIFT_VERSION = 6.0; SWIFT_STRICT_CONCURRENCY = complete; CLANG_ENABLE_MODULES = YES; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; ONLY_ACTIVE_ARCH = YES; DEBUG_INFORMATION_FORMAT = dwarf; }; };
-7082CC0B6FC1282FCEABD07A = { isa = XCBuildConfiguration; name = Debug; buildSettings = {
- PRODUCT_BUNDLE_IDENTIFIER = com.gigsmith.ios; PRODUCT_NAME = "$(TARGET_NAME)"; GENERATE_INFOPLIST_FILE = YES;
- INFOPLIST_KEY_CFBundleDisplayName = Gigsmith; INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
- INFOPLIST_KEY_UILaunchScreen_Generation = YES; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
- INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
- INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
- TARGETED_DEVICE_FAMILY = "1,2"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO;
- CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; MARKETING_VERSION = 0.1.0;
- LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
- }; };
-E6DE6C99132752C914FEF632 = { isa = XCBuildConfiguration; name = Release; buildSettings = { SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 26.0; SWIFT_VERSION = 6.0; SWIFT_STRICT_CONCURRENCY = complete; CLANG_ENABLE_MODULES = YES; SWIFT_OPTIMIZATION_LEVEL = "-O"; DEBUG_INFORMATION_FORMAT = dwarf; }; };
-639A7CA24D39909E713B47F7 = { isa = XCBuildConfiguration; name = Release; buildSettings = {
- PRODUCT_BUNDLE_IDENTIFIER = com.gigsmith.ios; PRODUCT_NAME = "$(TARGET_NAME)"; GENERATE_INFOPLIST_FILE = YES;
- INFOPLIST_KEY_CFBundleDisplayName = Gigsmith; INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
- INFOPLIST_KEY_UILaunchScreen_Generation = YES; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
- INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
- INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
- TARGETED_DEVICE_FAMILY = "1,2"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO;
- CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; MARKETING_VERSION = 0.1.0;
- LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
- }; };
-793D6D7C60BD6329D6F91FDB = { isa = XCConfigurationList; buildConfigurations = (89E1FD6268CC0F221A2BE178,E6DE6C99132752C914FEF632,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-D61E3363DEF3F4E448C68105 = { isa = XCConfigurationList; buildConfigurations = (7082CC0B6FC1282FCEABD07A,639A7CA24D39909E713B47F7,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-0E8A3AD980EC179856012B7E = { isa = PBXNativeTarget; buildConfigurationList = D61E3363DEF3F4E448C68105; buildPhases = (BCE16DD0260827ECF338C787,7561BFB015D8F536760CB671,0189424A5A60FED329FA868E,); buildRules = (); dependencies = (); name = Gigsmith; packageProductDependencies = (E9FAD0C6CD43534327C0AF90,); productName = Gigsmith; productReference = 38A007151ABE87CC01A5B6E9; productType = "com.apple.product-type.application"; };
-98F54143AB4E86B28C3AFEE0 = { isa = PBXProject; attributes = { BuildIndependentTargetsInParallel = YES; LastSwiftUpdateCheck = 2620; LastUpgradeCheck = 2620; }; buildConfigurationList = 793D6D7C60BD6329D6F91FDB; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base); mainGroup = B28B7AF69320201D1CF206EB; packageReferences = (582681C2EAE02B3F3D399C0C,); productRefGroup = FBDC4F23F93125BBEEAE800C; projectDirPath = ""; projectRoot = ""; targets = (0E8A3AD980EC179856012B7E,D24B997AF00C71C20D86BE4D,); };
-4DDE1B02B46FB05CF1955EC0 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITests/GigsmithUITests.swift; sourceTree = "<group>"; };
-8F69D2603037B23E80BB9FA3 = { isa = PBXBuildFile; fileRef = 4DDE1B02B46FB05CF1955EC0; };
-9D3AD977850B7EAC0E4F6585 = { isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = GigsmithUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-95FC400A54C228DD62344224 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (8F69D2603037B23E80BB9FA3,); runOnlyForDeploymentPostprocessing = 0; };
-5538D6C94541880BC3B9A168 = { isa = PBXContainerItemProxy; containerPortal = 98F54143AB4E86B28C3AFEE0; proxyType = 1; remoteGlobalIDString = 0E8A3AD980EC179856012B7E; remoteInfo = Gigsmith; };
-24A9817702DACA7B798D84ED = { isa = PBXTargetDependency; target = 0E8A3AD980EC179856012B7E; targetProxy = 5538D6C94541880BC3B9A168; };
-59CE1A55E3C0DC7EDB1A684D = { isa = XCBuildConfiguration; name = Debug; buildSettings = { CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; PRODUCT_BUNDLE_IDENTIFIER = com.gigsmith.ios.uitests; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = "1,2"; TEST_TARGET_NAME = Gigsmith; SWIFT_EMIT_LOC_STRINGS = NO; }; };
-003254340176A76C2BC8F6D4 = { isa = XCBuildConfiguration; name = Release; buildSettings = { CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; PRODUCT_BUNDLE_IDENTIFIER = com.gigsmith.ios.uitests; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = "1,2"; TEST_TARGET_NAME = Gigsmith; SWIFT_EMIT_LOC_STRINGS = NO; }; };
-AA87153CE8A1AC8326D1F803 = { isa = XCConfigurationList; buildConfigurations = (59CE1A55E3C0DC7EDB1A684D,003254340176A76C2BC8F6D4,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-D24B997AF00C71C20D86BE4D = { isa = PBXNativeTarget; buildConfigurationList = AA87153CE8A1AC8326D1F803; buildPhases = (95FC400A54C228DD62344224,); buildRules = (); dependencies = (24A9817702DACA7B798D84ED,); name = GigsmithUITests; productName = GigsmithUITests; productReference = 9D3AD977850B7EAC0E4F6585; productType = "com.apple.product-type.bundle.ui-testing"; };
-}; rootObject = 98F54143AB4E86B28C3AFEE0; }
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		14192D716331D219672E5C55 /* App/GigsmithApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7900E12349476D58A0452C1 /* App/GigsmithApp.swift */; };
+		19C8EB4B95C22316B8790D14 /* App/LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A71EB8A1870D5145885724 /* App/LibraryView.swift */; };
+		20DB709E8D17FA599105DEE2 /* App/AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F304F22C5A5550F43BA7780 /* App/AnalysisView.swift */; };
+		38425318E3D2DC254FDC4940 /* App/DeckEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BD7F6BE8F3CD035E2E578AD /* App/DeckEditor.swift */; };
+		4F0AA52D656A3D75867F784B /* GigsmithKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9FAD0C6CD43534327C0AF90 /* GigsmithKit */; };
+		88A22E5F48F058FDE85F5CC7 /* App/CardBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1F87E03E91361542DC3D43 /* App/CardBrowser.swift */; };
+		8F69D2603037B23E80BB9FA3 /* UITests/GigsmithUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DDE1B02B46FB05CF1955EC0 /* UITests/GigsmithUITests.swift */; };
+		A00000000000000000000002 /* App/MatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000001 /* App/MatchView.swift */; };
+		B00000000000000000000002 /* App/Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000001 /* App/Appearance.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5538D6C94541880BC3B9A168 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 98F54143AB4E86B28C3AFEE0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0E8A3AD980EC179856012B7E;
+			remoteInfo = Gigsmith;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0BD7F6BE8F3CD035E2E578AD /* App/DeckEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/DeckEditor.swift; sourceTree = "<group>"; };
+		1F304F22C5A5550F43BA7780 /* App/AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AnalysisView.swift; sourceTree = "<group>"; };
+		38A007151ABE87CC01A5B6E9 /* Gigsmith.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = Gigsmith.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DDE1B02B46FB05CF1955EC0 /* UITests/GigsmithUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITests/GigsmithUITests.swift; sourceTree = "<group>"; };
+		9D3AD977850B7EAC0E4F6585 /* GigsmithUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = GigsmithUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000001 /* App/MatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/MatchView.swift; sourceTree = "<group>"; };
+		B00000000000000000000001 /* App/Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Appearance.swift; sourceTree = "<group>"; };
+		B7900E12349476D58A0452C1 /* App/GigsmithApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/GigsmithApp.swift; sourceTree = "<group>"; };
+		C3A71EB8A1870D5145885724 /* App/LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/LibraryView.swift; sourceTree = "<group>"; };
+		CB1F87E03E91361542DC3D43 /* App/CardBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/CardBrowser.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7561BFB015D8F536760CB671 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F0AA52D656A3D75867F784B /* GigsmithKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B28B7AF69320201D1CF206EB = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000001 /* App/Appearance.swift */,
+				A00000000000000000000001 /* App/MatchView.swift */,
+				4DDE1B02B46FB05CF1955EC0 /* UITests/GigsmithUITests.swift */,
+				1F304F22C5A5550F43BA7780 /* App/AnalysisView.swift */,
+				CB1F87E03E91361542DC3D43 /* App/CardBrowser.swift */,
+				0BD7F6BE8F3CD035E2E578AD /* App/DeckEditor.swift */,
+				B7900E12349476D58A0452C1 /* App/GigsmithApp.swift */,
+				C3A71EB8A1870D5145885724 /* App/LibraryView.swift */,
+				FBDC4F23F93125BBEEAE800C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FBDC4F23F93125BBEEAE800C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				38A007151ABE87CC01A5B6E9 /* Gigsmith.app */,
+				9D3AD977850B7EAC0E4F6585 /* GigsmithUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0E8A3AD980EC179856012B7E /* Gigsmith */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D61E3363DEF3F4E448C68105 /* Build configuration list for PBXNativeTarget "Gigsmith" */;
+			buildPhases = (
+				BCE16DD0260827ECF338C787 /* Sources */,
+				7561BFB015D8F536760CB671 /* Frameworks */,
+				0189424A5A60FED329FA868E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Gigsmith;
+			packageProductDependencies = (
+				E9FAD0C6CD43534327C0AF90 /* GigsmithKit */,
+			);
+			productName = Gigsmith;
+			productReference = 38A007151ABE87CC01A5B6E9 /* Gigsmith.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D24B997AF00C71C20D86BE4D /* GigsmithUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA87153CE8A1AC8326D1F803 /* Build configuration list for PBXNativeTarget "GigsmithUITests" */;
+			buildPhases = (
+				95FC400A54C228DD62344224 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				24A9817702DACA7B798D84ED /* PBXTargetDependency */,
+			);
+			name = GigsmithUITests;
+			productName = GigsmithUITests;
+			productReference = 9D3AD977850B7EAC0E4F6585 /* GigsmithUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		98F54143AB4E86B28C3AFEE0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+			};
+			buildConfigurationList = 793D6D7C60BD6329D6F91FDB /* Build configuration list for PBXProject "Gigsmith" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B28B7AF69320201D1CF206EB;
+			packageReferences = (
+				582681C2EAE02B3F3D399C0C /* XCLocalSwiftPackageReference "." */,
+			);
+			productRefGroup = FBDC4F23F93125BBEEAE800C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0E8A3AD980EC179856012B7E /* Gigsmith */,
+				D24B997AF00C71C20D86BE4D /* GigsmithUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0189424A5A60FED329FA868E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		95FC400A54C228DD62344224 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8F69D2603037B23E80BB9FA3 /* UITests/GigsmithUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BCE16DD0260827ECF338C787 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000002 /* App/Appearance.swift in Sources */,
+				A00000000000000000000002 /* App/MatchView.swift in Sources */,
+				20DB709E8D17FA599105DEE2 /* App/AnalysisView.swift in Sources */,
+				88A22E5F48F058FDE85F5CC7 /* App/CardBrowser.swift in Sources */,
+				38425318E3D2DC254FDC4940 /* App/DeckEditor.swift in Sources */,
+				14192D716331D219672E5C55 /* App/GigsmithApp.swift in Sources */,
+				19C8EB4B95C22316B8790D14 /* App/LibraryView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		24A9817702DACA7B798D84ED /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0E8A3AD980EC179856012B7E /* Gigsmith */;
+			targetProxy = 5538D6C94541880BC3B9A168 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		003254340176A76C2BC8F6D4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gigsmith.ios.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Gigsmith;
+			};
+			name = Release;
+		};
+		59CE1A55E3C0DC7EDB1A684D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gigsmith.ios.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Gigsmith;
+			};
+			name = Debug;
+		};
+		639A7CA24D39909E713B47F7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7W77348744;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Gigsmith;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gigsmith.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		7082CC0B6FC1282FCEABD07A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7W77348744;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Gigsmith;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gigsmith.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		89E1FD6268CC0F221A2BE178 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		E6DE6C99132752C914FEF632 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		793D6D7C60BD6329D6F91FDB /* Build configuration list for PBXProject "Gigsmith" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				89E1FD6268CC0F221A2BE178 /* Debug */,
+				E6DE6C99132752C914FEF632 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA87153CE8A1AC8326D1F803 /* Build configuration list for PBXNativeTarget "GigsmithUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				59CE1A55E3C0DC7EDB1A684D /* Debug */,
+				003254340176A76C2BC8F6D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D61E3363DEF3F4E448C68105 /* Build configuration list for PBXNativeTarget "Gigsmith" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7082CC0B6FC1282FCEABD07A /* Debug */,
+				639A7CA24D39909E713B47F7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		582681C2EAE02B3F3D399C0C /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E9FAD0C6CD43534327C0AF90 /* GigsmithKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 582681C2EAE02B3F3D399C0C /* XCLocalSwiftPackageReference "." */;
+			productName = GigsmithKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 98F54143AB4E86B28C3AFEE0 /* Project object */;
+}

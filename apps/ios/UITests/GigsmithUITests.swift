@@ -39,6 +39,12 @@ final class GigsmithUITests: XCTestCase {
         let artwork = app.descendants(matching: .any).matching(identifier: "cardArtwork").firstMatch
         let loaded = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Loaded"), object: artwork)
         XCTAssertEqual(XCTWaiter.wait(for: [loaded], timeout: 30), .completed)
+        let loadingAgain = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Loading"), object: artwork)
+        loadingAgain.isInverted = true
+        XCTAssertEqual(XCTWaiter.wait(for: [loadingAgain], timeout: 3), .completed, "Loaded artwork must not cycle back to its placeholder")
+        app.tabBars.buttons["Settings"].tap()
+        app.tabBars.buttons["Cards"].tap()
+        XCTAssertEqual(artwork.value as? String, "Loaded", "Returning to a card must retain its artwork")
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.lifetime = .keepAlways
         add(screenshot)

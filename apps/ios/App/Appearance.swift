@@ -27,8 +27,11 @@ struct CardArtwork: View {
     @AppStorage("gigsmith.art.enabled") private var enabled = false
     @State private var image: UIImage?
     @State private var unavailable = false
+    @State private var loader = ArtworkLoader()
+    @State private var renderedKey: String?
     var body: some View {
-        Group {
+        // Keep the task on one container as its placeholder becomes an image.
+        ZStack {
             if let image { Image(uiImage: image).resizable().scaledToFit() }
             else {
                 RoundedRectangle(cornerRadius: 8).fill(GigsmithTheme.accent.opacity(0.08))
@@ -50,18 +53,20 @@ struct CardArtwork: View {
         .accessibilityIdentifier("cardArtwork")
         .accessibilityHidden(!large)
         .task(id: "\(card.printing_id):\(enabled)") {
-            image = nil; unavailable = false
-            guard enabled else { return }
-            do {
-                guard let data = try await CardArtCache.shared.image(printingID: card.printing_id, setCode: card.set.code, enabled: enabled) else { return }
-                try Task.checkCancellation()
-                guard enabled else { return }
+            let key = card.printing_id
+            if !enabled || renderedKey != key { image = nil; renderedKey = nil; unavailable = false }
+            await loader.load(key: key, enabled: enabled) {
+                try await CardArtCache.shared.image(printingID: key, setCode: card.set.code, enabled: enabled)
+            }
+            guard !Task.isCancelled, enabled else { return }
+            if let data = loader.data, image == nil {
                 let source = CGImageSourceCreateWithData(data as CFData, nil)
                 let options: [CFString: Any] = [kCGImageSourceCreateThumbnailFromImageAlways: true, kCGImageSourceThumbnailMaxPixelSize: large ? 1000 : 180, kCGImageSourceCreateThumbnailWithTransform: true]
-                if let source, let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) { image = UIImage(cgImage: thumbnail) }
+                if let source, let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) {
+                    image = UIImage(cgImage: thumbnail); renderedKey = key; unavailable = false
+                }
                 else { unavailable = true }
-            } catch is CancellationError { }
-            catch { unavailable = true }
+            } else if loader.unavailable { unavailable = true }
         }
     }
 }

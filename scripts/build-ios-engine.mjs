@@ -5,8 +5,8 @@ const result = await build({
   entryPoints: [new URL('../apps/ios/Bridge/index.ts', import.meta.url).pathname],
   bundle: true, format: 'iife', globalName: 'GigsmithBridge', platform: 'neutral',
   target: 'es2022', minify: true, write: false,
-  // Native v1 is text-only. URL is a browser API absent in JavaScriptCore;
-  // omit optional art references rather than introducing a URL polyfill.
+  // Swift resolves optional artwork separately. JavaScriptCore has no browser URL API;
+  // omit art references from the rules bundle rather than introducing a URL polyfill.
   plugins: [{ name: 'native-text-snapshot', setup(builder) {
     builder.onLoad({ filter: /cyberpunk-snapshot\.json$/ }, async ({ path }) => {
       const snapshot = JSON.parse(await readFile(path, 'utf8'));

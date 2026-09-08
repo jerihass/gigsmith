@@ -83,7 +83,7 @@ private actor DelayedArtwork {
         if begun { return }
         await withCheckedContinuation { waiter = $0 }
     }
-    func finish() async { image?.resume(returning: await requests.bytes); image = nil }
+    func finish() async { image?.resume(returning: requests.bytes); image = nil }
 }
 @Suite struct ArtworkCancellationTests {
     @Test func clearDuringDownloadCannotRepopulateCache() async throws {

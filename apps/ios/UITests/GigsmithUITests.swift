@@ -1,6 +1,29 @@
 import XCTest
 
 final class GigsmithUITests: XCTestCase {
+    @MainActor func testLiveArtworkRendering() throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["GIGSMITH_ART_REVIEW"] == "1", "Live artwork review is opt-in.")
+        let app = XCUIApplication()
+        app.launch()
+        app.tabBars.buttons["Settings"].tap()
+        let toggle = app.switches["externalArtwork"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
+        if toggle.value as? String == "0" { toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap() }
+        XCTAssertEqual(toggle.value as? String, "1")
+        app.tabBars.buttons["Cards"].tap()
+        let card = app.buttons.containing(.staticText, identifier: "6th Street Recruits").firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5))
+        card.tap()
+        let artwork = app.descendants(matching: .any).matching(identifier: "cardArtwork").firstMatch
+        let loaded = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Loaded"), object: artwork)
+        XCTAssertEqual(XCTWaiter.wait(for: [loaded], timeout: 30), .completed)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        app.tabBars.buttons["Settings"].tap()
+        if toggle.value as? String == "1" { toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap() }
+    }
+
     @MainActor func testAppearanceAndCacheControls() throws {
         let app = XCUIApplication()
         app.launch()

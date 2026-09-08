@@ -44,7 +44,11 @@ struct CardArtwork: View {
         .frame(width: large ? nil : 52, height: large ? 330 : 74)
         .frame(maxWidth: large ? .infinity : nil)
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .accessibilityHidden(true)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Card artwork for \(card.display_name)")
+        .accessibilityValue(image != nil ? "Loaded" : unavailable ? "Unavailable" : "Loading")
+        .accessibilityIdentifier("cardArtwork")
+        .accessibilityHidden(!large)
         .task(id: "\(card.printing_id):\(enabled)") {
             image = nil; unavailable = false
             guard enabled else { return }

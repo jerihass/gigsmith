@@ -45,7 +45,11 @@ xcodebuild -project apps/ios/Gigsmith.xcodeproj -scheme Gigsmith \
 - Persistent match tracker: gain Gigs, enter/change die values, record resolved steals,
   advance turns, and see Street Cred, overtime, and winner status. Match undo includes
   starting a new match; corrupt or incompatible saves are preserved.
-- Standard iOS controls, Dynamic Type, VoiceOver labels, automatic light/dark appearance.
+- Adaptive cyan theme, readable light/dark surfaces, and card-color markers; Settings
+  offers System, Dark and Light appearances.
+- Optional card artwork with offline disk caching, coalesced requests, a 100 MiB limit,
+  and a clear-cache control. Artwork remains off until explicitly enabled in Settings.
+- Standard iOS controls, Dynamic Type and VoiceOver labels.
 
 ## Public package API and data
 
@@ -59,7 +63,7 @@ is intentionally not persisted.
 
 `Bridge/index.ts` calls shared packages, and `scripts/build-ios-engine.mjs` produces
 the committed resource. Regenerate it after changing cards, rules, or import/export.
-The native bundle omits optional remote art URLs. No downloaded code is evaluated;
+The native rules bundle omits optional remote art URLs; the Swift artwork client resolves signed URLs when enabled. No downloaded code is evaluated;
 all user data crosses the bridge as JSON function arguments. Engine exceptions become
 visible Swift errors. Snapshot and ruleset versions remain attached to every deck.
 
@@ -73,7 +77,7 @@ uniquely named smoke decks and replace the simulator's current match.
 ## Current limits
 
 This is the native deck-building release, not complete web feature parity. Tactical board editing, Gig odds UI, playtest journals, version history UI,
-QR sharing, proxy PDFs, and optional artwork remain follow-up work. Mulligan guidance
+QR sharing and proxy PDFs remain follow-up work. Mulligan guidance
 currently uses balanced scoring and first-player assumptions. Imported ruleset mismatch
 warnings remain visible; the bundled engine uses the repository's current baseline.
 
@@ -91,3 +95,11 @@ actions can be undone during the session. A match-load error leaves decks availa
 This is a tracker for resolved tabletop actions: recording a steal does **not** check
 attack legality, Blockers, or card-effect sequencing. Enter actual die rolls; the app
 does not roll dice or recommend tactical plays.
+
+## Appearance and artwork
+
+Open Settings to choose System, Dark or Light and enable External artwork. Artwork
+loads lazily in card rows and details; cached images remain usable offline. Clear cached
+artwork also turns the preference off. See ../../docs/CARD_ART.md for request, cache,
+validation, and opt-in live-test details. The deterministic native suite skips live
+network tests unless explicitly enabled.

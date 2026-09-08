@@ -32,7 +32,7 @@ an iOS 26 deployment target; simulator smoke testing covers launch and basic nav
 
 The first native release focuses on offline deck building and analysis. Web-specific PWA
 installation is inapplicable. Tactical board editing, playtest journals,
-version history UI, QR sharing, proxy PDFs, and optional artwork are follow-up slices;
+version history UI, QR sharing, and proxy PDFs are follow-up slices;
 they must not be advertised as present. Preserve imported deck version history in JSON.
 App Store distribution needs the owner's signing team, icons, and release review.
 
@@ -84,3 +84,26 @@ The existing deck UI regression and the new match UI test both pass on iOS 26.0,
 built with the iOS 26.2 SDK. The match test checks gain, undo, turn advancement and
 persisted scores after relaunch. Its screenshot was visually reviewed. Native CI
 already covers this added UI test; no remote CI or signed distribution was performed.
+
+
+## Follow-up: appearance and cached artwork
+
+Added adaptive cyan accents, dark blue-gray surfaces, card-color markers, and System/
+Dark/Light selection. Standard controls, semantic text colors and Dynamic Type remain
+in use. External artwork is separately opt-in in Settings. The native client resolves
+signed URLs, caches validated image bytes on disk, and renders downsampled thumbnails
+and detail art. A 100 MiB LRU budget and clear-cache control bound storage. Clearing
+cancels active downloads and prevents them from writing back into the cleared cache.
+
+Test-first cache contracts cover opt-out, coalescing, offline reuse, bounds, invalid
+data, URL rejection and clearing while a request is in flight. The deterministic suite
+passes (the live download test is skipped by default); a separately enabled real-source
+download and offline reread also pass. The deck/match UI regressions and appearance/
+cache-control UI test pass on iOS 26.0 using the iOS 26.2 SDK. The Dark Mode screenshot
+was visually inspected. Artwork is never bundled or exported with deck data.
+
+The dedicated opt-in GigsmithArtworkReview scheme also passes its live rendering test:
+external artwork is enabled, a real card image is loaded and displayed, a screenshot
+is captured, and artwork is disabled again. The screenshot was visually reviewed.
+Regular CI retains its network-free default. Local Xcode signing edits were preserved
+separately from the implementation commits.

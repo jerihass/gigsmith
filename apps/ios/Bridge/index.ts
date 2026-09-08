@@ -1,8 +1,11 @@
 import { matchOperation } from './match';
-import { cyberpunkCardDb as db, cyberpunkRulesetV1Printable as rules, cyberpunkGigRequirements } from '@gigsmith/card-data';
+import { prepareCatalog } from './catalog';
+import { cyberpunkCardDb as bundledDb, cyberpunkRulesetV1Printable as rules, cyberpunkGigRequirements } from '@gigsmith/card-data';
 import * as core from '@gigsmith/rules-core';
 import { exportDeckJson, importDeckJson, exportDecklist, importDecklist } from '@gigsmith/deck-io';
 import type { Deck } from '@gigsmith/data-contracts';
+
+let db = bundledDb;
 
 // Only JSON crosses this boundary. No DOM, network, eval of user input, or remote code.
 export function invoke(operation: string, input: string): string {
@@ -13,6 +16,9 @@ export function invoke(operation: string, input: string): string {
     case 'matchCreate':
     case 'matchRestore':
     case 'matchChange': result = matchOperation(operation, args); break;
+    case 'prepareCatalog': result = JSON.stringify(prepareCatalog(args.text)); break;
+    case 'installCatalog': db = prepareCatalog(args.text); result = true; break;
+    case 'bundledCatalog': result = JSON.stringify(bundledDb); break;
     case 'catalog': result = db; break;
     case 'newDeck': result = { id: args.id, name: args.name, legends: [], main: [], formatId: rules.defaultFormatId, rulesetVersion: rules.version, cardDataVersion: db.metadata.cardDataVersion }; break;
     case 'validate': result = core.validateDeck(deck, db, rules); break;

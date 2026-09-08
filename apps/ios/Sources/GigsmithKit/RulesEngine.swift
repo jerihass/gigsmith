@@ -1,5 +1,6 @@
 import Foundation
 import JavaScriptCore
+import Observation
 
 public struct GigsmithError: LocalizedError {
     public let message: String
@@ -8,10 +9,12 @@ public struct GigsmithError: LocalizedError {
 }
 
 /// JSContext never crosses actor boundaries. User content is passed as arguments, never source.
-@MainActor public final class RulesEngine {
+@MainActor @Observable public final class RulesEngine {
     private let context: JSContext
     private let function: JSValue
     public private(set) var cards: [Card] = []
+    public private(set) var metadata = CatalogMetadata.empty
+    public private(set) var revision = 0
     public init() throws {
         guard let context = JSContext(),
               let url = Bundle.module.url(forResource: "engine", withExtension: "js") else {
@@ -24,8 +27,8 @@ public struct GigsmithError: LocalizedError {
             throw GigsmithError("The bundled rules engine could not start.")
         }
         self.function = function
-        struct Catalog: Decodable { let cards: [Card] }
-        let catalog: Catalog = try call("catalog")
+        let catalog: NativeCatalog = try call("catalog")
+        metadata = catalog.metadata
         cards = catalog.cards.sorted { $0.display_name.localizedStandardCompare($1.display_name) == .orderedAscending }
     }
     public func call<T: Decodable>(_ operation: String, deck: Deck? = nil, extra: [String: String] = [:]) throws -> T {
@@ -37,6 +40,20 @@ public struct GigsmithError: LocalizedError {
         if let error = context.exception { throw GigsmithError(error.toString()) }
         guard let json = result?.toString(), let data = json.data(using: .utf8) else { throw GigsmithError("The rules engine returned no report.") }
         return try JSONDecoder().decode(T.self, from: data)
+    }
+    struct PreparedCatalog {
+        let json: String
+        let catalog: NativeCatalog
+    }
+    func prepareDatabase(_ text: String) throws -> PreparedCatalog {
+        let json: String = try call("prepareCatalog", extra: ["text": text])
+        return PreparedCatalog(json: json, catalog: try JSONDecoder().decode(NativeCatalog.self, from: Data(json.utf8)))
+    }
+    func installDatabase(_ prepared: PreparedCatalog) throws {
+        let _: Bool = try call("installCatalog", extra: ["text": prepared.json])
+        cards = prepared.catalog.cards.sorted { $0.display_name.localizedStandardCompare($1.display_name) == .orderedAscending }
+        metadata = prepared.catalog.metadata
+        revision += 1
     }
     public func newDeck(name: String) throws -> Deck {
         let deck: Deck = try call("newDeck", extra: ["id": UUID().uuidString, "name": name])

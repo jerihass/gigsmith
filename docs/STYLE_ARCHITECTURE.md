@@ -37,7 +37,8 @@ The Night City workbench themes are defined as custom properties in `styles/base
 | Success | `--success` |
 | Danger | `--danger` |
 | Standard control/item radius | `3px` |
-| Panel/dialog radius | `4px` |
+| Panel radius | `0` (square workbench framing) |
+| Dialog radius | Feature-specific; phone sheets retain rounded corners |
 | Primary layout gap | `16px` |
 | App maximum width | `1380px` |
 
@@ -65,3 +66,21 @@ npx playwright test e2e/accessibility-and-offline.spec.ts
 ```
 
 Browser coverage checks desktop and Pixel 7 widths for horizontal overflow and accessibility. Feature-specific workflows cover dialogs, tools, analysis, card media, and transfer states.
+
+## Cyberpunk presentation
+
+The shell uses a subtle 48px circuit grid, yellow command accents, cyan framing,
+an uppercase italic wordmark, and terminal typography for navigation and numeric
+readouts. Navigation icons supplement the existing text labels and are hidden
+from assistive technology. Panel markers and header stripes are decorative CSS.
+Neon adds restrained magenta offsets and glow; Light retains its contrast tokens.
+No remote fonts or image assets are required. Reduced-motion preferences disable
+transitions. Keep effects away from body text, preserve keyboard focus outlines,
+and avoid clipping containers that hold interactive controls.
+
+The native iOS counterpart lives in `apps/ios/App/Appearance.swift`.
+`GigsmithTheme` supplies adaptive colors; `gigsmithSurface()` supplies the static
+circuit background, and `gigsmithPanel()` supplies list surfaces and separators.
+`WorkbenchBanner` is the library masthead. Typography uses system text styles to
+retain Dynamic Type, and decorative shapes are hidden from VoiceOver. Native
+navigation, steppers, swipe actions, and appearance preferences stay standard.

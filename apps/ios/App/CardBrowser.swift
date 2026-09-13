@@ -101,11 +101,11 @@ struct CardSummary: View {
     var body: some View {
         HStack(spacing: 12) {
             if artwork { CardArtwork(card: card) }
-            RoundedRectangle(cornerRadius: 2).fill(GigsmithTheme.cardColor(card.color)).frame(width: 4, height: 36)
+            Rectangle().fill(GigsmithTheme.cardColor(card.color)).frame(width: 3, height: 40).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 5) {
                 Text(card.display_name).font(.headline)
                 Text("\(card.color) · \(card.card_type) · RAM \(card.ram.map(String.init) ?? "?")")
-                    .font(.subheadline).foregroundStyle(.secondary)
+                    .font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
             }
         }.accessibilityElement(children: .combine)
     }

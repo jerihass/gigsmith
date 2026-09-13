@@ -2,22 +2,89 @@ import SwiftUI
 import GigsmithKit
 import ImageIO
 
-/// High-contrast accents adapt to the system appearance; card colors also retain text labels.
+/// Adaptive accents keep the same visual identity in bright and dark environments.
 enum GigsmithTheme {
-    static let accent = Color(uiColor: UIColor { traits in
-        traits.userInterfaceStyle == .dark ? UIColor(red: 0.25, green: 0.88, blue: 0.94, alpha: 1) : UIColor(red: 0, green: 0.38, blue: 0.46, alpha: 1)
-    })
-    static let background = Color(uiColor: UIColor { traits in
-        traits.userInterfaceStyle == .dark ? UIColor(red: 0.035, green: 0.055, blue: 0.085, alpha: 1) : UIColor(red: 0.94, green: 0.96, blue: 0.97, alpha: 1)
-    })
+    static let accent = adaptive(dark: (0.18, 0.91, 0.96), light: (0, 0.36, 0.42))
+    static let command = adaptive(dark: (0.95, 0.89, 0.15), light: (0.43, 0.36, 0))
+    static let background = adaptive(dark: (0.025, 0.04, 0.055), light: (0.93, 0.96, 0.96))
+    static let surface = adaptive(dark: (0.055, 0.08, 0.095), light: (0.98, 0.99, 0.99))
+    static let border = adaptive(dark: (0.19, 0.29, 0.32), light: (0.62, 0.73, 0.75))
+
+    private static func adaptive(dark: (Double, Double, Double), light: (Double, Double, Double)) -> Color {
+        Color(uiColor: UIColor { traits in
+            let value = traits.userInterfaceStyle == .dark ? dark : light
+            return UIColor(red: value.0, green: value.1, blue: value.2, alpha: 1)
+        })
+    }
+
     static func cardColor(_ name: String) -> Color {
-        switch name { case "Red": .red; case "Yellow": .yellow; case "Green": .green; case "Blue": .blue; default: .gray }
+        switch name {
+        case "Red": adaptive(dark: (1, 0.40, 0.48), light: (0.72, 0.12, 0.23))
+        case "Yellow": command
+        case "Green": adaptive(dark: (0.29, 0.88, 0.61), light: (0.05, 0.43, 0.25))
+        case "Blue": accent
+        default: adaptive(dark: (0.75, 0.66, 0.86), light: (0.43, 0.31, 0.55))
+        }
     }
 }
+
+private struct CircuitBackground: View {
+    var body: some View {
+        ZStack {
+            GigsmithTheme.background
+            LinearGradient(colors: [GigsmithTheme.accent.opacity(0.07), .clear], startPoint: .topTrailing, endPoint: .bottomLeading)
+            Canvas { context, size in
+                var grid = Path()
+                for x in stride(from: 0.0, through: size.width, by: 40) {
+                    grid.move(to: CGPoint(x: x, y: 0)); grid.addLine(to: CGPoint(x: x, y: size.height))
+                }
+                for y in stride(from: 0.0, through: size.height, by: 40) {
+                    grid.move(to: CGPoint(x: 0, y: y)); grid.addLine(to: CGPoint(x: size.width, y: y))
+                }
+                context.stroke(grid, with: .color(GigsmithTheme.accent.opacity(0.045)), lineWidth: 0.5)
+            }
+        }.ignoresSafeArea().allowsHitTesting(false).accessibilityHidden(true)
+    }
+}
+
 extension View {
     func gigsmithSurface() -> some View {
         scrollContentBackground(.hidden)
-            .background(Rectangle().fill(GigsmithTheme.background.gradient).ignoresSafeArea())
+            .background(CircuitBackground())
+            .toolbarBackground(GigsmithTheme.background, for: .navigationBar)
+    }
+
+    func gigsmithPanel() -> some View {
+        listRowBackground(GigsmithTheme.surface)
+            .listRowSeparatorTint(GigsmithTheme.border)
+    }
+}
+
+struct WorkbenchBanner: View {
+    let title: String
+    let subtitle: String
+    let symbol: String
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label(title, systemImage: symbol)
+                .font(.system(.caption, design: .monospaced, weight: .bold))
+                .foregroundStyle(GigsmithTheme.command)
+            Text(subtitle).font(.title2.weight(.heavy)).fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 6) {
+                Rectangle().fill(GigsmithTheme.accent).frame(width: 6, height: 6).accessibilityHidden(true)
+                Text("BUILD / ANALYZE / PLAY")
+                    .font(.system(.caption2, design: .monospaced, weight: .medium))
+                    .tracking(1.5).foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 16)
+        .overlay(alignment: .top) { Rectangle().fill(GigsmithTheme.command).frame(height: 2).accessibilityHidden(true) }
+        .overlay(alignment: .bottomTrailing) {
+            HStack(spacing: 3) {
+                ForEach(0..<7) { _ in Rectangle().fill(GigsmithTheme.accent).frame(width: 5, height: 3) }
+            }.accessibilityHidden(true)
+        }
     }
 }
 
@@ -92,7 +159,7 @@ struct AppearanceSettings: View {
                         Text("Dark").tag("dark")
                         Text("Light").tag("light")
                     }
-                    Text("Cyan accents and card-color markers keep the interface readable at the table.").font(.footnote).foregroundStyle(.secondary)
+                    Text("Cyan framing, yellow highlights, and card-color markers adapt for a readable cyberpunk workbench.").font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("Card artwork") {
                     Toggle("External artwork", isOn: $artwork).accessibilityIdentifier("externalArtwork")

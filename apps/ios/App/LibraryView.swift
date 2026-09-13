@@ -29,12 +29,9 @@ struct LibraryView: View {
                 NavigationStack {
                     List {
                         Section {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Label("BUILD YOUR NEXT RUN", systemImage: "bolt.fill").font(.system(.caption, design: .monospaced, weight: .bold)).foregroundStyle(GigsmithTheme.accent)
-                                Text("Your decks. Offline.").font(.title2.bold())
-                                Text("Build, check RAM, and test an opening hand.").foregroundStyle(.secondary)
-                            }.padding(.vertical, 8)
-                        }
+                            WorkbenchBanner(title: "BUILD YOUR NEXT RUN", subtitle: "Your decks. Offline.", symbol: "bolt.fill")
+                        }.gigsmithPanel()
+
                         if library.decks.isEmpty {
                             ContentUnavailableView("No decks yet", systemImage: "rectangle.stack.badge.plus", description: Text("Create a deck or import a Gigsmith JSON file."))
                         }
@@ -43,12 +40,21 @@ struct LibraryView: View {
                                 NavigationLink {
                                     DeckEditor(library: library, deckID: deck.id)
                                 } label: {
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        Text(deck.name).font(.headline)
-                                        Text("\(deck.legends.reduce(0) { $0 + $1.count }) Legends · \(deck.mainCount) main cards")
-                                            .font(.subheadline).foregroundStyle(.secondary)
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "rectangle.stack")
+                                            .foregroundStyle(GigsmithTheme.command)
+                                            .padding(10)
+                                            .background(GigsmithTheme.accent.opacity(0.08))
+                                            .overlay(Rectangle().stroke(GigsmithTheme.border, lineWidth: 1))
+                                            .accessibilityHidden(true)
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            Text(deck.name).font(.headline)
+                                            Text("\(deck.legends.reduce(0) { $0 + $1.count }) Legends · \(deck.mainCount) main cards")
+                                                .font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
+                                        }
                                     }.padding(.vertical, 5)
                                 }
+                                .gigsmithPanel()
                                 .swipeActions {
                                     Button("Delete", role: .destructive) { attempt { try library.delete(id: deck.id) } }
                                     Button("Duplicate") { attempt { try library.duplicate(deck) } }.tint(.blue)

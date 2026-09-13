@@ -1,7 +1,7 @@
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 .card-row span {
@@ -18,7 +18,8 @@
 .panel {
   min-width: 0;
   padding: 18px;
-  box-shadow: inset 0 2px 0 rgb(69 216 232 / 10%);
+  background-image: linear-gradient(120deg, color-mix(in srgb, var(--cyan) 3%, transparent), transparent 35%);
+  box-shadow: inset 0 2px 0 color-mix(in srgb, var(--cyan) 30%, transparent), 0 8px 24px rgb(0 0 0 / 8%);
 }
 
 .panel-title {
@@ -34,4 +35,23 @@
   flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
+}
+
+.panel-title > h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-terminal);
+  font-size: 0.94rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.panel-title > h2::before {
+  content: "";
+  width: 4px;
+  height: 16px;
+  flex: 0 0 auto;
+  background: var(--accent);
+  box-shadow: 5px 0 0 color-mix(in srgb, var(--accent) 20%, transparent);
 }

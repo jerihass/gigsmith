@@ -49,10 +49,10 @@ struct MatchView: View {
         List {
             Section {
                 if let winner = report.winnerId {
-                    Label("\(playerName(winner)) won", systemImage: "trophy.fill").font(.title2.bold())
+                    Label("\(playerName(winner)) won", systemImage: "trophy.fill").font(.system(.title2, design: .monospaced, weight: .bold)).foregroundStyle(GigsmithTheme.command)
                     Text(report.winReason == "overtime-majority" ? "Overtime majority" : "Majority at the start of the turn")
                 } else {
-                    Text("\(playerName(report.activePlayerId)) · turn \(report.activePlayerTurn)").font(.title2.bold()).accessibilityIdentifier("activeTurn")
+                    Text("\(playerName(report.activePlayerId)) · turn \(report.activePlayerTurn)").font(.system(.title2, design: .monospaced, weight: .bold)).foregroundStyle(GigsmithTheme.command).accessibilityIdentifier("activeTurn")
                     if report.overtime { Label("Overtime", systemImage: "clock.badge.exclamationmark") }
                 }
                 ForEach(report.players, id: \.playerId) { player in
@@ -61,8 +61,9 @@ struct MatchView: View {
                         .accessibilityLabel(playerName(player.playerId))
                         .accessibilityValue("\(player.streetCred) Street Cred; \(player.controlledGigCount) Gigs")
                         .accessibilityIdentifier("score-\(player.playerId)")
+                        .monospacedDigit()
                 }
-            }
+            }.gigsmithPanel()
             if report.winnerId == nil {
                 Section("Start phase · gain a Gig") {
                     if available.isEmpty {
@@ -103,6 +104,7 @@ struct MatchView: View {
                 Text(report.rulesetVersion).font(.caption).foregroundStyle(.secondary)
             }
         }
+        .gigsmithSurface()
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button("Undo match action", systemImage: "arrow.uturn.backward") { attempt { try session.undo() } }.disabled(!session.canUndo)

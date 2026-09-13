@@ -1137,3 +1137,25 @@ textarea {
 .card-detail-footer a {
   color: var(--accent);
 }
+
+.deck-section-title {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.deck-section-title span,
+.count-controls strong,
+.result-count,
+.deck-curve-bars strong {
+  font-family: var(--font-terminal);
+  font-variant-numeric: tabular-nums;
+}
+
+.deck-row:focus-within,
+.deck-row:hover {
+  border-color: var(--card-accent, var(--cyan));
+}
+
+.deck-browser-callout {
+  background: linear-gradient(105deg, color-mix(in srgb, var(--cyan) 9%, var(--surface)), var(--surface));
+}

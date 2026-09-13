@@ -19,13 +19,14 @@ struct DeckEditor: View {
                 List {
                     Section {
                         LabeledContent("Main deck", value: "\(deck.mainCount) \(deck.mainCount == 1 ? "card" : "cards")")
+                            .font(.system(.headline, design: .monospaced)).foregroundStyle(GigsmithTheme.command)
                         if let report {
                             Label(report.legal ? "Deck is legal" : "\(report.errors.count) issues to resolve", systemImage: report.legal ? "checkmark.seal" : "exclamationmark.triangle")
                                 .foregroundStyle(report.legal ? .green : .orange)
                         }
                         NavigationLink("Validation and RAM") { validationView }
                         NavigationLink("Opening hand and analysis") { AnalysisView(engine: library.engine, deck: deck) }
-                    }
+                    }.gigsmithPanel()
                     Section {
                         NavigationLink {
                             CardBrowser(engine: library.engine, deck: self.deck) { card, count in
@@ -33,7 +34,7 @@ struct DeckEditor: View {
                                 current.setCount(for: card, count: count)
                                 attempt { try library.update(current) }
                             }
-                        } label: { Label("Add cards", systemImage: "plus.rectangle.on.rectangle") }
+                        } label: { Label("Add cards", systemImage: "plus.rectangle.on.rectangle").font(.headline).foregroundStyle(GigsmithTheme.accent) }
                     }
                     entries("Legends", entries: deck.legends)
                     entries("Main deck", entries: deck.main)
@@ -95,8 +96,8 @@ struct DeckEditor: View {
                             guard var deck else { return }
                             deck.setCount(for: card, count: count)
                             attempt { try library.update(deck) }
-                        }), in: 0...max(100, entry.count)).accessibilityLabel("Copies of \(card.display_name)")
-                    }
+                        }), in: 0...max(100, entry.count)).monospacedDigit().accessibilityLabel("Copies of \(card.display_name)")
+                    }.gigsmithPanel()
                 } else {
                     VStack(alignment: .leading) {
                         Text("Unknown card: \(entry.cardId)")

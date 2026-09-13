@@ -21,7 +21,7 @@ async function cardSearch(page: Page) {
   const mobileSearch = page.getByRole("search", { name: "Card search" }).getByRole("searchbox", { name: "Search cards" });
   return await mobileSearch.isVisible()
     ? mobileSearch
-    : page.getByRole("textbox", { name: "Search", exact: true });
+    : page.getByRole("searchbox", { name: "Search", exact: true });
 }
 
 async function showAdvancedCardFilters(page: Page) {

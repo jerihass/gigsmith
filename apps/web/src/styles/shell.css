@@ -84,7 +84,7 @@ main {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.76rem;
   font-weight: 800;
-  letter-spacing: 0;
+  letter-spacing: 0.08em;
   margin-bottom: 6px;
   text-transform: uppercase;
 }
@@ -203,7 +203,10 @@ main {
   justify-content: space-between;
   gap: 24px;
   border-bottom: 1px solid var(--border);
-  border-top: 3px solid var(--cyan);
+  border-top: 3px solid var(--accent);
+  background: linear-gradient(110deg, color-mix(in srgb, var(--cyan) 7%, transparent), transparent 65%);
+  position: relative;
+  padding-inline: 20px;
   padding-top: 20px;
   padding-bottom: 24px;
 }
@@ -280,11 +283,17 @@ main {
   color: var(--muted);
   min-height: 44px;
   padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-terminal);
+  font-size: 0.82rem;
 }
 
 .app-navigation [role="tab"][aria-selected="true"] {
-  border-bottom-color: var(--cyan);
-  color: var(--text);
+  border-bottom-color: var(--accent);
+  background: color-mix(in srgb, var(--cyan) 10%, var(--surface));
+  color: var(--accent);
   font-weight: 800;
 }
 
@@ -296,7 +305,7 @@ main {
 }
 
 .app-navigation [role="tab"][aria-selected="true"]:hover {
-  border-bottom-color: var(--cyan);
+  border-bottom-color: var(--accent);
 }
 
 .app-navigation [role="tab"]:focus-visible {
@@ -313,7 +322,7 @@ main {
   font-size: 0.78rem;
   font-weight: 700;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  letter-spacing: 0;
+  letter-spacing: 0.08em;
   margin: 0 0 8px;
   text-transform: uppercase;
 }
@@ -334,6 +343,14 @@ h1 {
   text-shadow: 2px 2px 0 color-mix(in srgb, var(--cyan) 35%, transparent);
 }
 
+.app-header h1 {
+  font-size: 3.65rem;
+  font-weight: 900;
+  letter-spacing: -0.065em;
+  text-transform: uppercase;
+  font-style: italic;
+}
+
 h2 {
   font-size: 1.05rem;
   margin-bottom: 14px;
@@ -343,7 +360,7 @@ h3 {
   color: var(--muted-strong);
   font-size: 0.82rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  letter-spacing: 0;
+  letter-spacing: 0.08em;
   margin: 20px 0 8px;
   text-transform: uppercase;
 }
@@ -369,4 +386,45 @@ h3 {
   gap: 16px;
   grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.2fr);
   margin-bottom: 14px;
+}
+
+.app-header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  right: 0;
+  width: 88px;
+  height: 4px;
+  background: repeating-linear-gradient(120deg, var(--cyan) 0 6px, transparent 6px 10px);
+  pointer-events: none;
+}
+
+.brand-signature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font: 0.68rem var(--font-terminal);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 12px;
+}
+
+.brand-signature::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--cyan);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--cyan) 45%, transparent);
+}
+
+.status {
+  font-family: var(--font-terminal);
+  font-size: 0.82rem;
+  border: 1px solid currentColor;
+}
+
+.active-deck-context span {
+  font-family: var(--font-terminal);
+  letter-spacing: 0.08em;
 }

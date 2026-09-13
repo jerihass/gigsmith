@@ -12,7 +12,7 @@ struct AnalysisView: View {
         List {
             Section("Repeatable sample") {
                 TextField("Seed", text: $seed).autocorrectionDisabled().textInputAutocapitalization(.never)
-                Button("Draw and analyze", systemImage: "hand.draw") { analyze() }
+                Button("Draw and analyze", systemImage: "hand.draw") { analyze() }.font(.headline)
                 Text("The same deck and seed produce the same hand. Change the seed for a different sample.").font(.footnote).foregroundStyle(.secondary)
             }
             if let failure { Section("Analysis unavailable") { Text(failure) } }

@@ -838,6 +838,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
         <div>
           <p className="eyebrow">Unofficial Cyberpunk TCG companion</p>
           <h1>Gigsmith</h1>
+          <span className="brand-signature">Build / Analyze / Play</span>
         </div>
         <div className="header-context">
           <div className="active-deck-context">

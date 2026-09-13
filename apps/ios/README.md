@@ -46,7 +46,8 @@ xcodebuild -project apps/ios/Gigsmith.xcodeproj -scheme Gigsmith \
 - Persistent match tracker: gain Gigs, enter/change die values, record resolved steals,
   advance turns, and see Street Cred, overtime, and winner status. Match undo includes
   starting a new match; corrupt or incompatible saves are preserved.
-- Adaptive cyan theme, readable light/dark surfaces, and card-color markers; Settings
+- Cyberpunk workbench with a subtle circuit grid, cyan framing, yellow highlights,
+  terminal-style metadata, and adaptive light/dark card-color markers; Settings
   offers System, Dark and Light appearances.
 - Optional card artwork with offline disk caching, coalesced requests, a 100 MiB limit,
   and a clear-cache control. Artwork remains off until explicitly enabled in Settings.

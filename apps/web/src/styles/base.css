@@ -4,6 +4,7 @@
   background: #080a0b;
   color: #f2f6f5;
   --page: #080a0b;
+  --font-terminal: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --surface: #101416;
   --surface-raised: #151a1d;
   --surface-control: #0b0e10;
@@ -138,6 +139,11 @@ body {
   min-height: 100vh;
   min-height: 100svh;
   background: var(--page);
+  background-image:
+    radial-gradient(ellipse at 90% 0%, color-mix(in srgb, var(--cyan) 8%, transparent), transparent 45%),
+    linear-gradient(color-mix(in srgb, var(--cyan) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--cyan) 3%, transparent) 1px, transparent 1px);
+  background-size: auto, 48px 48px, 48px 48px;
   color: var(--text);
 }
 
@@ -200,4 +206,21 @@ button.danger {
 ::selection {
   background: var(--cyan);
   color: var(--selection-ink);
+}
+
+/* Quiet geometry keeps the interface readable during long sessions. */
+button.primary {
+  border-radius: 0;
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--accent-ink) 30%, transparent);
+}
+
+button:active:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }

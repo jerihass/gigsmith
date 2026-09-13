@@ -1,4 +1,5 @@
 import { useEffect, useRef, type KeyboardEvent } from "react";
+import { Layers, Search, ChartNoAxesCombined, NotebookPen, Crosshair, Printer, ArrowLeftRight } from "lucide-react";
 import { appViews, type AppView } from "../appViews";
 
 const labels: Record<AppView, string> = {
@@ -10,6 +11,8 @@ const labels: Record<AppView, string> = {
   print: "Print",
   transfer: "Transfer"
 };
+
+const icons = { deck: Layers, cards: Search, analysis: ChartNoAxesCombined, journal: NotebookPen, gigs: Crosshair, print: Printer, transfer: ArrowLeftRight };
 
 export function AppNavigation({ activeView, onChange }: { activeView: AppView; onChange: (view: AppView) => void }) {
   const navigationRef = useRef<HTMLElement>(null);
@@ -47,18 +50,21 @@ export function AppNavigation({ activeView, onChange }: { activeView: AppView; o
   return (
     <nav className="app-navigation" aria-label="Gigsmith tools" ref={navigationRef}>
       <div role="tablist" aria-label="Tool views">
-        {appViews.map((view) => (
-          <button
-            id={`app-tab-${view}`}
-            key={view}
-            role="tab"
-            aria-controls={`app-panel-${view}`}
-            aria-selected={activeView === view}
-            tabIndex={activeView === view ? 0 : -1}
-            onClick={() => onChange(view)}
-            onKeyDown={(event) => handleKeyDown(event, view)}
-          >{labels[view]}</button>
-        ))}
+        {appViews.map((view) => {
+          const Icon = icons[view];
+          return (
+            <button
+              id={`app-tab-${view}`}
+              key={view}
+              role="tab"
+              aria-controls={`app-panel-${view}`}
+              aria-selected={activeView === view}
+              tabIndex={activeView === view ? 0 : -1}
+              onClick={() => onChange(view)}
+              onKeyDown={(event) => handleKeyDown(event, view)}
+            ><Icon size={16} aria-hidden="true" /><span>{labels[view]}</span></button>
+          );
+        })}
       </div>
     </nav>
   );

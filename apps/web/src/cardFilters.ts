@@ -24,6 +24,7 @@ export interface CardFilters {
   ram: NumberFilter;
   cost: NumberFilter;
   set: CardSetFilter;
+  rarity: TextListFilter;
   classification: TextListFilter;
   keyword: TextListFilter;
   sellable: SellableFilter;
@@ -58,6 +59,11 @@ export function textListFilterOptions(
   for (const card of cards) {
     for (const value of card[field]) values.add(value);
   }
+  return ["Any", ...[...values].sort((left, right) => left.localeCompare(right))];
+}
+
+export function rarityFilterOptions(cards: Card[]): TextListFilter[] {
+  const values = new Set(cards.map((card) => card.rarity ?? "Unknown"));
   return ["Any", ...[...values].sort((left, right) => left.localeCompare(right))];
 }
 
@@ -123,6 +129,7 @@ export function filterCards(cards: Card[], filters: CardFilters): Card[] {
     if (filters.type !== "Any" && card.card_type !== filters.type) return false;
     if (!fieldMatchesNumberFilter(card.ram, filters.ram)) return false;
     if (!fieldMatchesNumberFilter(card.cost, filters.cost)) return false;
+    if (filters.rarity !== "Any" && (card.rarity ?? "Unknown") !== filters.rarity) return false;
     if (filters.set !== "Any" && !cardHasSet(card, filters.set)) return false;
     if (filters.classification !== "Any" && !card.classifications.includes(filters.classification)) return false;
     if (filters.keyword !== "Any" && !card.keywords.includes(filters.keyword)) return false;

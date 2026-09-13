@@ -9,12 +9,18 @@ struct CardBrowser: View {
     @State private var query = ""
     @State private var type = "All"
     @State private var color = "All"
+    @State private var rarity = "All"
     @State private var report: ValidationReport?
     @State private var reportFailure: String?
     @State private var showReport = false
 
+    private var rarityOptions: [String] {
+        ["All"] + Set(engine.cards.map { $0.rarity ?? "Unknown" }).sorted()
+    }
+
     private var filtered: [Card] {
         engine.cards.filter { card in
+            (rarity == "All" || (card.rarity ?? "Unknown") == rarity) &&
             (type == "All" || card.card_type == type) && (color == "All" || card.color == color) &&
             (query.isEmpty || "\(card.display_name) \(card.rules_text ?? "") \(card.classifications.joined(separator: " "))".localizedStandardContains(query))
         }
@@ -23,6 +29,7 @@ struct CardBrowser: View {
         List {
             Section {
                 Picker("Card type", selection: $type) { ForEach(["All", "Legend", "Unit", "Program", "Gear"], id: \.self) { Text($0) } }
+                Picker("Rarity", selection: $rarity) { ForEach(rarityOptions, id: \.self) { Text($0) } }
                 Picker("Color", selection: $color) { ForEach(["All", "Red", "Yellow", "Green", "Blue", "Colorless"], id: \.self) { Text($0) } }
             }
             Section("\(filtered.count) cards") {

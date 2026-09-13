@@ -430,3 +430,21 @@ test("connects deck Gig goals with exact roll and current-board odds", async ({ 
   await expect(odds).toContainText(/Your Gig values: [1-4]/);
   await expect(odds).not.toContainText(/Rival Gig values: [1-9]/);
 });
+
+test("filters cards by rarity and clears the selection", async ({ page }) => {
+  await (await cardSearch(page)).fill("Chrome Reverie");
+  await showAdvancedCardFilters(page);
+  await page.getByRole("combobox", { name: "Rarity", exact: true }).selectOption("Rare");
+  await applyAdvancedCardFilters(page);
+  await expect(cardResult(page, "Chrome Reverie")).toHaveCount(0);
+  await showAdvancedCardFilters(page);
+  await page.getByRole("combobox", { name: "Rarity", exact: true }).selectOption("Common");
+  await applyAdvancedCardFilters(page);
+  await expect(cardResult(page, "Chrome Reverie")).toBeVisible();
+  await showAdvancedCardFilters(page);
+  await page.getByRole("combobox", { name: "Rarity", exact: true }).selectOption("Common");
+  await page.getByRole("button", { name: "Clear filters", exact: true }).click();
+  await expect(page.getByRole("combobox", { name: "Rarity", exact: true })).toHaveValue("Any");
+  await applyAdvancedCardFilters(page);
+  await expect(cardResult(page, "Chrome Reverie")).toBeVisible();
+});

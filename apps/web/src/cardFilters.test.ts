@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { cyberpunkCardDb } from "@gigsmith/card-data";
 import { isSellableCard } from "@gigsmith/data-contracts";
 import budgets from "../performance-budgets.json" with { type: "json" };
-import { browseCards, cardSetFilterOptions, filterCards, filterCardsByRamCompatibility, numberFilterOptions, textListFilterOptions } from "./cardFilters";
+import { browseCards, rarityFilterOptions, cardSetFilterOptions, filterCards, filterCardsByRamCompatibility, numberFilterOptions, textListFilterOptions } from "./cardFilters";
 
 const defaultFilters = {
   query: "",
@@ -11,6 +11,7 @@ const defaultFilters = {
   ram: "Any",
   cost: "Any",
   set: "Any",
+  rarity: "Any",
   classification: "Any",
   keyword: "Any",
   sellable: "Any" as const
@@ -255,5 +256,26 @@ describe("browseCards", () => {
     console.log(`[performance] ${budgets.expectedCardCountTarget}-card filter computation averaged ${averageMs.toFixed(3)} ms`);
 
     expect(averageMs).toBeLessThanOrEqual(budgets.interactions.filterComputationAtTargetMs);
+  });
+});
+
+describe("rarity filtering", () => {
+  const source = cyberpunkCardDb.cards[0];
+  const cards = [
+    { ...source, id: "common", rarity: "Common", color: "Red" as const },
+    { ...source, id: "rare", rarity: "Rare", color: "Blue" as const },
+    { ...source, id: "unknown", rarity: null }
+  ];
+
+  it("derives unique options from the database, including missing rarity", () => {
+    expect(rarityFilterOptions([...cards, cards[0]])).toEqual(["Any", "Common", "Rare", "Unknown"]);
+    expect(rarityFilterOptions([])).toEqual(["Any"]);
+  });
+
+  it("matches rarity exactly and combines it with other filters", () => {
+    expect(filterCards(cards, defaultFilters)).toEqual(cards);
+    expect(filterCards(cards, { ...defaultFilters, rarity: "Rare" }).map(card => card.id)).toEqual(["rare"]);
+    expect(filterCards(cards, { ...defaultFilters, rarity: "Rare", color: "Red" })).toEqual([]);
+    expect(filterCards(cards, { ...defaultFilters, rarity: "Unknown" }).map(card => card.id)).toEqual(["unknown"]);
   });
 });

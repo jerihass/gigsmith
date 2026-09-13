@@ -67,6 +67,9 @@ export interface CardBrowserProps {
   onRamFilterChange: (filter: NumberFilter) => void;
   costFilter: NumberFilter;
   onCostFilterChange: (filter: NumberFilter) => void;
+  rarityFilter: TextListFilter;
+  onRarityFilterChange: (filter: TextListFilter) => void;
+  rarityOptions: TextListFilter[];
   setFilter: CardSetFilter;
   onSetFilterChange: (filter: CardSetFilter) => void;
   classificationFilter: TextListFilter;
@@ -147,6 +150,9 @@ export function CardBrowser({
   onRamFilterChange,
   costFilter,
   onCostFilterChange,
+  rarityFilter,
+  onRarityFilterChange,
+  rarityOptions,
   setFilter,
   onSetFilterChange,
   classificationFilter,
@@ -221,6 +227,12 @@ export function CardBrowser({
           <span>Type</span>
           <select value={typeFilter} onChange={(event) => onTypeFilterChange(event.target.value as CardTypeFilter)}>
             {typeOptions.map((option) => <option key={option}>{option}</option>)}
+          </select>
+        </label>
+        <label className="field">
+          <span>Rarity</span>
+          <select value={rarityFilter} onChange={(event) => onRarityFilterChange(event.target.value)}>
+            {rarityOptions.map((option) => <option key={option}>{option}</option>)}
           </select>
         </label>
         <label className="field">

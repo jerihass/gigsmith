@@ -18,6 +18,7 @@ import { loadAppView, saveAppView, type AppView } from "./appViews";
 import {
   browseCards,
   cardSetFilterOptions,
+  rarityFilterOptions,
   numberFilterOptions,
   textListFilterOptions,
   type CardSort,
@@ -195,6 +196,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const [typeFilter, setTypeFilter] = useState<CardTypeFilter>("Any");
   const [ramFilter, setRamFilter] = useState<NumberFilter>("Any");
   const [costFilter, setCostFilter] = useState<NumberFilter>("Any");
+  const [rarityFilter, setRarityFilter] = useState<TextListFilter>("Any");
   const [setFilter, setSetFilter] = useState<CardSetFilter>("Any");
   const [classificationFilter, setClassificationFilter] = useState<TextListFilter>("Any");
   const [keywordFilter, setKeywordFilter] = useState<TextListFilter>("Any");
@@ -261,6 +263,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
   const detailCard = detailCardId ? cardsById.get(detailCardId) : undefined;
   const ramOptions = useMemo(() => numberFilterOptions(cardDb.cards, "ram"), [cardDb]);
   const costOptions = useMemo(() => numberFilterOptions(cardDb.cards, "cost"), [cardDb]);
+  const rarityOptions = useMemo(() => rarityFilterOptions(cardDb.cards), [cardDb]);
   const setOptions = useMemo(() => cardSetFilterOptions(cardDb.cards), [cardDb]);
   const classificationOptions = useMemo(() => textListFilterOptions(cardDb.cards, "classifications"), [cardDb]);
   const keywordOptions = useMemo(() => textListFilterOptions(cardDb.cards, "keywords"), [cardDb]);
@@ -269,6 +272,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     typeFilter !== "Any" ? { key: "type", label: typeFilter, clear: () => setTypeFilter("Any") } : undefined,
     ramFilter !== "Any" ? { key: "ram", label: `RAM ${ramFilter === "none" ? "None" : ramFilter}`, clear: () => setRamFilter("Any") } : undefined,
     costFilter !== "Any" ? { key: "cost", label: `Cost ${costFilter === "none" ? "None" : costFilter}`, clear: () => setCostFilter("Any") } : undefined,
+    rarityFilter !== "Any" ? { key: "rarity", label: `Rarity ${rarityFilter}`, clear: () => setRarityFilter("Any") } : undefined,
     setFilter !== "Any" ? { key: "set", label: setOptions.find((option) => option.value === setFilter)?.label ?? setFilter, clear: () => setSetFilter("Any") } : undefined,
     classificationFilter !== "Any" ? { key: "classification", label: classificationFilter, clear: () => setClassificationFilter("Any") } : undefined,
     keywordFilter !== "Any" ? { key: "keyword", label: keywordFilter, clear: () => setKeywordFilter("Any") } : undefined,
@@ -282,6 +286,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     setRamFilter("Any");
     setCostFilter("Any");
     setSetFilter("Any");
+    setRarityFilter("Any");
     setClassificationFilter("Any");
     setKeywordFilter("Any");
     setSellableFilter("Any");
@@ -392,6 +397,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
           ram: ramFilter,
           cost: costFilter,
           set: setFilter,
+          rarity: rarityFilter,
           classification: classificationFilter,
           keyword: keywordFilter,
           sellable: sellableFilter
@@ -420,6 +426,7 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
     ramCompatibilityFilter,
     ramFilter,
     setFilter,
+    rarityFilter,
     sellableFilter,
     typeFilter
   ]);
@@ -1251,6 +1258,9 @@ function App({ initialLibrary, initialCardDatabase }: { initialLibrary: DeckLibr
             onRamFilterChange={setRamFilter}
             costFilter={costFilter}
             onCostFilterChange={setCostFilter}
+            rarityFilter={rarityFilter}
+            onRarityFilterChange={setRarityFilter}
+            rarityOptions={rarityOptions}
             setFilter={setFilter}
             onSetFilterChange={setSetFilter}
             classificationFilter={classificationFilter}

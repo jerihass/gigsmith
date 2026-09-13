@@ -7,6 +7,7 @@ public struct Card: Codable, Identifiable, Equatable, Sendable {
     public let set: CardSet
     public let display_name: String
     public let color: String
+    public let rarity: String?
     public let card_type: String
     public let rules_text: String?
     public let cost: Int?
